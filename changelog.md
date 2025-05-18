@@ -1,6 +1,7 @@
 # Retribution v1.5.0
 
 ## Features/Improvements
+* **[Campaigns]** Ability to define invisible FOBs
 * **[Plugins]** Improvements to AI support for EW Script 2.0
 * **[Config]** New preference setting to trigger the first-start window on every start (could help in scenarios multiple Retribution instances need to run concurrently)
 
