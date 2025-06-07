@@ -9,6 +9,13 @@
 ## Fixes
 * **[Flight Plans]** Fixed a bug when a package was created with only escort flights
 
+
+# Retribution v1.4.1 (hotfix)
+
+## Fixes
+* **[Plugins]** Avoid injecting jamming-tasks for player-controller aircraft when EW-Jamming plugin is disabled
+
+
 # Retribution v1.4.0
 
 ## Features/Improvements
