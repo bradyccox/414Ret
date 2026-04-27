@@ -8,11 +8,11 @@ from typing import Iterator, Optional, TYPE_CHECKING, Type, Dict, Any
 
 from dcs.unittype import FlyingType
 
+from game.ato.flighttype import FlightType
 from game.data.weapons import Pylon, Weapon, WeaponType
 from game.dcs.aircrafttype import AircraftType
 from game.factions.faction import Faction
-from .flighttype import FlightType
-from ..persistency import prefer_liberation_payloads
+from game.persistency import prefer_liberation_payloads
 
 if TYPE_CHECKING:
     from .flight import Flight
@@ -352,13 +352,22 @@ class Loadout:
         Returns:
             The payload with adjusted weapon settings, or the original if no adjustments apply
         """
-        if not target or not hasattr(target, "units"):
+        if not target:
             return payload
 
+        from game.theater import TheaterGroundObject
+        from game.transfers import Convoy
+
         targets: tuple[Any, ...] = ()
-        for unit in target.units:
-            if unit.type and unit.type.id:
-                targets += (unit.type.id,)
+        unit: Any
+        if isinstance(target, Convoy):
+            for unit in target.units:
+                if unit.dcs_unit_type and unit.dcs_unit_type.id:
+                    targets += (unit.dcs_unit_type.id,)
+        elif isinstance(target, TheaterGroundObject):
+            for unit in target.units:
+                if unit.type and unit.type.id:
+                    targets += (unit.type.id,)
 
         if not targets:
             return payload
