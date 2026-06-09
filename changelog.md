@@ -16,6 +16,7 @@
 * **[UX]** Show an "End of Mission Detected, processing Mission Data" busy dialog while turn results are processed, so the wait is not mistaken for a missed detection
 
 ## Fixes
+* **[Flight Plans]** Fixed IndexError crash when a flight exits combat at its last waypoint
 * **[Mission]** Reliably auto-detect end of mission, even when DCS wrote the final state.json before the wait dialog started watching
 * **[Performance]** Faster post-mission turn processing
 * **[AirWing]** Track per-squadron campaign aircraft stats (initial/destroyed/purchased, save-compatible) and expose pilot experience level and living/dead pilot views for the UI
