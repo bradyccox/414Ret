@@ -17,6 +17,7 @@
 
 ## Fixes
 * **[Flight Plans]** Fixed IndexError crash when a flight exits combat at its last waypoint
+* **[AI]** Fixed enemy AWACS orbit placement — AI AWACS (A-50, etc.) was orbiting toward the threat boundary and loitering near the front line. It now orbits in the opposite direction, deep inside friendly airspace. Player-coalition AWACS keeps the existing forward-leaning behavior.
 * **[Mission]** Reliably auto-detect end of mission, even when DCS wrote the final state.json before the wait dialog started watching
 * **[Performance]** Faster post-mission turn processing
 * **[AirWing]** Track per-squadron campaign aircraft stats (initial/destroyed/purchased, save-compatible) and expose pilot experience level and living/dead pilot views for the UI
