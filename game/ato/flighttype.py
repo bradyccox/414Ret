@@ -50,6 +50,7 @@ class FlightType(Enum):
     BAI = "BAI"
     SWEEP = "Fighter sweep"
     SCRAMBLE = "Scramble"  # Dedicated GCI interceptor — reactive CAP, WeaponHold until Lua fires
+    JAMMING = "Jamming"   # Standoff EW orbit — C-130J holds racetrack outside threat zone, WeaponHold
     OCA_RUNWAY = "OCA/Runway"
     OCA_AIRCRAFT = "OCA/Aircraft"
     AEWC = "AEW&C"
@@ -128,6 +129,7 @@ class FlightType(Enum):
             FlightType.STRIKE: AirEntity.ATTACK_STRIKE,
             FlightType.SWEEP: AirEntity.FIGHTER,
             FlightType.SCRAMBLE: AirEntity.FIGHTER,
+            FlightType.JAMMING: AirEntity.ELECTRONIC_COMBAT_JAMMER,
             FlightType.TARCAP: AirEntity.FIGHTER,
             FlightType.TRANSPORT: AirEntity.UTILITY,
             FlightType.PRETENSE_CARGO: AirEntity.UTILITY,

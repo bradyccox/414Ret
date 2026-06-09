@@ -94,6 +94,8 @@ class AircraftBehavior:
             self.configure_runway_attack(group, flight)
         elif self.task == FlightType.OCA_AIRCRAFT:
             self.configure_oca_strike(group, flight)
+        elif self.task == FlightType.JAMMING:
+            self.configure_jamming(group, flight)
         elif self.task in [
             FlightType.TRANSPORT,
             FlightType.AIR_ASSAULT,
@@ -484,6 +486,27 @@ class AircraftBehavior:
             restrict_jettison=True,
             mission_uses_gun=False,
         )
+
+    def configure_jamming(self, group: FlyingGroup[Any], flight: Flight) -> None:
+        # Standoff EW orbit — C-130J holds a racetrack outside the threat zone
+        # (AewcFlightPlan) with WeaponHold.  c130j_mission_systems.lua drives
+        # jamming and ISR at runtime.
+        self.configure_task(flight, group, AWACS)
+        if not isinstance(flight.flight_plan, AewcFlightPlan):
+            logging.error(
+                f"Cannot configure jamming tasks for {flight} because it does not "
+                "have an AewcFlightPlan. Check FlightPlanBuilderTypes for JAMMING."
+            )
+            return
+        self.configure_behavior(
+            flight,
+            group,
+            react_on_threat=OptReactOnThreat.Values.EvadeFire,
+            roe=OptROE.Values.WeaponHold,
+            restrict_jettison=True,
+            mission_uses_gun=False,
+        )
+        group.points[0].tasks.append(AWACSTaskAction())
 
     def configure_transport(self, group: FlyingGroup[Any], flight: Flight) -> None:
         self.configure_task(flight, group, Transport)
