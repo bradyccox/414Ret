@@ -6,6 +6,7 @@ from typing import Type
 from game.ato.flightplans.ibuilder import IBuilder
 from game.ato.flightplans.patrolling import PatrollingFlightPlan, PatrollingLayout
 from game.ato.flightplans.waypointbuilder import WaypointBuilder
+from game.ato.flighttype import FlightType
 from game.utils import Distance, Heading, Speed, knots, meters, nautical_miles
 
 
@@ -34,7 +35,7 @@ class AewcFlightPlan(PatrollingFlightPlan[PatrollingLayout]):
 
 class Builder(IBuilder[AewcFlightPlan, PatrollingLayout]):
     def layout(self) -> PatrollingLayout:
-        racetrack_half_distance = nautical_miles(30).meters
+        racetrack_half_distance = nautical_miles(30)
 
         location = self.package.target
 
@@ -45,40 +46,65 @@ class Builder(IBuilder[AewcFlightPlan, PatrollingLayout]):
         distance_to_threat = meters(
             location.position.distance_to_point(closest_boundary)
         )
-        # Station the orbit safely away from the threat zone.
+
         threat_buffer = nautical_miles(
             self.coalition.game.settings.aewc_threat_buffer_min_distance
         )
+
         if self.threat_zones.threatened(location.position):
-            # Target is inside the threat zone — pull the orbit out to safety,
-            # threat_buffer past the nearest boundary.
+            # Target inside the threat zone — escape to safety.
             orbit_heading = heading_to_threat_boundary
             orbit_distance = distance_to_threat + threat_buffer
-        elif self.coalition.player:
-            # Player-coalition AWACS (Blue): orbit as far forward as possible,
-            # threat_buffer short of the nearest threat boundary.  This keeps
-            # friendly AEW&C close enough to the front for maximum radar coverage.
+        elif self.coalition.player.is_blue:
+            # Player-coalition AWACS: orbit as far forward as the threat buffer
+            # allows for maximum radar coverage of the front.
             orbit_heading = heading_to_threat_boundary
             orbit_distance = distance_to_threat - threat_buffer
         else:
-            # Enemy/AI AWACS (Red): orbit in the OPPOSITE direction — away from
-            # the nearest threat boundary — so it stays deep inside protected
-            # airspace.  The A-50's long radar range means it can cover the
-            # target area from well inside friendly territory; there is no need
-            # to push it toward the front line.
+            # Enemy/AI AWACS: orbit deep inside friendly airspace, away from
+            # the threat boundary.  Long radar range means it can cover the
+            # front without pushing toward it.
             orbit_heading = heading_to_threat_boundary.opposite
             orbit_distance = threat_buffer
 
-        racetrack_center = location.position.point_from_heading(
+        base_center = location.position.point_from_heading(
             orbit_heading.degrees, orbit_distance.meters
         )
 
-        racetrack_start = racetrack_center.point_from_heading(
-            orbit_heading.right.degrees, racetrack_half_distance
+        # When multiple AWACS are planned, spread their orbits laterally along
+        # the front so each covers a different section rather than stacking.
+        # Orbits are spaced one full racetrack width (2 * half_distance) apart,
+        # centered on the natural orbit point.
+        all_awacs = sorted(
+            [
+                f
+                for p in self.coalition.ato.packages
+                for f in p.flights
+                if f.flight_type is FlightType.AEWC
+            ],
+            key=lambda f: str(f.id),
         )
+        n = len(all_awacs)
+        try:
+            idx = next(i for i, f in enumerate(all_awacs) if f is self.flight)
+        except StopIteration:
+            idx = 0
 
+        lateral_m = (idx - (n - 1) / 2) * (racetrack_half_distance * 2).meters
+        if lateral_m >= 0:
+            racetrack_center = base_center.point_from_heading(
+                orbit_heading.right.degrees, lateral_m
+            )
+        else:
+            racetrack_center = base_center.point_from_heading(
+                orbit_heading.left.degrees, -lateral_m
+            )
+
+        racetrack_start = racetrack_center.point_from_heading(
+            orbit_heading.right.degrees, racetrack_half_distance.meters
+        )
         racetrack_end = racetrack_center.point_from_heading(
-            orbit_heading.left.degrees, racetrack_half_distance
+            orbit_heading.left.degrees, racetrack_half_distance.meters
         )
 
         builder = WaypointBuilder(self.flight)
