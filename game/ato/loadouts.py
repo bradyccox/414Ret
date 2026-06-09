@@ -316,7 +316,15 @@ class Loadout:
         for name in cls.default_loadout_names_for(task):
             # This operation is cached, but must be called before load_by_name will
             # work.
-            dcs_unit_type.load_payloads()
+            try:
+                dcs_unit_type.load_payloads()
+            except ValueError as e:
+                logging.warning(
+                    "Failed to load payloads for %s (skipping): %s",
+                    dcs_unit_type.id,
+                    e,
+                )
+                return cls.empty_loadout()
             payload = dcs_unit_type.loadout_by_name(name)
             if payload is not None:
                 if target:
