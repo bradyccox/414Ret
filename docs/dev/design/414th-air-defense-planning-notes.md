@@ -63,9 +63,18 @@ Done in the isolated worktree branch `air-defense-planning-rework`:
   Campaign Doctrine setting (default on) guarantees a RED QRA pool even when
   untasked OPFOR aircraft are otherwise disabled (only the dormant interceptors
   spawn). `LuaGenerator` emits `dcsRetribution.scramble_border` (buffered convex
-  hull of RED CPs, mitre join, 30 NM forward). `reactive_scramble.lua` (v2.1)
+  hull of RED CPs, mitre join, 30 NM forward). `reactive_scramble.lua` (v2.2)
   wakes QRA on border penetration (point-in-polygon), with radar range as the
-  fallback when no border is supplied.
+  fallback when no border is supplied. Launch is task-driven: pool groups spawn
+  route-less (single `TakeOffParking`, uncontrolled), so `StartUncontrolled` only
+  starts engines — the `EngageTargets` task (applied via the DCS controller, since
+  MOOSE `GROUP` has no `GetController`) drives takeoff. ~100 NM pursuit range.
+  - **QRA reserve (planning side).** The auto-planner was committing *every* RED
+    air-to-air airframe to packages, so `squadron.untasked_aircraft` hit 0 and the
+    pool was empty. `Squadron.scramble_reserve` holds back N aircraft (setting
+    `reactive_scramble_reserve`, default 2) per RED A/A-capable squadron in
+    `can_auto_assign_mission`, so they stay untasked and become the interceptor
+    pool. Per-airfield count is still capped by `MAX_SCRAMBLE_GROUPS_PER_AIRFIELD`.
 - **Doctrine setting fixes (Workstream E).**
   - Fixed the OPFOR/aggressiveness direction inconsistency. The setting is the
     *ratio of threat OPFOR ignores* (0 = defend everything, 100 = fully

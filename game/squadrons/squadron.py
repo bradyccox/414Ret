@@ -369,6 +369,11 @@ class Squadron:
             return False
         if this_turn and not self.can_fulfill_flight(size):
             return False
+        # Hold back the QRA reserve (aircraft only, not pilots) so the planner
+        # stops short of committing every air-to-air airframe and some remain
+        # untasked to form the reactive-scramble interceptor pool.
+        if this_turn and self.untasked_aircraft < size + self.scramble_reserve:
+            return False
 
         if task in [FlightType.ESCORT, FlightType.SEAD_ESCORT]:
             if heli and not self.aircraft.helicopter and not self.aircraft.lha_capable:
@@ -420,6 +425,27 @@ class Squadron:
 
     def can_fulfill_flight(self, count: int) -> bool:
         return self.can_provide_pilots(count) and self.untasked_aircraft >= count
+
+    @property
+    def scramble_reserve(self) -> int:
+        """Aircraft held back from the auto-planner to stay on the ramp as QRA.
+
+        Without this the planner commits every air-to-air airframe to packages,
+        leaving nothing untasked for reactive_scramble.lua's interceptor pool.
+        Only RED, air-to-air-capable squadrons reserve, and only while reactive
+        scramble is enabled.
+        """
+        if (
+            not self.settings.enable_reactive_scramble
+            or not self.coalition.player.is_red
+        ):
+            return 0
+        if not (
+            self.aircraft.capable_of(FlightType.BARCAP)
+            or self.aircraft.capable_of(FlightType.SWEEP)
+        ):
+            return 0
+        return self.settings.reactive_scramble_reserve
 
     def refund_orders(self, count: Optional[int] = None) -> None:
         if count is None:

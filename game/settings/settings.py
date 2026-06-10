@@ -229,6 +229,21 @@ class Settings:
             " otherwise disabled (only the dormant interceptors are spawned)."
         ),
     )
+    reactive_scramble_reserve: int = bounded_int_option(
+        "Reactive scramble reserve (aircraft per RED A/A squadron)",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        default=2,
+        min=0,
+        max=8,
+        detail=(
+            "How many air-to-air-capable aircraft each RED squadron holds back"
+            " from the auto-planner so they remain on the ramp as QRA"
+            " interceptors. 0 lets the planner commit every aircraft (no reserve),"
+            " which is why squadrons were leaving no interceptors. Capped per"
+            " airfield by the dormant-interceptor limit."
+        ),
+    )
     desired_awacs_mission_duration: timedelta = minutes_option(
         "Desired AWACS on-station time",
         page=CAMPAIGN_DOCTRINE_PAGE,
