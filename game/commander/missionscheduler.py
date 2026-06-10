@@ -34,9 +34,6 @@ class MissionScheduler:
         dca_types = {
             FlightType.BARCAP,
             FlightType.TARCAP,
-            # SCRAMBLE = GCI Scramble — orbit near base like BARCAP so it gets the
-            # same chained end-to-end scheduling rather than random spread timing.
-            FlightType.SCRAMBLE,
         }
 
         previous_cap_end_time: dict[MissionTarget, datetime] = defaultdict(now.replace)
@@ -61,7 +58,9 @@ class MissionScheduler:
             if package.primary_task is FlightType.RECOVERY:
                 continue
             tot = TotEstimator(package).earliest_tot(now)
-            if package.primary_task in dca_types:
+            if package.auto_asap:
+                package.set_tot_asap(now)
+            elif package.primary_task in dca_types:
                 previous_end_time = previous_cap_end_time[package.target]
                 if tot > previous_end_time:
                     # Can't get there exactly on time, so get there ASAP. This
@@ -83,8 +82,6 @@ class MissionScheduler:
                     carrier_barcaps[package.target] += 1
                 elif not is_naval_cp:
                     previous_cap_end_time[package.target] = departure_time
-            elif package.auto_asap:
-                package.set_tot_asap(now)
             elif package.primary_task is FlightType.AEWC:
                 last = previous_aewc_end_time[package.target]
                 package.time_over_target = tot if tot > last else last

@@ -11,9 +11,20 @@ from game.factions.faction import Faction
 
 
 class GroundForcePainter:
+    _missing_livery_warnings: set[tuple[str, Any]] = set()
+
     def __init__(self, faction: Faction, vehicle: Vehicle) -> None:
         self.faction = faction
         self.vehicle = vehicle
+
+    def log_missing_livery_once(self) -> None:
+        key = (self.faction.name, self.vehicle.type)
+        if key in self._missing_livery_warnings:
+            return
+        self._missing_livery_warnings.add(key)
+        logging.warning(
+            f"Faction {self.faction.name} is missing livery for ground unit {self.vehicle.type}"
+        )
 
     def livery_from_faction(self) -> Optional[str]:
         faction = self.faction
@@ -25,13 +36,9 @@ class GroundForcePainter:
             ) is not None:
                 return random.choice(choices)
         except AttributeError:
-            logging.warning(
-                f"Faction {self.faction.name} is missing livery for ground unit {self.vehicle.type}"
-            )
+            self.log_missing_livery_once()
             return None
-        logging.warning(
-            f"Faction {self.faction.name} is missing livery for ground unit {self.vehicle.type}"
-        )
+        self.log_missing_livery_once()
         return None
 
     def determine_livery(self) -> Optional[str]:
@@ -47,9 +54,20 @@ class GroundForcePainter:
 
 
 class NavalForcePainter:
+    _missing_livery_warnings: set[tuple[str, Any]] = set()
+
     def __init__(self, faction: Faction, vessel: Ship) -> None:
         self.faction = faction
         self.vessel = vessel
+
+    def log_missing_livery_once(self) -> None:
+        key = (self.faction.name, self.vessel.type)
+        if key in self._missing_livery_warnings:
+            return
+        self._missing_livery_warnings.add(key)
+        logging.warning(
+            f"Faction {self.faction.name} is missing livery for naval unit {self.vessel.type}"
+        )
 
     def livery_from_faction(self) -> Optional[str]:
         faction = self.faction
@@ -61,13 +79,9 @@ class NavalForcePainter:
             ) is not None:
                 return random.choice(choices)
         except AttributeError:
-            logging.warning(
-                f"Faction {self.faction.name} is missing livery for naval unit {self.vessel.type}"
-            )
+            self.log_missing_livery_once()
             return None
-        logging.warning(
-            f"Faction {self.faction.name} is missing livery for naval unit {self.vessel.type}"
-        )
+        self.log_missing_livery_once()
         return None
 
     def determine_livery(self) -> Optional[str]:

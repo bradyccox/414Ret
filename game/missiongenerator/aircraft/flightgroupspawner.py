@@ -29,7 +29,7 @@ from dcs.unitgroup import (
     PlaneGroup,
 )
 
-from game.ato import Flight
+from game.ato import Flight, FlightType
 from game.ato.flightstate import InFlight
 from game.ato.starttype import StartType
 from game.ato.traveltime import GroundSpeed
@@ -299,6 +299,21 @@ class FlightGroupSpawner:
                     f"Aircraft spawn behavior not implemented for {cp} ({cp.__class__})"
                 )
         except NoParkingSlotError:
+            if (
+                self.flight.flight_type is FlightType.JAMMING
+                and isinstance(cp, Airfield)
+                and self.start_type in {StartType.COLD, StartType.WARM}
+            ):
+                try:
+                    logging.warning(
+                        "No parking slots available for jamming flight. "
+                        "Trying runway start before falling back to air start."
+                    )
+                    self.flight.start_type = StartType.RUNWAY
+                    return self._generate_at_airfield(name, cp)
+                except NoParkingSlotError:
+                    pass
+
             # Generated when there is no place on Runway or on Parking Slots
             logging.warning(
                 "No room on runway or parking slots. Starting from the air."

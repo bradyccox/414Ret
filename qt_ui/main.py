@@ -1,6 +1,7 @@
 import argparse
 import logging
 import ntpath
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -42,6 +43,14 @@ from qt_ui.windows.preferences.QLiberationFirstStartWindow import (
 )
 
 THIS_DIR = Path(__file__).parent
+
+
+def _uses_unsupported_lua_table_indices(lua_text: str) -> bool:
+    local_names = set(re.findall(r"^\s*local\s+([A-Za-z_]\w*)\s*=", lua_text, re.M))
+    return any(
+        re.search(rf"\[\s*{re.escape(name)}\s*\]\s*=", lua_text)
+        for name in local_names
+    )
 
 
 def _patch_pydcs_payload_loader() -> None:
@@ -88,9 +97,19 @@ def _patch_pydcs_payload_loader() -> None:
                     FlyingType._payload_cache[payload_path] == cls.id
                     and payload_path.exists()
                 ):
+                    lua_text = payload_path.read_text()
+                    if _uses_unsupported_lua_table_indices(lua_text):
+                        import logging as _logging
+
+                        _logging.getLogger("pydcs").warning(
+                            "Skipping payload file with unsupported Lua syntax "
+                            "(local variable indices): %s",
+                            payload_path,
+                        )
+                        continue
                     try:
                         payload_main = lua.loads(
-                            payload_path.read_text(),
+                            lua_text,
                             _globals=FlyingType._UnitPayloadGlobals,
                         )
                     except SyntaxError:

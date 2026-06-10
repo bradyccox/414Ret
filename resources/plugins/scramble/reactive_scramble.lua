@@ -1,45 +1,35 @@
 -- ============================================================================
--- REACTIVE SCRAMBLE v1.1  (Retribution GCI Scramble Plugin)
--- Bundled automatically into every Retribution-generated .miz.
+-- REACTIVE SCRAMBLE v2.0  (Retribution GCI Scramble Plugin)
+-- Bundled automatically into every Retribution-generated .miz that has a
+-- non-empty RED untasked-aircraft scramble pool.
 -- ============================================================================
 --
--- Hijacks RED "Scramble" flights (FlightType.SWEEP, value = "Scramble").
--- These flights start with WeaponHold + CAP orbit near their base.
--- This script switches them to WEAPON_FREE + setTask(EngageTargets) when a
--- Blue threat is detected by the RED radar network.
+-- Retribution spawns each RED squadron's leftover ("untasked") aircraft cold on
+-- the ramp as UNCONTROLLED groups — parked, engines off, no route. The mission
+-- generator records the air-to-air-capable ones in dcsRetribution.scramble_pool.
 --
--- BARCAP and TARCAP are never touched — they keep their patrol routes.
--- SEAD flights are explicitly excluded as a safety net.
+-- This script holds those groups dormant until a Blue aircraft is detected by
+-- the RED radar network within CFG_engageRadius, then wakes the nearest
+-- available one (StartUncontrolled) and tasks it to intercept (EngageTargets).
 --
--- ── TWO-MODE OPERATION ──────────────────────────────────────────────────────
---
---  ZONE MODE  — a DCS trigger zone is assigned to the group's airbase:
---    The group holds until a Blue airplane enters its zone, then scrambles.
---    Sources checked in order:
---      1. dcsRetribution.barcap_zones["AirbaseName"] = "ZONE_NAME"
---         (written by Retribution mission generator when zone is set in UI)
---      2. Manual zone named "SCRAMBLE_<AirbaseName>" placed in the ME
---
---  GLOBAL MODE — no zone assigned:
---    Activated immediately at registration; hunts any Blue contact in range.
+-- Cold-ramp behaviour is intentional: an idle group does a full cold start,
+-- taxis, takes off, and hunts. Nothing flies until a threat appears.
 --
 -- ── API NOTES ───────────────────────────────────────────────────────────────
---  ctrl:setTask()  — replaces the entire task/route (used here, not pushTask)
---  ctrl:pushTask() — only adds on top; underlying waypoints survive underneath
---  EngageTargets   — correct DCS task id for air intercept
---  TaskSearchAndEngage — does NOT exist (Gemini hallucination, do not use)
+--  GROUP:StartUncontrolled() — issues the {id='Start'} command to a parked
+--                              uncontrolled group (cold start + taxi + takeoff)
+--  ctrl:setTask()            — replaces the entire task so the group hunts air
+--  EngageTargets             — correct DCS task id for air intercept
 -- ============================================================================
 
 local CFG_scanInterval  = 15      -- seconds between threat scans
 local CFG_engageRadius  = 95000   -- metres (~51 nm)
 local CFG_reengageDelay = 180     -- seconds before a busy group re-qualifies
-
-local CFG_matchStrings   = { "Scramble" }
-local CFG_excludeStrings = { "SEAD" }
+local CFG_spawnDelay    = 1.0     -- seconds between Start command and setTask
 
 -- ── Retribution plugin config override ────────────────────────────────────
--- dcsRetribution.plugins.scramble is written AFTER this script loads, so we
--- apply overrides at T+0 (next tick) when all mission triggers have fired.
+-- If a dcsRetribution.plugins.scramble block exists, apply it on the next tick
+-- after mission-start data triggers have fired.
 -- CFG_scanInterval is intentionally excluded — the SCHEDULER interval is
 -- captured at creation time and cannot be changed after the fact.
 timer.scheduleFunction(function()
@@ -49,8 +39,7 @@ timer.scheduleFunction(function()
     if c.reengageDelay ~= nil then CFG_reengageDelay = c.reengageDelay end
 end, nil, timer.getTime() + 0)
 
-local _groups    = {}   -- name -> record
-local _processed = {}   -- dedup across startup scan + BIRTH events
+local _groups = {}   -- name -> record
 
 -- ── UTILITIES ────────────────────────────────────────────────────────────────
 
@@ -61,55 +50,17 @@ local function dist3D(p1, p2)
     return math.sqrt(dx*dx + dy*dy + dz*dz)
 end
 
--- "Gaziantep Scramble|80|37|Mirage 2000C|" → "Gaziantep"
-local function extractAirbase(groupName)
-    for _, task in ipairs(CFG_matchStrings) do
-        local ab = groupName:match("^(.-)%s+" .. task)
-        if ab and #ab > 0 then return ab end
-    end
-    return nil
-end
-
-local function getCoverageZone(airbaseName)
-    if not airbaseName then return nil end
-    if dcsRetribution and dcsRetribution.barcap_zones then
-        local z = dcsRetribution.barcap_zones[airbaseName]
-        if z then return z end
-    end
-    local manual = "SCRAMBLE_" .. airbaseName
-    if trigger.misc.getZone(manual) then return manual end
-    return nil
-end
-
-local function posInZone(pos, zoneName)
-    local z = trigger.misc.getZone(zoneName)
-    if not z then return false end
-    local dx = pos.x - z.point.x
-    local dz = pos.z - z.point.z
-    return math.sqrt(dx*dx + dz*dz) <= z.radius
-end
-
-local function shouldHijack(name)
-    for _, ex in ipairs(CFG_excludeStrings) do
-        if string.find(name, ex) then return false end
-    end
-    for _, m in ipairs(CFG_matchStrings) do
-        if string.find(name, m) then return true end
-    end
-    return false
-end
-
 -- ── TASK APPLICATION ─────────────────────────────────────────────────────────
 
-local function activateIntercept(rec)
-    rec.group:OptionROEWeaponFree()
-    rec.group:OptionROTEvadeFireAndBoost()
+local function taskIntercept(rec)
+    local mg = GROUP:FindByName(rec.name)
+    if not mg or not mg:IsAlive() then return end
+    rec.group = mg
+    mg:OptionROEWeaponFree()
+    mg:OptionROTEvadeFire()
 
-    local ctrl = rec.group:GetController()
+    local ctrl = mg:GetController()
     if ctrl then
-        -- setTask fully replaces the current task/route so the group stops
-        -- orbiting and immediately hunts Blue air contacts within CFG_engageRadius.
-        -- pushTask would only layer on top, leaving the CAP orbit underneath.
         ctrl:setTask({
             id     = "EngageTargets",
             params = {
@@ -121,67 +72,47 @@ local function activateIntercept(rec)
     end
 end
 
--- ── GROUP REGISTRATION ───────────────────────────────────────────────────────
-
-local function registerGroup(mooseGroup)
-    if not mooseGroup or not mooseGroup:IsAlive() then return end
-    local name = mooseGroup:GetName()
-    if _processed[name] then return end
-    if not shouldHijack(name) then return end
-
-    _processed[name] = true
-
-    local airbase  = extractAirbase(name)
-    local zone     = getCoverageZone(airbase)
-    local zoneMode = (zone ~= nil)
-
-    local rec = {
-        name       = name,
-        group      = mooseGroup,
-        airbase    = airbase or name,
-        zone       = zone,
-        zoneMode   = zoneMode,
-        busy       = false,
-        lastTasked = 0,
-    }
-    _groups[name] = rec
-
-    if zoneMode then
-        rec.group:OptionROEHoldFire()
-        rec.group:OptionROTEvadeFireAndBoost()
-        log("Zone guard: " .. name .. " [zone: " .. zone .. "]")
-        MESSAGE:New("GCI: " .. rec.airbase .. " on guard — zone: " .. zone, 8):ToAll()
-    else
-        activateIntercept(rec)
-        log("Global intercept: " .. name)
-        MESSAGE:New("GCI: " .. rec.airbase .. " active (global)", 8):ToAll()
+-- Wake a dormant uncontrolled group, then task it to intercept after a short
+-- delay so DCS finishes processing the Start command before setTask fires.
+local function spawnAndIntercept(rec)
+    local mg = GROUP:FindByName(rec.name)
+    if not mg then
+        log("ERROR: cannot find pool group: " .. rec.name)
+        return
     end
-end
-
--- ── REGISTRATION: PASS 1 (groups active at T=0) ──────────────────────────────
-
-local _startSet = SET_GROUP:New():FilterCoalitions("red"):FilterStart()
-_startSet:ForEachGroup(registerGroup)
-
--- ── REGISTRATION: PASS 2 (late-activated groups) ─────────────────────────────
--- Retribution activates many flights via staggered triggers after T=0.
--- 0.1s delay lets MOOSE register the group before GROUP:FindByName().
-
-local _birthHandler = {}
-function _birthHandler:onEvent(event)
-    if event.id ~= world.event.S_EVENT_BIRTH then return end
-    local u = event.initiator
-    if not u then return end
-    if not u.getCoalition or u:getCoalition() ~= coalition.side.RED then return end
+    rec.group   = mg
+    rec.spawned = true
+    mg:StartUncontrolled()
+    log("Waking dormant group: " .. rec.name)
     timer.scheduleFunction(function()
-        if not u or not u.isExist or not u:isExist() then return end
-        local dcsGrp = u.getGroup and u:getGroup()
-        if not dcsGrp then return end
-        local mg = GROUP:FindByName(dcsGrp:getName())
-        if mg then registerGroup(mg) end
-    end, nil, timer.getTime() + 0.1)
+        taskIntercept(rec)
+    end, nil, timer.getTime() + CFG_spawnDelay)
 end
-world.addEventHandler(_birthHandler)
+
+-- ── REGISTRATION: read dcsRetribution.scramble_pool ──────────────────────────
+-- The pool table is written by a TriggerStart DoScript that runs at mission
+-- start; we read it on the next tick so it is guaranteed populated.
+
+timer.scheduleFunction(function()
+    local pool = dcsRetribution and dcsRetribution.scramble_pool
+    if not pool then
+        log("WARNING: dcsRetribution.scramble_pool not available — no interceptors registered")
+        return
+    end
+    for _, name in ipairs(pool) do
+        if not _groups[name] then
+            local mg = GROUP:FindByName(name)
+            _groups[name] = {
+                name       = name,
+                group      = mg,      -- uncontrolled groups exist at T=0
+                busy       = false,
+                lastTasked = 0,
+                spawned    = false,
+            }
+            log("Registered dormant interceptor: " .. name)
+        end
+    end
+end, nil, timer.getTime() + 0.1)
 
 -- ── THREAT SCAN ──────────────────────────────────────────────────────────────
 
@@ -226,30 +157,26 @@ local function detectBlueThreats(radarPts)
     return threats
 end
 
+-- Nearest available pool group to the threat. Dormant groups report their
+-- parked position fine, so distance ranking works before they spawn.
 local function selectGroup(threatPos)
     local now = timer.getTime()
-    local bestZone, bestZoneDist   = nil, math.huge
-    local bestGlobal, bestGlobalDist = nil, math.huge
-
+    local best, bestDist = nil, math.huge
     for _, rec in pairs(_groups) do
         local available = not rec.busy or (now - rec.lastTasked) > CFG_reengageDelay
-        if available and rec.group:IsAlive() then
-            local u1 = rec.group:GetUnit(1)
+        local mg = rec.group or GROUP:FindByName(rec.name)
+        if available and mg and mg:IsAlive() then
+            rec.group = mg
+            local u1 = mg:GetUnit(1)
             if u1 and u1:IsAlive() then
                 local d = dist3D(u1:GetVec3(), threatPos)
-                if rec.zoneMode then
-                    if posInZone(threatPos, rec.zone) and d < bestZoneDist then
-                        bestZone, bestZoneDist = rec, d
-                    end
-                else
-                    if d < bestGlobalDist then
-                        bestGlobal, bestGlobalDist = rec, d
-                    end
+                if d < bestDist then
+                    best, bestDist = rec, d
                 end
             end
         end
     end
-    return bestZone or bestGlobal
+    return best
 end
 
 SCHEDULER:New(nil, function()
@@ -276,13 +203,13 @@ SCHEDULER:New(nil, function()
             if not rec.busy or (now - rec.lastTasked) > CFG_reengageDelay then
                 rec.busy       = true
                 rec.lastTasked = now
-                if rec.zoneMode then
-                    activateIntercept(rec)
-                    log("Zone scramble: " .. rec.name .. " -> " .. threat.group:getName())
-                    MESSAGE:New("SCRAMBLE: " .. rec.airbase .. " — threat in zone!", 12):ToAll()
+                if rec.spawned then
+                    taskIntercept(rec)
                 else
-                    log("Global vector: " .. rec.name .. " -> " .. threat.group:getName())
+                    spawnAndIntercept(rec)
                 end
+                log("Scramble: " .. rec.name .. " -> " .. threat.group:getName())
+                MESSAGE:New("SCRAMBLE: interceptors launching!", 12):ToAll()
             end
         end
     end
@@ -291,13 +218,9 @@ end, {}, 10, CFG_scanInterval)
 -- ── STARTUP REPORT ───────────────────────────────────────────────────────────
 
 timer.scheduleFunction(function()
-    local nZone, nGlobal = 0, 0
-    for _, rec in pairs(_groups) do
-        if rec.zoneMode then nZone = nZone + 1 else nGlobal = nGlobal + 1 end
-    end
-    local total = nZone + nGlobal
-    log(string.format("ONLINE — %d groups (%d zone, %d global)", total, nZone, nGlobal))
+    local n = 0
+    for _ in pairs(_groups) do n = n + 1 end
+    log(string.format("ONLINE — %d dormant interceptor group(s)", n))
     MESSAGE:New(string.format(
-        "REACTIVE SCRAMBLE ONLINE: %d intercept group(s) (%d zone, %d global)",
-        total, nZone, nGlobal), 12):ToAll()
+        "REACTIVE SCRAMBLE ONLINE: %d dormant interceptor group(s)", n), 12):ToAll()
 end, nil, timer.getTime() + 2)

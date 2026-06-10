@@ -111,7 +111,7 @@ class PackagePlanningTask(TheaterCommanderTask, Generic[MissionTargetT]):
             state.context.settings,
         )
         with state.context.tracer.trace(f"{color} {self.flights[0].task} planning"):
-            asap = False
+            asap = self.asap
             if (
                 not state.context.coalition.ato.has_awacs_package
                 and FlightType.AEWC in [f.task for f in self.flights]

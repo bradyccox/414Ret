@@ -246,7 +246,6 @@ class PretenseAircraftGenerator:
             FlightType.INTERCEPTION,
             FlightType.ESCORT,
             FlightType.SWEEP,
-            FlightType.SCRAMBLE,
         ):
             flight_type = FlightType.BARCAP
         if flight_type in (FlightType.SEAD_ESCORT, FlightType.SEAD_SWEEP):

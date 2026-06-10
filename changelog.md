@@ -1,7 +1,7 @@
 ﻿# Retribution v1.6.0
 
 ## Features/Improvements
-* **[Mission]** Add SCRAMBLE flight type for reactive GCI interceptors. Alert fighters sit on Weapon Hold in a CAP orbit until a threat is detected by the radar network, then scramble to engage. The AI planner automatically spawns SCRAMBLE flights for vulnerable friendly control points. SCRAMBLE_<Airbase> trigger zones are auto-generated in the mission â€” no manual Mission Editor work required.
+* **[Mission]** Add reactive GCI scramble support. RED untasked, uncontrolled, air-to-air-capable aircraft can sit cold on the ramp as dormant interceptors; when a Blue aircraft is detected by the RED radar network, `reactive_scramble.lua` wakes the nearest available group and tasks it to intercept.
 * **[Mission]** Add JAMMING flight type for standoff electronic warfare aircraft (C-130J Compass Call). The aircraft holds an independent racetrack orbit at standoff range (same pattern as AEWC) rather than following a primary flight. Mixed packages pace their departure and TOT around the EW aircraft's slower transit. `c130j_mission_systems.lua` is automatically injected into any mission that includes a JAMMING flight.
 * **[UX]** Hovering a friendly flight's route line on the map highlights it in yellow, and clicking it selects that flight's package (and the flight) in the ATO sidebar.
 * **[UX]** Press Delete with a package selected in the Packages list to cancel it, making it quick to clear several packages in a row.

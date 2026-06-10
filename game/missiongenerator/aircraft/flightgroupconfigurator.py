@@ -169,7 +169,6 @@ class FlightGroupConfigurator:
             joker_fuel=bingo_estimator.estimate_joker(),
             custom_name=self.flight.custom_name,
             laser_codes=laser_codes,
-            coverage_zone=self.flight.coverage_zone,
         )
 
         self.register_escort_leash()
@@ -200,11 +199,16 @@ class FlightGroupConfigurator:
         if self.flight.is_helo:
             engagement_range *= 0.25
 
+        escorted_group = self.mission.find_group_by_id(escorted_group_id)
+        escorted_group_name = str(escorted_group.name) if escorted_group else ""
+
         self.mission_data.escorts.append(
             EscortInfo(
                 escort_group_id=escort_group_id,
                 escorted_group_id=escorted_group_id,
                 engagement_range_meters=int(engagement_range),
+                escort_group_name=str(self.group.name),
+                escorted_group_name=escorted_group_name,
             )
         )
 

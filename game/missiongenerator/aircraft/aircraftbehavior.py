@@ -66,8 +66,6 @@ class AircraftBehavior:
             self.configure_cap(group, flight)
         elif self.task == FlightType.SWEEP:
             self.configure_sweep(group, flight)
-        elif self.task == FlightType.SCRAMBLE:
-            self.configure_scramble(group, flight)
         elif self.task == FlightType.AEWC:
             self.configure_awacs(group, flight)
         elif self.task == FlightType.REFUELING:
@@ -217,24 +215,6 @@ class AircraftBehavior:
             else OptRTBOnOutOfAmmo.Values.AAM
         )
         self.configure_behavior(flight, group, rtb_winchester=ammo_type)
-
-    def configure_scramble(self, group: FlyingGroup[Any], flight: Flight) -> None:
-        # GCI Scramble — orbit near the friendly base with WeaponHold.
-        # reactive_scramble.lua switches to WEAPON_FREE + EngageTargets when a
-        # Blue aircraft enters radar range (or the assigned coverage zone).
-        self.configure_task(flight, group, CAP)
-        ammo_type = (
-            OptRTBOnOutOfAmmo.Values.Cannon
-            if flight.unit_type.gunfighter
-            else OptRTBOnOutOfAmmo.Values.AAM
-        )
-        self.configure_behavior(
-            flight,
-            group,
-            react_on_threat=OptReactOnThreat.Values.EvadeFire,
-            roe=OptROE.Values.WeaponHold,
-            rtb_winchester=ammo_type,
-        )
 
     def configure_cas(self, group: FlyingGroup[Any], flight: Flight) -> None:
         self.configure_task(flight, group, CAS, [AFAC, AntishipStrike])

@@ -1282,7 +1282,6 @@ class Airfield(ControlPoint, CTLD):
         if self.is_friendly(for_player):
             yield from [
                 FlightType.AEWC,
-                FlightType.SCRAMBLE,  # GCI Scramble — QRA orbit from friendly base
                 FlightType.ESCORT,
                 # TODO: FlightType.INTERCEPTION
                 # TODO: FlightType.LOGISTICS
@@ -1697,7 +1696,6 @@ class Fob(ControlPoint, RadioFrequencyContainer, CTLD):
         else:
             yield from [
                 FlightType.AEWC,
-                FlightType.SCRAMBLE,  # GCI Scramble — QRA orbit from friendly FOB
                 FlightType.ESCORT,
                 FlightType.REFUELING,
             ]

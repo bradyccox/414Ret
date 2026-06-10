@@ -84,15 +84,18 @@ class MissionGenerator:
             )
         self.generation_started = True
 
+        logging.info("MIZ generation: setup mission")
         self.setup_mission_coalitions()
         self.add_airfields_to_unit_map()
         self.initialize_registries()
 
+        logging.info("MIZ generation: environment")
         auto_fog = self.game.settings.use_auto_fog
         EnvironmentGenerator(
             self.mission, self.game.conditions, self.time, auto_fog
         ).generate()
 
+        logging.info("MIZ generation: ground objects")
         tgo_generator = TgoGenerator(
             self.mission,
             self.game,
@@ -103,16 +106,21 @@ class MissionGenerator:
         )
         tgo_generator.generate()
 
+        logging.info("MIZ generation: convoys and cargo ships")
         ConvoyGenerator(self.mission, self.game, self.unit_map).generate()
         CargoShipGenerator(self.mission, self.game, self.unit_map).generate()
 
+        logging.info("MIZ generation: destroyed units")
         self.generate_destroyed_units()
 
         # Generate ground conflicts first so the JTACs get the first laser code (1688)
         # rather than the first player flight with a TGP.
+        logging.info("MIZ generation: ground conflicts")
         self.generate_ground_conflicts()
+        logging.info("MIZ generation: air units")
         self.generate_air_units(tgo_generator)
 
+        logging.info("MIZ generation: scripts, triggers, visuals, and drawings")
         RebellionGenerator(self.mission, self.game).generate()
         TriggerGenerator(self.mission, self.game).generate()
         ForcedOptionsGenerator(self.mission, self.game).generate()
@@ -122,12 +130,15 @@ class MissionGenerator:
 
         self.setup_combined_arms()
 
+        logging.info("MIZ generation: briefing, kneeboard, and warehouses")
         self.notify_info_generators()
 
         namegen.reset_numbers()
         self.generate_warehouses()
         output.parent.mkdir(parents=True, exist_ok=True)
+        logging.info("MIZ generation: saving mission to %s", output)
         self.mission.save(output)
+        logging.info("MIZ generation: complete")
 
         return self.unit_map
 

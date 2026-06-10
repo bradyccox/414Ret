@@ -34,8 +34,7 @@ class InFlight(FlightState, ABC):
         self.has_aborted = has_aborted
         self.current_waypoint = waypoints[self.waypoint_index]
         # Guard against flight plans that have no landing waypoint or whose
-        # waypoint list ends earlier than expected (e.g. SCRAMBLE BarCap plans
-        # that exit combat at the last waypoint).  next_waypoint_state() now
+        # waypoint list ends earlier than expected.  next_waypoint_state() now
         # catches this before creating InFlight subclasses, but keep the check
         # here too so any future call sites get a clear error rather than a
         # confusing IndexError.
@@ -102,10 +101,9 @@ class InFlight(FlightState, ABC):
             return Loiter(self.flight, self.settings, new_index)
         # Guard: if new_index is the last waypoint there is no [new_index + 1]
         # and Navigating.__init__ will crash.  This happens when a flight exits
-        # combat at or past its final waypoint (e.g. a SCRAMBLE BarCap orbit
-        # whose plan has no explicit LANDING_POINT, or whose landing waypoint
-        # was already consumed before the combat state was entered).
-        # Complete the flight rather than crashing.
+        # combat at or past its final waypoint (e.g. a plan with no explicit
+        # LANDING_POINT, or whose landing waypoint was already consumed before
+        # the combat state was entered).  Complete the flight rather than crashing.
         if new_index + 1 >= len(self.flight.flight_plan.waypoints):
             return Completed(self.flight, self.settings)
         return Navigating(self.flight, self.settings, new_index)
