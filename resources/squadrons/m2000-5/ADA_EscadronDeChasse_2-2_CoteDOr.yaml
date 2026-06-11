@@ -9,6 +9,6 @@ livery: ec2_2 `cote d'or` spa57 `mouette`
 mission_types:
   - BARCAP
   - Escort
-  - Intercept
+  - Scramble
   - Fighter sweep
   - TARCAP

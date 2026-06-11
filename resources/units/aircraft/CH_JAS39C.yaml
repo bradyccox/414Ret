@@ -17,7 +17,7 @@ tasks:
   BARCAP: 385
   Escort: 370
   Fighter sweep: 370
-  Intercept: 385
+  Scramble: 385
   OCA/Aircraft: 575
   OCA/Runway: 470
   Strike: 480

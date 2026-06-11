@@ -34,5 +34,5 @@ variants:
 tasks:   
   Armed Recon: 410
   Strike: 1
-  Intercept: 1
+  Scramble: 1
   CAS: 1

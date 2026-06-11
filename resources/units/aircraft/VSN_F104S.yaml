@@ -19,5 +19,5 @@ tasks:
   BARCAP: 400
   Escort: 325
   Fighter sweep: 360
-  Intercept: 420
+  Scramble: 420
   TARCAP: 390

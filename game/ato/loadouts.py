@@ -282,7 +282,9 @@ class Loadout:
         # Sweep and escort can fall back to TARCAP.
         loadout_names[FlightType.ESCORT].extend(loadout_names[FlightType.TARCAP])
         loadout_names[FlightType.SWEEP].extend(loadout_names[FlightType.TARCAP])
-        # Intercept can fall back to BARCAP.
+        # Scramble/QRA can fall back to BARCAP.
+        loadout_names[FlightType.SCRAMBLE].extend(loadout_names[FlightType.BARCAP])
+        # Legacy Intercept can fall back to BARCAP for save compatibility.
         loadout_names[FlightType.INTERCEPTION].extend(loadout_names[FlightType.BARCAP])
         # Jamming EW aircraft carry no weapons; fall back to Transport loadout.
         loadout_names[FlightType.JAMMING].extend(loadout_names[FlightType.TRANSPORT])

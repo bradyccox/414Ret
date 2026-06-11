@@ -24,7 +24,7 @@ tasks:
   BARCAP: 120
   CAS: 315
   Fighter sweep: 120
-  Intercept: 120
+  Scramble: 120
   OCA/Aircraft: 315
   OCA/Runway: 245
   Strike: 260

@@ -42,6 +42,7 @@ class MissionScheduler:
         dca_types = {
             FlightType.BARCAP,
             FlightType.TARCAP,
+            FlightType.SCRAMBLE,
         }
 
         previous_cap_end_time: dict[MissionTarget, datetime] = defaultdict(now.replace)

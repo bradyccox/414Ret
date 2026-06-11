@@ -8,7 +8,7 @@ livery: FW-190D9_JG54
 mission_types:
   - CAS
   - Escort
-  - Intercept
+  - Scramble
   - OCA/Aircraft
   - Fighter sweep
   - BARCAP

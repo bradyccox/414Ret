@@ -12,7 +12,7 @@ mission_types:
   - CAS
   - DEAD
   - Escort
-  - Intercept
+  - Scramble
   - OCA/Aircraft
   - OCA/Runway
   - SEAD

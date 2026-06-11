@@ -261,10 +261,7 @@ class AircraftGenerator:
         is_scramble_eligible_squadron = (
             reactive_scramble
             and squadron.coalition.player.is_red
-            and (
-                squadron.aircraft.capable_of(FlightType.BARCAP)
-                or squadron.aircraft.capable_of(FlightType.SWEEP)
-            )
+            and squadron.aircraft.capable_of(FlightType.SCRAMBLE)
             and not (
                 squadron.aircraft.flyable
                 and (

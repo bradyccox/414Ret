@@ -9,7 +9,7 @@ livery: Iraq Air Force
 mission_types:
   - BARCAP
   - Escort
-  - Intercept
+  - Scramble
   - Fighter sweep
   - TARCAP
   - BAI

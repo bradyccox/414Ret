@@ -9,6 +9,6 @@ livery: "af standard"
 mission_types:
   - BARCAP
   - Escort
-  - Intercept
+  - Scramble
   - Fighter sweep
   - TARCAP

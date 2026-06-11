@@ -41,7 +41,10 @@ class FlightType(Enum):
     TARCAP = "TARCAP"
     BARCAP = "BARCAP"
     CAS = "CAS"
+    # Legacy/unplanned task retained for save compatibility only. New data should
+    # use SCRAMBLE for QRA-capable interceptors.
     INTERCEPTION = "Intercept"
+    SCRAMBLE = "Scramble"
     STRIKE = "Strike"
     ANTISHIP = "Anti-ship"
     SEAD = "SEAD"
@@ -79,6 +82,7 @@ class FlightType(Enum):
             FlightType.TARCAP,
             FlightType.BARCAP,
             FlightType.INTERCEPTION,
+            FlightType.SCRAMBLE,
             FlightType.ESCORT,
             FlightType.SWEEP,
         }
@@ -117,6 +121,7 @@ class FlightType(Enum):
             FlightType.ESCORT: AirEntity.ESCORT,
             FlightType.FERRY: AirEntity.UNSPECIFIED,
             FlightType.INTERCEPTION: AirEntity.FIGHTER,
+            FlightType.SCRAMBLE: AirEntity.FIGHTER,
             FlightType.OCA_AIRCRAFT: AirEntity.ATTACK_STRIKE,
             FlightType.OCA_RUNWAY: AirEntity.ATTACK_STRIKE,
             FlightType.RECOVERY: AirEntity.TANKER,

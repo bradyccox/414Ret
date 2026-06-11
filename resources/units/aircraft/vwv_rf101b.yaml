@@ -10,5 +10,5 @@ gunfighter: false
 tasks:
   Armed Recon: 435
   Strike: 1
-  Intercept: 1
+  Scramble: 1
   CAS: 1

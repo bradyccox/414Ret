@@ -9,7 +9,7 @@ livery: AdA Chasse 2-5
 mission_types:
   - BARCAP
   - Escort
-  - Intercept
+  - Scramble
   - Fighter sweep
   - TARCAP
   - BAI

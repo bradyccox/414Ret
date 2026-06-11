@@ -244,6 +244,7 @@ class PretenseAircraftGenerator:
             flight_type = FlightType.CAS
         if flight_type in (
             FlightType.INTERCEPTION,
+            FlightType.SCRAMBLE,
             FlightType.ESCORT,
             FlightType.SWEEP,
         ):
@@ -298,6 +299,7 @@ class PretenseAircraftGenerator:
             FlightType.TARCAP,
             FlightType.ESCORT,
             FlightType.INTERCEPTION,
+            FlightType.SCRAMBLE,
         ]
         sead_capable_cp = False
         cas_capable_cp = False

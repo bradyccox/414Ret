@@ -26,7 +26,7 @@ tasks:
   CAS: 485
   Escort: 440
   Fighter sweep: 440
-  Intercept: 460
+  Scramble: 460
   OCA/Aircraft: 520
   OCA/Runway: 460
   Strike: 465

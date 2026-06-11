@@ -432,7 +432,7 @@ class Squadron:
 
         Without this the planner commits every air-to-air airframe to packages,
         leaving nothing untasked for reactive_scramble.lua's interceptor pool.
-        Only RED, air-to-air-capable squadrons reserve, and only while reactive
+        Only RED, scramble-capable squadrons reserve, and only while reactive
         scramble is enabled.
         """
         if (
@@ -440,10 +440,7 @@ class Squadron:
             or not self.coalition.player.is_red
         ):
             return 0
-        if not (
-            self.aircraft.capable_of(FlightType.BARCAP)
-            or self.aircraft.capable_of(FlightType.SWEEP)
-        ):
+        if not self.aircraft.capable_of(FlightType.SCRAMBLE):
             return 0
         return self.settings.reactive_scramble_reserve
 

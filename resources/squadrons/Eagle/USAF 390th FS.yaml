@@ -9,7 +9,7 @@ livery: 390th Fighter SQN
 mission_types:
   - BARCAP
   - Escort
-  - Intercept
+  - Scramble
   - Fighter sweep
   - TARCAP
 

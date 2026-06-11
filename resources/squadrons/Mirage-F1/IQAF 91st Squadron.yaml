@@ -9,7 +9,7 @@ livery: Iraq Air Force Blue Scheme
 mission_types:
   - BARCAP
   - Escort
-  - Intercept
+  - Scramble
   - Fighter sweep
   - TARCAP
   - BAI

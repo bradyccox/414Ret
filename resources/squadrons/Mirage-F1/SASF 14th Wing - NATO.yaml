@@ -9,7 +9,7 @@ livery: ALA 14 NATO Skin 1 (M-EE)
 mission_types:
   - BARCAP
   - Escort
-  - Intercept
+  - Scramble
   - Fighter sweep
   - TARCAP
   - BAI

@@ -9,6 +9,6 @@ mission_types:
   - BARCAP
   - TARCAP
   - Escort
-  - Intercept
+  - Scramble
   - Fighter sweep
   - TARCAP

@@ -37,7 +37,7 @@ tasks:    # defined in flighttype.py
   Strike: 100
   Escort: 395
   Fighter sweep: 395
-  Intercept: 470
+  Scramble: 470
   TARCAP: 425
   BARCAP: 440
   Armed Recon: 165

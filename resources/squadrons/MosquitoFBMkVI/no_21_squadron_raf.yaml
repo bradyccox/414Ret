@@ -11,7 +11,7 @@ mission_types:
   - Strike
   - Anti-ship
   - OCA/Aircraft
-  - Intercept
+  - Scramble
   - Fighter sweep
   - BARCAP
   - TARCAP

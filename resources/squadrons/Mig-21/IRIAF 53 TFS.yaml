@@ -11,6 +11,6 @@ mission_types:
   - CAS
   - Strike  
   - Escort
-  - Intercept
+  - Scramble
   - Fighter sweep
   - TARCAP

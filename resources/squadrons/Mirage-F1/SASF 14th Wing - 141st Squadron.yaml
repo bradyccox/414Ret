@@ -9,7 +9,7 @@ livery: ALA 14 Camu Lagarto 1975-1990 SQ 141
 mission_types:
   - BARCAP
   - Escort
-  - Intercept
+  - Scramble
   - Fighter sweep
   - TARCAP
   - BAI

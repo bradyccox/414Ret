@@ -45,9 +45,20 @@ def reserve_of(**kwargs) -> int:
     return Squadron.scramble_reserve.fget(_Squadron(**kwargs))  # type: ignore[attr-defined]
 
 
-def test_red_air_to_air_squadron_reserves() -> None:
-    assert reserve_of(is_red=True, caps={FlightType.BARCAP}, reserve=2) == 2
-    assert reserve_of(is_red=True, caps={FlightType.SWEEP}, reserve=3) == 3
+def test_red_scramble_capable_squadron_reserves() -> None:
+    assert reserve_of(is_red=True, caps={FlightType.SCRAMBLE}, reserve=2) == 2
+    assert (
+        reserve_of(
+            is_red=True,
+            caps={FlightType.BARCAP, FlightType.SWEEP, FlightType.SCRAMBLE},
+            reserve=3,
+        )
+        == 3
+    )
+
+
+def test_red_air_to_air_without_scramble_does_not_reserve() -> None:
+    assert reserve_of(is_red=True, caps={FlightType.BARCAP, FlightType.SWEEP}) == 0
 
 
 def test_blue_squadron_does_not_reserve() -> None:
@@ -59,4 +70,4 @@ def test_red_ground_attack_only_does_not_reserve() -> None:
 
 
 def test_disabled_setting_disables_reserve() -> None:
-    assert reserve_of(is_red=True, caps={FlightType.BARCAP}, enabled=False) == 0
+    assert reserve_of(is_red=True, caps={FlightType.SCRAMBLE}, enabled=False) == 0

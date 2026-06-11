@@ -9,7 +9,7 @@ livery: 493rd Fighter SQN (LN)
 mission_types:
   - BARCAP
   - Escort
-  - Intercept
+  - Scramble
   - Fighter sweep
   - TARCAP
 

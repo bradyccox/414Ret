@@ -9,7 +9,7 @@ livery: 106th SQN (8th Airbase)
 mission_types:
   - BARCAP
   - Escort
-  - Intercept
+  - Scramble
   - Fighter sweep
   - TARCAP
 

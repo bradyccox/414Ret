@@ -34,7 +34,7 @@ tasks:
   Anti-ship: 100
   Escort: 100
   Fighter sweep: 100
-  Intercept: 100
+  Scramble: 100
   OCA/Aircraft: 100
   OCA/Runway: 60
   Strike: 60
