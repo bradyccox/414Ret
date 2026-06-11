@@ -17,10 +17,10 @@ variants:
   A-20G Havoc: {}
   Boston Mk.III: {}
 tasks:
-  Anti-ship: 40
-  BAI: 160
-  CAS: 160
-  DEAD: 170
-  OCA/Aircraft: 160
+  Anti-ship: 200
+  BAI: 300
+  CAS: 275
+  DEAD: 150
+  OCA/Aircraft: 290
   OCA/Runway: 140
   Strike: 140

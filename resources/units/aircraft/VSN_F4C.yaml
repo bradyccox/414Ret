@@ -19,14 +19,14 @@ carrier_capable: false
 variants:
   F-4C Phantom II: {}
 tasks:
-  BAI: 170
-  BARCAP: 210
-  CAS: 170
+  BAI: 525
+  BARCAP: 400
+  CAS: 525
   DEAD: 140
-  Escort: 210
-  Fighter sweep: 210
+  Escort: 390
+  Fighter sweep: 390
   Intercept: 210
-  OCA/Aircraft: 170
-  OCA/Runway: 340
-  Strike: 340
-  TARCAP: 210
+  OCA/Aircraft: 535
+  OCA/Runway: 535
+  Strike: 545
+  TARCAP: 400

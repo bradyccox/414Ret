@@ -16,9 +16,9 @@ default_livery: af standard
 variants:
   "[CH] Su-24MU": {}
 tasks:
-  BAI: 610
-  CAS: 610
+  BAI: 745
+  CAS: 745
   DEAD: 330
-  OCA/Aircraft: 610
+  OCA/Aircraft: 625
   OCA/Runway: 510
-  Strike: 510
+  Strike: 545

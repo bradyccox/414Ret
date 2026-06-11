@@ -12,7 +12,7 @@ kneeboard_units: "imperial"
 #   ResinLights: 0.15
 #   SoloFlight: false
 tasks:
-  Anti-ship: 20
+  Anti-ship: 390
   BAI: 70
   BARCAP: 70
   CAS: 70

@@ -26,12 +26,12 @@ gunfighter: true
 variants:
   F-5E Tiger II (FC): {}
 tasks:
-  BAI: 260
-  BARCAP: 200
-  CAS: 260
-  Escort: 200
-  Fighter sweep: 200
+  BAI: 325
+  BARCAP: 465
+  CAS: 325
+  Escort: 420
+  Fighter sweep: 435
   Intercept: 200
-  OCA/Aircraft: 260
-  Strike: 200
-  TARCAP: 200
+  OCA/Aircraft: 350
+  Strike: 300
+  TARCAP: 450

@@ -12,9 +12,9 @@ max_range: 2000
 variants:
   B-47 Stratojet: {}
 tasks:
-  Anti-ship: 90
-  DEAD: 200
-  OCA/Runway: 610
-  Strike: 610
+  Anti-ship: 440
+  DEAD: 170
+  OCA/Runway: 530
+  Strike: 540
   SEAD: 90
   SEAD Escort: 90

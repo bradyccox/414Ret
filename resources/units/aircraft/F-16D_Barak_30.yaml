@@ -57,19 +57,19 @@ radios:
 #   LaserCode10: 8
 #   LaserCode100: 6
 tasks:
-  BAI: 750
-  BARCAP: 460
-  CAS: 750
-  DEAD: 450
-  Escort: 460
-  Fighter sweep: 460
+  BAI: 675
+  BARCAP: 595
+  CAS: 675
+  DEAD: 475
+  Escort: 560
+  Fighter sweep: 560
   Intercept: 460
-  OCA/Aircraft: 750
-  OCA/Runway: 610
-  SEAD: 450
-  SEAD Escort: 450
-  Strike: 610
-  TARCAP: 460
+  OCA/Aircraft: 725
+  OCA/Runway: 625
+  SEAD: 475
+  SEAD Escort: 475
+  Strike: 635
+  TARCAP: 595
 weapon_injections:  # AGM-154B only works for AI
   3:
     - "{AGM-154B}"

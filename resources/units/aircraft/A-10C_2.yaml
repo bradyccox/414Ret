@@ -32,8 +32,8 @@ radios:
     intra_flight_radio_index: 2
     inter_flight_radio_index: 1
 tasks:
-  BAI: 830
-  CAS: 830
-  OCA/Aircraft: 830
-  OCA/Runway: 390
-  Strike: 390
+  BAI: 840
+  CAS: 840
+  OCA/Aircraft: 710
+  OCA/Runway: 535
+  Strike: 570

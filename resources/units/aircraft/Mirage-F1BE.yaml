@@ -20,13 +20,13 @@ radios:
     intra_flight_radio_index: 2
     inter_flight_radio_index: 1
 tasks:
-  BAI: 330
-  BARCAP: 320
-  CAS: 330
-  Escort: 320
-  Fighter sweep: 320
+  BAI: 345
+  BARCAP: 510
+  CAS: 345
+  Escort: 460
+  Fighter sweep: 475
   Intercept: 320
-  OCA/Aircraft: 330
-  OCA/Runway: 300
-  Strike: 300
-  TARCAP: 320
+  OCA/Aircraft: 375
+  OCA/Runway: 305
+  Strike: 320
+  TARCAP: 495

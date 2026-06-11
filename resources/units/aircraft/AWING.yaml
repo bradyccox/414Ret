@@ -12,8 +12,8 @@ max_range: 2000
 variants:
   AWING: {}
 tasks:
-  BARCAP: 540
-  Escort: 540
-  Fighter sweep: 540
+  BARCAP: 580
+  Escort: 550
+  Fighter sweep: 550
   Intercept: 540
-  TARCAP: 540
+  TARCAP: 580

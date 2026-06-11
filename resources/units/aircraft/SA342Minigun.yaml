@@ -6,6 +6,6 @@ variants:
   SA342Minigun: null
 kneeboard_units: "metric"
 tasks:
-  BAI: 230
-  CAS: 230
-  OCA/Aircraft: 230
+  BAI: 355
+  CAS: 355
+  OCA/Aircraft: 355

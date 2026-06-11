@@ -16,12 +16,12 @@ variants:
   YWING: {}
 kneeboard_units: "metric"
 tasks:
-  BAI: 750
-  CAS: 750
-  SEAD: 750
-  DEAD: 450
-  OCA/Aircraft: 750
-  OCA/Runway: 610
-  Strike: 610
-  SEAD Escort: 600
+  BAI: 785
+  CAS: 785
+  SEAD: 420
+  DEAD: 370
+  OCA/Aircraft: 670
+  OCA/Runway: 545
+  Strike: 580
+  SEAD Escort: 395
 

@@ -21,10 +21,10 @@ variants:
 #   landingTorch: false
 tasks:
   BAI: 60
-  BARCAP: 20
+  BARCAP: 255
   CAS: 60
-  Escort: 20
-  Fighter sweep: 20
+  Escort: 225
+  Fighter sweep: 235
   Intercept: 20
   OCA/Aircraft: 60
-  TARCAP: 20
+  TARCAP: 245

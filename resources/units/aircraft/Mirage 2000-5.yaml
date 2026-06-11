@@ -16,8 +16,8 @@ max_range: 400
 variants:
   Mirage 2000-5: {}
 tasks:
-  BARCAP: 340
-  Escort: 340
-  Fighter sweep: 340
+  BARCAP: 585
+  Escort: 555
+  Fighter sweep: 555
   Intercept: 340
-  TARCAP: 340
+  TARCAP: 585

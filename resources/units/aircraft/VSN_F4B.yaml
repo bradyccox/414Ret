@@ -20,14 +20,14 @@ variants:
   F-4B Phantom II: {}
   Phantom FG.1: {}
 tasks:
-  BAI: 180
-  BARCAP: 220
-  CAS: 180
+  BAI: 525
+  BARCAP: 395
+  CAS: 525
   DEAD: 150
-  Escort: 220
-  Fighter sweep: 220
+  Escort: 390
+  Fighter sweep: 390
   Intercept: 220
-  OCA/Aircraft: 180
-  OCA/Runway: 350
-  Strike: 350
-  TARCAP: 220
+  OCA/Aircraft: 530
+  OCA/Runway: 530
+  Strike: 545
+  TARCAP: 395

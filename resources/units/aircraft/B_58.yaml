@@ -10,8 +10,8 @@ variants:
   B-58 Hustler: {}
 tasks:
   CAS: 100
-  Anti-ship: 90
-  DEAD: 220
-  OCA/Runway: 670
-  Strike: 670
-  Armed Recon: 200
+  Anti-ship: 555
+  DEAD: 205
+  OCA/Runway: 655
+  Strike: 655
+  Armed Recon: 275

@@ -27,10 +27,10 @@ variants:
   F-35C Lightning II: {}
 utc_kneeboard: true
 tasks:
-  BARCAP: 450
-  Escort: 450
-  Fighter sweep: 450
+  BARCAP: 645
+  Escort: 615
+  Fighter sweep: 615
   Intercept: 450
-  TARCAP: 450
+  TARCAP: 645
 
 has_built_in_ecm: true

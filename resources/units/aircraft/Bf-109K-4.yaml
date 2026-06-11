@@ -24,13 +24,13 @@ kneeboard_units: "metric"
 #   MW50TankContents: 1
 tasks:
   BAI: 50
-  BARCAP: 60
+  BARCAP: 285
   CAS: 50
   DEAD: 20
-  Escort: 60
-  Fighter sweep: 60
+  Escort: 255
+  Fighter sweep: 265
   Intercept: 60
   OCA/Aircraft: 50
   OCA/Runway: 20
   Strike: 20
-  TARCAP: 60
+  TARCAP: 275

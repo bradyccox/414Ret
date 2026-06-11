@@ -16,13 +16,13 @@ variants:
   A-6E Intruder: {}
 tasks:
   Anti-ship: 140
-  BAI: 650
-  CAS: 650
+  BAI: 685
+  CAS: 685
   DEAD: 300
-  OCA/Aircraft: 350
-  OCA/Runway: 350
+  OCA/Aircraft: 535
+  OCA/Runway: 440
   SEAD: 120
   SEAD Escort: 120
-  Strike: 360
+  Strike: 475
   Refueling: 0
   Recovery: 0

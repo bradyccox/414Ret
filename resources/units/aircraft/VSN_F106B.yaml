@@ -15,7 +15,7 @@ gunfighter: false
 variants:
   F-106B Delta Dart: {}
 tasks:
-  BARCAP: 250
-  Escort: 150
-  Fighter sweep: 200
+  BARCAP: 495
+  Escort: 420
+  Fighter sweep: 425
   Intercept: 300

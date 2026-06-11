@@ -39,8 +39,8 @@ default_overrides:
 variants:
   OH-58D(R) Kiowa Warrior: {}
 tasks:
-  BAI: 470
-  CAS: 470
-  OCA/Aircraft: 470
+  BAI: 400
+  CAS: 400
+  OCA/Aircraft: 400
   DEAD: 50
   Escort: 10

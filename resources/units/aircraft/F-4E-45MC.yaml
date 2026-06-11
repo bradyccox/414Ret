@@ -50,16 +50,16 @@ default_overrides:
   #CombatTreeSpoofable: 1 # 0 = all, 1 = historical, 2 = none
 tasks:
   Anti-ship: 110
-  BAI: 570
-  BARCAP: 410
-  CAS: 570
-  DEAD: 400
-  Escort: 410
-  Fighter sweep: 410
+  BAI: 600
+  BARCAP: 435
+  CAS: 600
+  DEAD: 365
+  Escort: 425
+  Fighter sweep: 425
   Intercept: 410
-  OCA/Aircraft: 570
-  OCA/Runway: 330
+  OCA/Aircraft: 605
+  OCA/Runway: 535
   SEAD: 120
   SEAD Escort: 120
-  Strike: 400
-  TARCAP: 410
+  Strike: 565
+  TARCAP: 435

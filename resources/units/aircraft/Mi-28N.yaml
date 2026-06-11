@@ -16,7 +16,7 @@ role: Attack
 variants:
   Mi-28N Havoc: {}
 tasks:
-  BAI: 420
-  CAS: 420
+  BAI: 765
+  CAS: 765
   Escort: 100
-  OCA/Aircraft: 420
+  OCA/Aircraft: 645

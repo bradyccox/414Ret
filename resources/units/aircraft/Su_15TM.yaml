@@ -16,8 +16,8 @@ variants:
   Su-15TM Flagon-E: {}
 kneeboard_units: "metric"
 tasks:
-  BARCAP: 370
-  Escort: 370
-  Fighter sweep: 370
+  BARCAP: 630
+  Escort: 545
+  Fighter sweep: 545
   Intercept: 370
-  TARCAP: 370
+  TARCAP: 600

@@ -13,10 +13,10 @@ max_range: 2000
 variants:
   B-52H Stratofortress: {}
 tasks:
-  Anti-ship: 100
-  BAI: 660
-  CAS: 660
-  DEAD: 210
-  OCA/Runway: 660
-  OCA/Aircraft: 660
-  Strike: 690
+  Anti-ship: 565
+  BAI: 530
+  CAS: 485
+  DEAD: 200
+  OCA/Runway: 650
+  OCA/Aircraft: 515
+  Strike: 665

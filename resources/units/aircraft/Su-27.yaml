@@ -20,10 +20,10 @@ variants:
   Su-27 Flanker-B: {}
 kneeboard_units: "metric"
 tasks:
-  BARCAP: 480
-  Escort: 480
-  Fighter sweep: 480
+  BARCAP: 735
+  Escort: 675
+  Fighter sweep: 695
   Intercept: 480
-  OCA/Runway: 440
-  Strike: 440
-  TARCAP: 480
+  OCA/Runway: 250
+  Strike: 265
+  TARCAP: 710

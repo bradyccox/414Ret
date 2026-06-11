@@ -30,16 +30,16 @@ variants:
   "[CH] MiG-29MU2": {}
 kneeboard_units: "metric"
 tasks:
-  BAI: 540
-  BARCAP: 380
-  CAS: 540
-  DEAD: 380
-  Escort: 380
-  Fighter sweep: 380
+  BAI: 650
+  BARCAP: 590
+  CAS: 650
+  DEAD: 470
+  Escort: 555
+  Fighter sweep: 555
   Intercept: 380
-  OCA/Aircraft: 540
-  OCA/Runway: 420
-  SEAD: 420
-  SEAD Escort: 420
-  Strike: 420
-  TARCAP: 380
+  OCA/Aircraft: 700
+  OCA/Runway: 605
+  SEAD: 480
+  SEAD Escort: 480
+  Strike: 615
+  TARCAP: 590

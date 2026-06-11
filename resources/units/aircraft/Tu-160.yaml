@@ -17,6 +17,6 @@ max_range: 2000
 variants:
   Tu-160 Blackjack: {}
 tasks:
-  BAI: 370
-  DEAD: 210
-  Strike: 680
+  BAI: 540
+  DEAD: 225
+  Strike: 730

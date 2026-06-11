@@ -20,15 +20,15 @@ variants:
   F-4F Phantom II: {}
   Phantom F.3: {}
 tasks:
-  BAI: 580
-  BARCAP: 410
-  CAS: 580
-  DEAD: 400
-  Escort: 410
-  Fighter sweep: 410
+  BAI: 600
+  BARCAP: 435
+  CAS: 600
+  DEAD: 365
+  Escort: 425
+  Fighter sweep: 425
   Intercept: 410
-  OCA/Aircraft: 580
+  OCA/Aircraft: 605
   SEAD: 120
   SEAD Escort: 120
-  Strike: 400
-  TARCAP: 410
+  Strike: 565
+  TARCAP: 435

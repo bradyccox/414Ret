@@ -11,8 +11,8 @@ role: Heavy Bomber
 variants:
   Tu-4K Bull: {}
 tasks:
-  OCA/Runway: 200
-  Strike: 200
-  Anti-ship: 200
-  BAI: 270
-  DEAD: 245
+  OCA/Runway: 340
+  Strike: 365
+  Anti-ship: 515
+  BAI: 335
+  DEAD: 170

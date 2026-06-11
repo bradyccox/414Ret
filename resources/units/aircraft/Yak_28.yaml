@@ -17,8 +17,8 @@ variants:
   Yak-28 Firebar: {}
 kneeboard_units: "metric"
 tasks:
-  BARCAP: 350
-  Escort: 350
-  Fighter sweep: 350
+  BARCAP: 620
+  Escort: 535
+  Fighter sweep: 535
   Intercept: 350
-  TARCAP: 350
+  TARCAP: 590

@@ -20,12 +20,12 @@ variants:
   MiG-15bis Fagot (FC): {}
 kneeboard_units: "metric"
 tasks:
-  BAI: 360
-  BARCAP: 140
-  CAS: 360
-  Escort: 140
-  Fighter sweep: 140
+  BAI: 270
+  BARCAP: 360
+  CAS: 270
+  Escort: 340
+  Fighter sweep: 345
   Intercept: 140
-  OCA/Aircraft: 360
-  Strike: 210
-  TARCAP: 140
+  OCA/Aircraft: 290
+  Strike: 230
+  TARCAP: 355

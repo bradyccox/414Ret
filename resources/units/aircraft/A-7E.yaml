@@ -15,11 +15,11 @@ gunfighter: true
 variants:
   A-7E Corsair II: {}
 tasks:
-  BAI: 660
-  CAS: 660
-  DEAD: 390
-  OCA/Aircraft: 660
-  OCA/Runway: 360
+  BAI: 695
+  CAS: 695
+  DEAD: 320
+  OCA/Aircraft: 590
+  OCA/Runway: 450
   SEAD: 110
   SEAD Escort: 110
-  Strike: 360
+  Strike: 480

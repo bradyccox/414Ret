@@ -27,12 +27,12 @@ variants:
   F-35C Lightning II (A/G): {}
 utc_kneeboard: true
 tasks:
-  Armed Recon: 500
-  BAI: 740
-  CAS: 740
-  OCA/Aircraft: 740
-  OCA/Runway: 600
-  SEAD Sweep: 800
-  Strike: 600
+  Armed Recon: 465
+  BAI: 730
+  CAS: 730
+  OCA/Aircraft: 780
+  OCA/Runway: 680
+  SEAD Sweep: 580
+  Strike: 690
   
 has_built_in_ecm: true

@@ -17,7 +17,7 @@ max_range: 2000
 variants:
   "[CH] Tu-160M2": {}
 tasks:
-  Anti-ship: 100
-  BAI: 370
-  DEAD: 210
-  Strike: 680
+  Anti-ship: 685
+  BAI: 580
+  DEAD: 250
+  Strike: 785

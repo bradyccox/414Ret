@@ -13,8 +13,8 @@ variants:
   F-15C Eagle: {}
   F-15J Eagle: {}
 tasks:
-  BARCAP: 540
-  Escort: 540
-  Fighter sweep: 540
+  BARCAP: 700
+  Escort: 650
+  Fighter sweep: 660
   Intercept: 540
-  TARCAP: 540
+  TARCAP: 680

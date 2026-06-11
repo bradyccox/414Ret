@@ -46,15 +46,15 @@ default_overrides:
 #   TacanChannel: 0
 #   UseLAU138: true
 tasks:
-  BAI: 640
-  BARCAP: 530
-  CAS: 640
-  DEAD: 250
-  Escort: 530
-  Fighter sweep: 530
+  BAI: 660
+  BARCAP: 610
+  CAS: 660
+  DEAD: 445
+  Escort: 575
+  Fighter sweep: 575
   Intercept: 530
-  OCA/Aircraft: 640
-  OCA/Runway: 560
+  OCA/Aircraft: 710
+  OCA/Runway: 625
   SEAD: 100
-  Strike: 560
-  TARCAP: 530
+  Strike: 630
+  TARCAP: 610

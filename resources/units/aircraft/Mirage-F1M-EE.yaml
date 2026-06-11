@@ -17,13 +17,13 @@ max_range: 200
 variants:
   Mirage-F1M-EE: {}
 tasks:
-  BAI: 280
-  BARCAP: 270
-  CAS: 280
-  Escort: 270
-  Fighter sweep: 270
+  BAI: 610
+  BARCAP: 575
+  CAS: 610
+  Escort: 545
+  Fighter sweep: 545
   Intercept: 270
-  OCA/Aircraft: 280
-  OCA/Runway: 250
-  Strike: 250
-  TARCAP: 270
+  OCA/Aircraft: 665
+  OCA/Runway: 580
+  Strike: 590
+  TARCAP: 575

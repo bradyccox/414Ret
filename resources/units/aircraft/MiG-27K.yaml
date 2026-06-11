@@ -17,11 +17,11 @@ role: Attack
 variants:
   MiG-27K Flogger-J2: {}
 tasks:
-  BAI: 540
-  CAS: 540
-  DEAD: 290
-  OCA/Aircraft: 540
-  OCA/Runway: 230
+  BAI: 685
+  CAS: 685
+  DEAD: 315
+  OCA/Aircraft: 580
+  OCA/Runway: 440
   SEAD: 10
   SEAD Escort: 10
-  Strike: 230
+  Strike: 470

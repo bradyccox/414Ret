@@ -37,7 +37,7 @@ utc_kneeboard: true
 #   InnerBoard: 0
 #   OuterBoard: 0
 tasks:
-  DEAD: 500
-  SEAD: 600
-  SEAD Escort: 550
-  SEAD Sweep: 500
+  DEAD: 750
+  SEAD: 785
+  SEAD Escort: 725
+  SEAD Sweep: 750

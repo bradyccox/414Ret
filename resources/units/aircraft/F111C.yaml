@@ -24,16 +24,16 @@ gunfighter: false
 variants:
   F-111C Aardvark: {}
 tasks:
-  Anti-ship: 500
-  Armed Recon: 450
-  BAI: 660
-  CAS: 660
-  DEAD: 390
-  OCA/Aircraft: 660
-  OCA/Runway: 360
-  SEAD: 410
-  SEAD Sweep: 450
+  Anti-ship: 345
+  Armed Recon: 415
+  BAI: 625
+  CAS: 625
+  DEAD: 375
+  OCA/Aircraft: 625
+  OCA/Runway: 550
+  SEAD: 375
+  SEAD Sweep: 380
   SEAD Escort: 110
-  Strike: 360
+  Strike: 565
 
 weapon_injections:

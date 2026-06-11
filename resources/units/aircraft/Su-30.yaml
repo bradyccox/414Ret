@@ -19,16 +19,16 @@ variants:
     role: Multirole Fighter
 tasks:
   Anti-ship: 90
-  BAI: 560
-  BARCAP: 490
-  CAS: 560
-  DEAD: 300
-  Escort: 490
-  Fighter sweep: 490
+  BAI: 655
+  BARCAP: 610
+  CAS: 655
+  DEAD: 465
+  Escort: 580
+  Fighter sweep: 580
   Intercept: 490
-  OCA/Aircraft: 560
-  OCA/Runway: 450
+  OCA/Aircraft: 705
+  OCA/Runway: 615
   SEAD: 20
   SEAD Escort: 20
-  Strike: 450
-  TARCAP: 490
+  Strike: 625
+  TARCAP: 610

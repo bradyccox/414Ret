@@ -24,8 +24,8 @@ variants:
   "[CH] Ka-52": {}
 kneeboard_units: "metric"
 tasks:
-  BAI: 440
-  CAS: 440
+  BAI: 770
+  CAS: 770
   DEAD: 113
   Escort: 100
-  OCA/Aircraft: 440
+  OCA/Aircraft: 645

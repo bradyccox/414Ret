@@ -11,14 +11,14 @@ role: Fighter
 variants:
   "[CH] JAS 39C Gripen": {}
 tasks:
-  BAI: 750
-  DEAD: 750
-  CAS: 750
-  BARCAP: 430
-  Escort: 430
-  Fighter sweep: 430
+  BAI: 470
+  DEAD: 810
+  CAS: 470
+  BARCAP: 365
+  Escort: 345
+  Fighter sweep: 345
   Intercept: 430
-  OCA/Aircraft: 750
-  OCA/Runway: 610
-  Strike: 610
-  TARCAP: 430
+  OCA/Aircraft: 505
+  OCA/Runway: 415
+  Strike: 430
+  TARCAP: 365

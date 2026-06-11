@@ -14,9 +14,9 @@ variants:
   naboo_starfighter: {}
 kneeboard_units: "metric"
 tasks:
-  BARCAP: 460
-  Escort: 460
-  Fighter sweep: 460
+  BARCAP: 235
+  Escort: 230
+  Fighter sweep: 230
   Intercept: 460
-  TARCAP: 460
+  TARCAP: 230
 

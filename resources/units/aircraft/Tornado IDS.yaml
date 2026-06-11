@@ -14,7 +14,7 @@ variants:
   Tornado IDS: {}
 tasks:
   Anti-ship: 80
-  DEAD: 330
-  SEAD: 200
-  SEAD Escort: 210
-  Strike: 430
+  DEAD: 430
+  SEAD: 410
+  SEAD Escort: 410
+  Strike: 615

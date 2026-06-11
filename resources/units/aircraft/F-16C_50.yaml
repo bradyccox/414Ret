@@ -57,19 +57,19 @@ radios:
 #   LaserCode10: 8
 #   LaserCode100: 6
 tasks:
-  BAI: 750
-  BARCAP: 460
-  CAS: 750
-  DEAD: 450
-  Escort: 460
-  Fighter sweep: 460
+  BAI: 680
+  BARCAP: 600
+  CAS: 680
+  DEAD: 485
+  Escort: 570
+  Fighter sweep: 570
   Intercept: 460
-  OCA/Aircraft: 750
-  OCA/Runway: 610
-  SEAD: 450
-  SEAD Escort: 450
-  Strike: 610
-  TARCAP: 460
+  OCA/Aircraft: 735
+  OCA/Runway: 635
+  SEAD: 485
+  SEAD Escort: 485
+  Strike: 645
+  TARCAP: 600
 laser_codes:
   - properties:
       - id: LaserCode100

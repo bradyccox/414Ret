@@ -14,14 +14,14 @@ gunfighter: true
 variants:
   Mirage IIIS: {}
 tasks:
-  BARCAP: 220
-  Escort: 220
-  Fighter sweep: 220
+  BARCAP: 500
+  Escort: 470
+  Fighter sweep: 470
   Intercept: 220
-  TARCAP: 220
-  BAI: 220
-  CAS: 220
-  DEAD: 220
-  OCA/Aircraft: 220
-  OCA/Runway: 200
-  Strike: 220
+  TARCAP: 500
+  BAI: 535
+  CAS: 535
+  DEAD: 395
+  OCA/Aircraft: 575
+  OCA/Runway: 505
+  Strike: 520

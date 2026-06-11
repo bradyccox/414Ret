@@ -22,9 +22,9 @@ variants:
   MiG-23MLD Flogger-K: {}
 tasks:
   CAS: 120
-  BARCAP: 360
-  Escort: 360
-  Fighter sweep: 360
+  BARCAP: 520
+  Escort: 470
+  Fighter sweep: 485
   Intercept: 360
   Strike: 130
-  TARCAP: 360
+  TARCAP: 500
