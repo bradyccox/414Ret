@@ -224,7 +224,7 @@ local function build_dispatcher(coalition_name, records)
 
     -- Global QRA tuning, identical across this coalition's records (see header).
     local comms_enabled = records[1].commsEnabled ~= "false"
-    local scramble_radius_nm = tonumber(records[1].gciMaxRadiusNm) or 100
+    local scramble_radius_nm = math.min(tonumber(records[1].gciMaxRadiusNm) or 45, 50)
     local engagement_range_nm = tonumber(records[1].engagementRangeNm) or 60
 
     -- Always spawn a hidden backstop EWR at each defended base so there is a
