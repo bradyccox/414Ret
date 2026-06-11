@@ -15,8 +15,8 @@ radios:
   intra_flight: R&S Series 6000
   inter_flight: R&S Series 6000
 tasks:
-  BARCAP: 430
-  Escort: 430
-  Fighter sweep: 430
-  Intercept: 430
-  TARCAP: 430
+  BARCAP: 525
+  Escort: 485
+  Fighter sweep: 500
+  Intercept: 525
+  TARCAP: 510

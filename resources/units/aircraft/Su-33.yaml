@@ -32,13 +32,13 @@ variants:
   Su-33 Flanker-D: {}
 kneeboard_units: "metric"
 tasks:
-  BAI: 590
-  BARCAP: 510
-  CAS: 590
-  Escort: 510
-  Fighter sweep: 510
-  Intercept: 510
-  OCA/Aircraft: 590
-  OCA/Runway: 460
-  Strike: 460
-  TARCAP: 510
+  BAI: 645
+  BARCAP: 590
+  CAS: 645
+  Escort: 565
+  Fighter sweep: 565
+  Intercept: 590
+  OCA/Aircraft: 680
+  OCA/Runway: 575
+  Strike: 580
+  TARCAP: 590

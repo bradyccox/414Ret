@@ -16,9 +16,9 @@ gunfighter: true
 variants:
   SK-60: {}
 tasks:
-  BAI: 650
-  CAS: 650
+  BAI: 475
+  CAS: 475
   DEAD: 60
-  OCA/Aircraft: 650
-  OCA/Runway: 330
-  Strike: 330
+  OCA/Aircraft: 475
+  OCA/Runway: 305
+  Strike: 320

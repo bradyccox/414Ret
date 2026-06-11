@@ -16,14 +16,14 @@ max_range: 450
 variants:
   F-15D Baz: {}
 tasks:
-  BAI: 260
-  BARCAP: 440
-  CAS: 280
-  DEAD: 160
-  Escort: 250
-  Fighter sweep: 270
-  Intercept: 240
-  OCA/Aircraft: 360
-  OCA/Runway: 330
-  Strike: 540
-  TARCAP: 340
+  BAI: 250
+  BARCAP: 615
+  CAS: 245
+  DEAD: 170
+  Escort: 500
+  Fighter sweep: 520
+  Intercept: 530
+  OCA/Aircraft: 320
+  OCA/Runway: 265
+  Strike: 360
+  TARCAP: 560

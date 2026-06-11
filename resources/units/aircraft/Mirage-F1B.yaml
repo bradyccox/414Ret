@@ -15,13 +15,13 @@ max_range: 200
 variants:
   Mirage-F1B: {}
 tasks:
-  BAI: 340
-  BARCAP: 330
-  CAS: 340
-  Escort: 330
-  Fighter sweep: 330
-  Intercept: 330
-  OCA/Aircraft: 340
-  OCA/Runway: 310
-  Strike: 310
-  TARCAP: 330
+  BAI: 345
+  BARCAP: 460
+  CAS: 345
+  Escort: 425
+  Fighter sweep: 435
+  Intercept: 460
+  OCA/Aircraft: 365
+  OCA/Runway: 305
+  Strike: 320
+  TARCAP: 445

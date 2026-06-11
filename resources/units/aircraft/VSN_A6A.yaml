@@ -12,11 +12,11 @@ variants:
   A-6A Intruder: {}
 tasks:
   Anti-ship: 150
-  BAI: 350
-  CAS: 450
-  DEAD: 450
-  OCA/Aircraft: 400
-  OCA/Runway: 400
-  SEAD: 450
-  SEAD Escort: 450
-  Strike: 610
+  BAI: 555
+  CAS: 595
+  DEAD: 360
+  OCA/Aircraft: 500
+  OCA/Runway: 435
+  SEAD: 360
+  SEAD Escort: 360
+  Strike: 540

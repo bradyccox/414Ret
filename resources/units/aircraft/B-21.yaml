@@ -13,11 +13,11 @@ max_range: 1000
 variants:
   "[CH] B-21": {}
 tasks:
-  Anti-ship: 100
-  BAI: 370
-  CAS: 750
-  SEAD: 210
-  DEAD: 210
-  OCA/Runway: 660
-  OCA/Aircraft: 770
-  Strike: 690
+  Anti-ship: 660
+  BAI: 520
+  CAS: 635
+  SEAD: 240
+  DEAD: 240
+  OCA/Runway: 740
+  OCA/Aircraft: 670
+  Strike: 760

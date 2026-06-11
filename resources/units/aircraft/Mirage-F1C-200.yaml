@@ -12,8 +12,8 @@ max_range: 200
 variants:
   Mirage-F1C-200: {}
 tasks:
-  BARCAP: 260
-  Escort: 260
-  Fighter sweep: 260
-  Intercept: 260
-  TARCAP: 260
+  BARCAP: 415
+  Escort: 380
+  Fighter sweep: 390
+  Intercept: 415
+  TARCAP: 400

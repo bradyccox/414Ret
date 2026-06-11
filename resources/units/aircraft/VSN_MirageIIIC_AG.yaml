@@ -14,9 +14,9 @@ gunfighter: true
 variants:
   Mirage IIIB/C A/G: {}
 tasks:
-  BAI: 210
-  CAS: 210
-  DEAD: 210
-  OCA/Aircraft: 210
-  OCA/Runway: 190
-  Strike: 210
+  BAI: 440
+  CAS: 440
+  DEAD: 295
+  OCA/Aircraft: 445
+  OCA/Runway: 415
+  Strike: 435

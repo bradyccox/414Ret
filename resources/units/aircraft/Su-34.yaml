@@ -22,11 +22,11 @@ variants:
   Su-34 Fullback: {}
 tasks:
   Anti-ship: 100
-  BAI: 800
-  CAS: 800
-  DEAD: 310
-  OCA/Aircraft: 800
-  OCA/Runway: 470
+  BAI: 790
+  CAS: 790
+  DEAD: 440
+  OCA/Aircraft: 805
+  OCA/Runway: 630
   SEAD: 30
   SEAD Escort: 30
-  Strike: 470
+  Strike: 645

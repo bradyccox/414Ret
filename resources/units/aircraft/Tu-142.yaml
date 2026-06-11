@@ -16,4 +16,4 @@ role: Maritime Patrol/Anti-Ship
 variants:
   Tu-142 Bear-F: {}
 tasks:
-  Anti-ship: 180
+  Anti-ship: 525

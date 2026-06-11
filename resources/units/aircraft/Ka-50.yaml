@@ -26,8 +26,8 @@ radios:
   # radios assigned, so no channels to configure.
 kneeboard_units: "metric"
 tasks:
-  BAI: 430
-  CAS: 430
+  BAI: 650
+  CAS: 650
   DEAD: 113
   Escort: 90
-  OCA/Aircraft: 430
+  OCA/Aircraft: 565

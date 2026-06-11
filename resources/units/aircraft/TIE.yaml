@@ -15,9 +15,9 @@ max_range: 2000
 variants:
   TIE: {}
 tasks:
-  BARCAP: 540
-  Escort: 540
-  Fighter sweep: 540
-  Intercept: 540
-  TARCAP: 540
+  BARCAP: 650
+  Escort: 610
+  Fighter sweep: 625
+  Intercept: 645
+  TARCAP: 635
 

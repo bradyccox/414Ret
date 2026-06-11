@@ -45,13 +45,13 @@ variants:
 kneeboard_units: "imperial"
 tasks:
   BAI: 80
-  BARCAP: 80
+  BARCAP: 225
   CAS: 80
   DEAD: 40
-  Escort: 80
-  Fighter sweep: 80
-  Intercept: 80
+  Escort: 205
+  Fighter sweep: 210
+  Intercept: 225
   OCA/Aircraft: 80
   OCA/Runway: 40
   Strike: 40
-  TARCAP: 80
+  TARCAP: 220

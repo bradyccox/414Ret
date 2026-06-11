@@ -13,5 +13,5 @@ gunfighter: false
 variants:
   EA-6B Prowler: {}
 tasks:
-  SEAD: 460
-  SEAD Escort: 460
+  SEAD: 620
+  SEAD Escort: 585

@@ -16,6 +16,6 @@ role: Strategic/Maritime Strike Bomber
 variants:
   Tu-22M3 Backfire-C: {}
 tasks:
-  Anti-ship: 800
-  OCA/Runway: 650
-  Strike: 660
+  Anti-ship: 815
+  OCA/Runway: 575
+  Strike: 605

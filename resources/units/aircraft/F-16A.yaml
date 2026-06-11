@@ -4,14 +4,14 @@ max_range: 350
 variants:
   F-16A: null
 tasks:
-  BARCAP: 420
-  CAS: 340
-  Escort: 420
-  Fighter sweep: 420
-  Intercept: 420
-  OCA/Aircraft: 570
-  OCA/Runway: 570
-  Strike: 570
-  TARCAP: 420
+  BARCAP: 535
+  CAS: 525
+  Escort: 510
+  Fighter sweep: 510
+  Intercept: 535
+  OCA/Aircraft: 655
+  OCA/Runway: 600
+  Strike: 605
+  TARCAP: 535
   SEAD: 150
   SEAD Escort: 150

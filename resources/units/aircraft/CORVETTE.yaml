@@ -13,8 +13,8 @@ max_range: 4000
 variants:
   CORVETTE: {}
 tasks:
-  BARCAP: 540
-  Escort: 540
-  Fighter sweep: 540
-  Intercept: 540
-  TARCAP: 540
+  BARCAP: 570
+  Escort: 545
+  Fighter sweep: 545
+  Intercept: 570
+  TARCAP: 570

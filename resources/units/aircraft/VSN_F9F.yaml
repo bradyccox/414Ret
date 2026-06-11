@@ -15,14 +15,14 @@ gunfighter: true
 variants:
   F9F Panther: {}
 tasks:
-  BAI: 650
+  BAI: 580
   BARCAP: 150
-  CAS: 650
-  DEAD: 370
+  CAS: 580
+  DEAD: 285
   Escort: 150
   Fighter sweep: 150
   Intercept: 150
-  OCA/Aircraft: 650
-  OCA/Runway: 350
-  Strike: 350
+  OCA/Aircraft: 525
+  OCA/Runway: 355
+  Strike: 370
   TARCAP: 150

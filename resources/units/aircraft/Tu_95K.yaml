@@ -17,6 +17,6 @@ role: Strategic Bomber
 variants:
   Tu-95K Bear-C: {}
 tasks:
-  Strike: 650
-  Anti-ship: 490
-  DEAD: 290
+  Strike: 565
+  Anti-ship: 640
+  DEAD: 235

@@ -27,9 +27,9 @@ variants:
   F-8E Crusader: {}
 tasks:    # defined in flighttype.py
   Strike: 100
-  Escort: 300
-  Fighter sweep: 300
-  Intercept: 400
-  TARCAP: 300
-  BARCAP: 300
-  Armed Recon: 200
+  Escort: 460
+  Fighter sweep: 460
+  Intercept: 600
+  TARCAP: 500
+  BARCAP: 520
+  Armed Recon: 180

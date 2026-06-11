@@ -18,8 +18,8 @@ radios:
   intra_flight: SCR-522
   inter_flight: SCR-522
 tasks:
-  BARCAP: 550
-  Escort: 550
-  Fighter sweep: 550
-  Intercept: 550
-  TARCAP: 550
+  BARCAP: 725
+  Escort: 680
+  Fighter sweep: 695
+  Intercept: 720
+  TARCAP: 710

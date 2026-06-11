@@ -13,13 +13,13 @@ max_range: 1000    # combat range [nmi]
 variants:
   AD-4 Skyraider: {}
 tasks:    # defined in flighttype.py
-  Anti-ship: 200
-  BAI: 300
-  CAS: 300
+  Anti-ship: 165
+  BAI: 440
+  CAS: 440
   SEAD: 100
   SEAD Sweep: 100
   DEAD: 100
-  OCA/Aircraft: 200
-  OCA/Runway: 200
-  Strike: 300
-  Armed Recon: 200
+  OCA/Aircraft: 340
+  OCA/Runway: 290
+  Strike: 350
+  Armed Recon: 280

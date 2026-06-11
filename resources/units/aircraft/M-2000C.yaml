@@ -38,13 +38,13 @@ radios:
 #   RocketBurst: 6
 #   WpBullseye: 0
 tasks:
-  BAI: 350
-  BARCAP: 460
-  CAS: 350
-  Escort: 460
-  Fighter sweep: 460
-  Intercept: 460
-  OCA/Aircraft: 350
-  OCA/Runway: 320
-  Strike: 320
-  TARCAP: 460
+  BAI: 255
+  BARCAP: 630
+  CAS: 245
+  Escort: 565
+  Fighter sweep: 565
+  Intercept: 675
+  OCA/Aircraft: 295
+  OCA/Runway: 235
+  Strike: 245
+  TARCAP: 605

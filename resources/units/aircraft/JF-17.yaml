@@ -40,16 +40,16 @@ radios:
 #   LaserCode100: 6
 tasks:
   Anti-ship: 110
-  BAI: 700
-  BARCAP: 440
-  CAS: 700
-  DEAD: 460
-  Escort: 440
-  Fighter sweep: 440
-  Intercept: 440
-  OCA/Aircraft: 700
-  OCA/Runway: 580
-  SEAD: 180
-  SEAD Escort: 180
-  Strike: 580
-  TARCAP: 440
+  BAI: 705
+  BARCAP: 570
+  CAS: 705
+  DEAD: 495
+  Escort: 550
+  Fighter sweep: 550
+  Intercept: 570
+  OCA/Aircraft: 740
+  OCA/Runway: 635
+  SEAD: 380
+  SEAD Escort: 380
+  Strike: 645
+  TARCAP: 570

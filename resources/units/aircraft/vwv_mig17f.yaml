@@ -35,9 +35,9 @@ tasks:    # defined in flighttype.py
   OCA/Aircraft: 100
   OCA/Runway: 100
   Strike: 100
-  Escort: 300
-  Fighter sweep: 300
-  Intercept: 300
-  TARCAP: 300
-  BARCAP: 300
-  Armed Recon: 200
+  Escort: 395
+  Fighter sweep: 395
+  Intercept: 470
+  TARCAP: 425
+  BARCAP: 440
+  Armed Recon: 165

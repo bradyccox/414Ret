@@ -17,9 +17,9 @@ variants:
   Super Étendard: {}
 tasks:
   Anti-ship: 150
-  BAI: 250
-  CAS: 250
-  DEAD: 250
-  OCA/Aircraft: 250
-  OCA/Runway: 230
-  Strike: 230
+  BAI: 500
+  CAS: 500
+  DEAD: 365
+  OCA/Aircraft: 510
+  OCA/Runway: 465
+  Strike: 480

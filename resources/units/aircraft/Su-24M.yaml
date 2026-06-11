@@ -19,11 +19,11 @@ variants:
     introduced: 1988
 tasks:
   Anti-ship: 130
-  BAI: 610
-  CAS: 610
+  BAI: 705
+  CAS: 705
   DEAD: 330
-  OCA/Aircraft: 610
+  OCA/Aircraft: 620
   OCA/Runway: 510
   SEAD: 50
   SEAD Escort: 50
-  Strike: 510
+  Strike: 535

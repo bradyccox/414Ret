@@ -38,7 +38,7 @@ radios:
     inter_flight_radio_index: 1
 tasks:
   Air Assault: 20
-  BAI: 410
-  CAS: 410
+  BAI: 625
+  CAS: 625
   Escort: 100
-  OCA/Aircraft: 410
+  OCA/Aircraft: 540

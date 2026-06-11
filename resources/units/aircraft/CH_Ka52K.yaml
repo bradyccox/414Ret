@@ -24,9 +24,9 @@ variants:
   "[CH] Ka-52K": {}
 kneeboard_units: "metric"
 tasks:
-  Anti-ship: 500
-  BAI: 440
-  CAS: 440
+  Anti-ship: 345
+  BAI: 675
+  CAS: 675
   DEAD: 113
   Escort: 100
-  OCA/Aircraft: 440
+  OCA/Aircraft: 585

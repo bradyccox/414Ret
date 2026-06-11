@@ -20,16 +20,16 @@ variants:
   "[CH] Su-27P1M": {}
 kneeboard_units: "metric"
 tasks:
-  BARCAP: 480
-  BAI: 650
-  CAS: 650
-  DEAD: 420
-  Escort: 480
-  Fighter sweep: 480
-  Intercept: 480
-  OCA/Runway: 440
-  OCA/Aircraft: 440
-  SEAD: 330
-  SEAD Escort: 330
-  Strike: 440
-  TARCAP: 480
+  BARCAP: 665
+  BAI: 400
+  CAS: 390
+  DEAD: 265
+  Escort: 620
+  Fighter sweep: 635
+  Intercept: 655
+  OCA/Runway: 305
+  OCA/Aircraft: 355
+  SEAD: 230
+  SEAD Escort: 230
+  Strike: 315
+  TARCAP: 645

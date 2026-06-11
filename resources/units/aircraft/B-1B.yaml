@@ -17,9 +17,9 @@ max_range: 2000
 variants:
   B-1B Lancer: {}
 tasks:
-  BAI: 670
-  CAS: 670
-  DEAD: 220
-  OCA/Aircraft: 670
-  OCA/Runway: 670
-  Strike: 700
+  BAI: 610
+  CAS: 575
+  DEAD: 225
+  OCA/Aircraft: 600
+  OCA/Runway: 705
+  Strike: 725

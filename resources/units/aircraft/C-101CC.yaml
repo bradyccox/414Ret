@@ -20,13 +20,13 @@ variants:
 #   SoloFlight: false
 tasks:
   Anti-ship: 10
-  BAI: 230
+  BAI: 325
   BARCAP: 130
-  CAS: 230
+  CAS: 325
   Escort: 130
   Fighter sweep: 130
   Intercept: 130
-  OCA/Aircraft: 230
-  OCA/Runway: 170
-  Strike: 170
+  OCA/Aircraft: 325
+  OCA/Runway: 250
+  Strike: 270
   TARCAP: 130

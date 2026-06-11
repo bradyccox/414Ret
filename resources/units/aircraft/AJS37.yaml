@@ -36,10 +36,10 @@ kneeboard_units: "metric"
 #   Rb04VinkelHopp: 0
 #   WeapSafeHeight: 1
 tasks:
-  Anti-ship: 190
-  BAI: 620
-  CAS: 620
-  DEAD: 270
-  OCA/Aircraft: 620
-  OCA/Runway: 620
-  Strike: 630
+  Anti-ship: 215
+  BAI: 720
+  CAS: 720
+  DEAD: 320
+  OCA/Aircraft: 640
+  OCA/Runway: 565
+  Strike: 595

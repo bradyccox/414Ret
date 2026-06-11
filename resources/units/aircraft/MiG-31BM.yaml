@@ -14,10 +14,10 @@ variants:
   MiG-31BM Foxhound: {}
 kneeboard_units: "metric"
 tasks:
-  BARCAP: 550
-  Escort: 400
-  Fighter sweep: 500
-  Intercept: 600
-  TARCAP: 450
+  BARCAP: 665
+  Escort: 540
+  Fighter sweep: 580
+  Intercept: 730
+  TARCAP: 605
   SEAD: 150
   SEAD Escort: 150

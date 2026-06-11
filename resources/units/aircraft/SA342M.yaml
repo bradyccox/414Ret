@@ -24,7 +24,7 @@ variants:
   SA 342M Gazelle: {}
 kneeboard_units: "metric"
 tasks:
-  BAI: 460
-  CAS: 460
+  BAI: 410
+  CAS: 410
   Escort: 90
-  OCA/Aircraft: 460
+  OCA/Aircraft: 410

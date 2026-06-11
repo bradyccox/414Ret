@@ -36,16 +36,16 @@ variants:
   F/A-18C Hornet (AI): {}
 tasks:
   Anti-ship: 150
-  BAI: 740
-  BARCAP: 450
-  CAS: 740
-  DEAD: 440
-  Escort: 450
-  Fighter sweep: 450
-  Intercept: 450
-  OCA/Aircraft: 740
-  OCA/Runway: 600
-  SEAD: 430
-  SEAD Escort: 430
-  Strike: 600
-  TARCAP: 450
+  BAI: 690
+  BARCAP: 550
+  CAS: 690
+  DEAD: 465
+  Escort: 530
+  Fighter sweep: 530
+  Intercept: 550
+  OCA/Aircraft: 730
+  OCA/Runway: 620
+  SEAD: 460
+  SEAD Escort: 460
+  Strike: 625
+  TARCAP: 550

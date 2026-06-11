@@ -24,10 +24,10 @@ radios:
   intra_flight: R-800
   inter_flight: R-800
 tasks:
-  Anti-ship: 200
-  CAS: 700
-  DEAD: 520
-  OCA/Aircraft: 820
-  OCA/Runway: 650
-  SEAD: 500
-  Strike: 650
+  Anti-ship: 310
+  CAS: 710
+  DEAD: 525
+  OCA/Aircraft: 800
+  OCA/Runway: 675
+  SEAD: 520
+  Strike: 680

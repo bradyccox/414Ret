@@ -13,8 +13,8 @@ variants:
   J-11A Flanker-L: {}
 kneeboard_units: "metric"
 tasks:
-  BARCAP: 500
-  Escort: 500
-  Fighter sweep: 500
-  Intercept: 500
-  TARCAP: 500
+  BARCAP: 685
+  Escort: 645
+  Fighter sweep: 655
+  Intercept: 680
+  TARCAP: 670

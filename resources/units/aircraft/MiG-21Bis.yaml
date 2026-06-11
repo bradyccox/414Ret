@@ -29,12 +29,12 @@ radios:
     inter_flight_radio_index: 1
 kneeboard_units: "metric"
 tasks:
-  BAI: 520
-  BARCAP: 350
-  CAS: 520
-  Escort: 350
-  Fighter sweep: 350
-  Intercept: 350
-  OCA/Aircraft: 520
-  Strike: 220
-  TARCAP: 350
+  BAI: 570
+  BARCAP: 480
+  CAS: 570
+  Escort: 460
+  Fighter sweep: 460
+  Intercept: 480
+  OCA/Aircraft: 600
+  Strike: 440
+  TARCAP: 480

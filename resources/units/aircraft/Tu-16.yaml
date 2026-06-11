@@ -14,10 +14,10 @@ variants:
 # default_overrides:
 #   Belly_Bay_Door: false
 tasks:
-  Anti-ship: 150
-  BAI: 370
-  CAS: 370
-  DEAD: 170
-  OCA/Aircraft: 370
-  OCA/Runway: 630
-  Strike: 640
+  Anti-ship: 420
+  BAI: 365
+  CAS: 360
+  DEAD: 175
+  OCA/Aircraft: 375
+  OCA/Runway: 485
+  Strike: 505

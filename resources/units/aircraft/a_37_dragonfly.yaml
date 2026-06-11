@@ -12,6 +12,6 @@ altitudes:
  cruise: 15000
  combat: 8000
 tasks:
-  BAI: 680
-  CAS: 680
-  OCA/Aircraft: 680
+  BAI: 505
+  CAS: 505
+  OCA/Aircraft: 505

@@ -20,8 +20,8 @@ variants:
   S-3B Viking: {}
 tasks:
   Anti-ship: 130
-  BAI: 570
-  CAS: 570
-  DEAD: 200
-  OCA/Aircraft: 330
-  Strike: 370
+  BAI: 690
+  CAS: 690
+  DEAD: 280
+  OCA/Aircraft: 510
+  Strike: 480

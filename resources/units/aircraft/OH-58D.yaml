@@ -21,6 +21,6 @@ role: Light Attack/Forward Air Control
 variants:
   OH-58D Kiowa Warrior: {}
 tasks:
-  BAI: 470
-  CAS: 470
-  OCA/Aircraft: 470
+  BAI: 420
+  CAS: 420
+  OCA/Aircraft: 420

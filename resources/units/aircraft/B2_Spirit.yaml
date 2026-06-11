@@ -16,10 +16,10 @@ max_range: 1000
 variants:
   "B-2 Spirit": {}
 tasks:
-  BAI: 370
-  CAS: 750
-  SEAD: 210
-  DEAD: 210
-  OCA/Runway: 660
-  OCA/Aircraft: 770
-  Strike: 690
+  BAI: 495
+  CAS: 610
+  SEAD: 225
+  DEAD: 225
+  OCA/Runway: 705
+  OCA/Aircraft: 640
+  Strike: 725

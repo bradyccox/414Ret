@@ -18,8 +18,8 @@ variants:
   Tu-128M Fiddler: {}
 kneeboard_units: "metric"
 tasks:
-  BARCAP: 380
-  Escort: 380
-  Fighter sweep: 380
-  Intercept: 380
-  TARCAP: 380
+  BARCAP: 555
+  Escort: 495
+  Fighter sweep: 495
+  Intercept: 595
+  TARCAP: 535

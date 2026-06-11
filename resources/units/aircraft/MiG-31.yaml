@@ -20,8 +20,8 @@ default_livery: af standard
 variants:
   MiG-31 Foxhound: {}
 tasks:
-  BARCAP: 400
-  Escort: 400
-  Fighter sweep: 400
-  Intercept: 400
-  TARCAP: 400
+  BARCAP: 605
+  Escort: 540
+  Fighter sweep: 540
+  Intercept: 650
+  TARCAP: 585

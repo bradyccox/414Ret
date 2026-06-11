@@ -55,11 +55,11 @@ radios:
 #   RocketBurst: 1
 tasks:
   Anti-ship: 60
-  BAI: 690
-  CAS: 690
-  DEAD: 350
-  OCA/Aircraft: 690
-  OCA/Runway: 590
+  BAI: 745
+  CAS: 745
+  DEAD: 345
+  OCA/Aircraft: 660
+  OCA/Runway: 550
   SEAD: 70
   SEAD Escort: 70
-  Strike: 590
+  Strike: 570

@@ -32,16 +32,16 @@ radios:
   inter_flight: R-800
 tasks:
   Anti-ship: 150
-  BAI: 740
-  BARCAP: 450
-  CAS: 740
-  DEAD: 440
-  Escort: 450
-  Fighter sweep: 450
-  Intercept: 450
-  OCA/Aircraft: 740
-  OCA/Runway: 600
-  SEAD: 430
-  SEAD Escort: 430
-  Strike: 600
-  TARCAP: 450
+  BAI: 725
+  BARCAP: 580
+  CAS: 725
+  DEAD: 490
+  Escort: 560
+  Fighter sweep: 560
+  Intercept: 580
+  OCA/Aircraft: 765
+  OCA/Runway: 650
+  SEAD: 485
+  SEAD Escort: 485
+  Strike: 655
+  TARCAP: 580
