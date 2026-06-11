@@ -86,7 +86,21 @@ local intercept_registry = {}
 -- for the numerics and a string compare ("false") for the boolean.
 local NM = 1852  -- metres per nautical mile
 local DETECTION_GROUPING_M = 30000  -- contact-clustering radius for DETECTION_AREAS
-local BUILD_DELAY = 5  -- seconds; let mist.dynAdd backstops register before SET_GROUP
+-- BUILD_DELAY serves two purposes: (1) let mist.dynAdd backstop EWRs register their
+-- birth events before SET_GROUP:FilterStart() runs (needs ~1 frame, so 5s was fine);
+-- (2) give in-flight BLUE spawns time to move away from their start positions before
+-- the dispatcher arms. Without this, any BLUE aircraft that spawns within GciRadius
+-- of a RED base at T+0 immediately triggers a scramble. 90 s is enough for AI flights
+-- to reach their cruise altitude/speed and clear the immediate vicinity.
+local BUILD_DELAY = 90
+local QRA_SPAWN_ALTITUDE_M = 6000
+-- EngageFloor/Ceiling in SetSquadronGci2 are the TARGET altitude band the GCI
+-- task will fire on — not the interceptors' patrol altitude.  Setting these to
+-- 5500/9000 meant the EngageTargets task silently skipped anything below 5500 m
+-- (e.g. MQ-9s, low-level strike packages).  Widen to cover all DCS airspace.
+local QRA_ENGAGE_FLOOR_M = 100     -- ~330 ft BARO: catches helicopters & low-level
+local QRA_ENGAGE_CEILING_M = 15000 -- ~49 000 ft: covers everything in DCS
+local qra_announced_groups = { BLUE = {}, RED = {} }
 
 -- ---------------------------------------------------------------------------
 -- MOOSE BUG WORKAROUND — air-spawn takeoff event
@@ -268,14 +282,31 @@ local function build_dispatcher(coalition_name, records)
         -- viable here because the BASE.CreateEventTakeoff monkeypatch above fixes
         -- the Moose air-spawn crash that previously killed it. Altitude is metres.
         dispatcher:SetDefaultTakeoffInAir()
-        dispatcher:SetDefaultTakeoffInAirAltitude(2000)  -- ~6,500 ft
+        dispatcher:SetDefaultTakeoffInAirAltitude(QRA_SPAWN_ALTITUDE_M)
         dispatcher:SetDefaultLandingAtEngineShutdown()
         dispatcher:SetIntercept(0)
         dispatcher:SetEngageRadius(engagement_range_nm * NM)
-        dispatcher:SetTacticalDisplay(true)
+        dispatcher:SetTacticalDisplay(false)
         dispatcher:SetGciRadius(scramble_radius_nm * NM)
-        if comms_enabled then
-            dispatcher:SetSendMessages(true)
+        dispatcher:SetSendMessages(false)
+        local base_resource_activate = dispatcher.ResourceActivate
+
+        function dispatcher:ResourceActivate(DefenderSquadron, DefendersNeeded)
+            local defender, grouping = base_resource_activate(
+                self, DefenderSquadron, DefendersNeeded
+            )
+            if comms_enabled and defender then
+                local defender_name = defender:GetName()
+                if defender_name and not qra_announced_groups[coalition_name][defender_name] then
+                    qra_announced_groups[coalition_name][defender_name] = true
+                    env.info("DCSRetribution|Intercept: "..coalition_name
+                             .." QRA group launched: "..defender_name)
+                    trigger.action.outText(
+                        "GCI: "..coalition_name.." interceptors launched.", 10
+                    )
+                end
+            end
+            return defender, grouping
         end
 
         for _, rec in ipairs(records) do
@@ -284,14 +315,13 @@ local function build_dispatcher(coalition_name, records)
             -- unique squadron id to avoid one base's QRA overwriting another's.
             local sq = rec.squadronName .. " #" .. string.sub(tostring(rec.squadronId), 1, 8)
             dispatcher:SetSquadron(sq, rec.airbaseName, { rec.templatePrefix }, tonumber(rec.resourceCount))
-            dispatcher:SetSquadronGci(sq, 900, 1200)
+            dispatcher:SetSquadronGci2(
+                sq, 900, 1200, QRA_ENGAGE_FLOOR_M, QRA_ENGAGE_CEILING_M, "BARO"
+            )
             dispatcher:SetSquadronGrouping(sq, 2)
             -- NOTE: deliberately NOT SetSquadronVisible — see header. Visible mode
             -- forces a cold pre-park (F-16 never taxis), clamps reserve to parking
             -- spots, and forces Grouping=1. Non-visible = in-air fresh-spawn on scramble.
-            if comms_enabled then
-                dispatcher:SetSquadronLanguage(sq, "EN")
-            end
             intercept_survivors[rec.squadronId] = tonumber(rec.resourceCount)
 
             intercept_registry[rec.squadronId] = {

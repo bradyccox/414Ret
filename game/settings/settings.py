@@ -245,13 +245,15 @@ class Settings:
         "QRA GCI max scramble radius (NM)",
         page=CAMPAIGN_DOCTRINE_PAGE,
         section=GENERAL_SECTION,
-        default=100,
+        default=45,
         min=1,
         max=400,
         detail=(
             "Caps how close a detected raid must be to a defended base before that "
             "base's QRA scrambles. Detection range itself comes from the IADS/EWR "
-            "network; this only gates the scramble trigger distance."
+            "network; this only gates the scramble trigger distance. 45 NM prevents "
+            "scrambles against distant in-flight spawns at mission start while still "
+            "reacting to aircraft that are genuinely threatening the base."
         ),
     )
     qra_engagement_range_nm: int = bounded_int_option(
