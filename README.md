@@ -1,103 +1,97 @@
-[![Logo](https://github.com/dcs-retribution/dcs-retribution/raw/main/resources/ui/splash_screen.png)](https://shdwp.github.io/ukraine/)
+# 414Ret — 414th Joint Fighter Group's DCS Retribution Fork
 
-(Github Readme Banner and Splash screen Artwork by Andriy Dankovych, CC BY-SA 4.0)
+This repository is the **414th Joint Fighter Group's customized build of
+[DCS Retribution](https://github.com/dcs-retribution/dcs-retribution)** — a turn-based
+dynamic campaign generator for [DCS World](https://www.digitalcombatsimulator.com/en/products/world/).
 
-[![Download](https://img.shields.io/github/downloads/dcs-retribution/dcs-retribution/total?label=Download)](https://github.com/dcs-retribution/dcs-retribution/releases)
+It is a snapshot of upstream Retribution (`dev` branch) **plus the 414th's own
+air-defense, electronic-warfare, and assets-pack features**. The unmodified upstream
+project README is preserved as [`README.upstream.md`](README.upstream.md).
 
-[![Discord](https://img.shields.io/discord/1015931619187621999?label=Discord&logo=discord)](https://discord.gg/b4x34Bg4We)
+> **For AI assistants / other Claude sessions:** read [`CLAUDE.md`](CLAUDE.md) first.
+> It is the engineering handoff doc — architecture, where each feature lives, the
+> branch layout, and what is still in flight.
 
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/dcs-retribution/dcs-retribution)](https://github.com/dcs-retribution/dcs-retribution/pulls)
-[![GitHub issues](https://img.shields.io/github/issues/dcs-retribution/dcs-retribution)](https://github.com/dcs-retribution/dcs-retribution/issues)
-![GitHub stars](https://img.shields.io/github/stars/dcs-retribution/dcs-retribution?style=social)
+---
 
-## About DCS Retribution 
-(Last update: 2026-03-22)
+## What's different from upstream
 
-DCS Retribution was forked in 2022 from [DCS Liberation](https://github.com/dcs-liberation/dcs_liberation),
-which is a [DCS World](https://www.digitalcombatsimulator.com/en/products/world/) turn based single-player or co-op dynamic campaign. 
-It is an external program that generates full and complex DCS missions and manage a persistent combat environment.
+This fork is upstream `dev` at commit `dce851ea` with the following 414th additions
+stacked on top (newest first):
 
-![Screenshot](https://user-images.githubusercontent.com/315852/120939254-0b4a9f80-c6cc-11eb-82f5-ce3f8d714bfe.png)
+### New flight types
+- **`FlightType.SCRAMBLE`** — reactive QRA (Quick Reaction Alert) interceptors. RED
+  air-to-air aircraft are held cold on the ramp and woken only when BLUE penetrates a
+  defined border. Driven by the bundled `reactive_scramble.lua` mission plugin.
+- **`FlightType.JAMMING`** — standoff electronic-warfare support flown by the C-130J,
+  acting as an EC-130H Compass Call / RC-130H Rivet Joint platform. Driven by the
+  bundled `c130j_mission_systems.lua` plugin.
 
-DCS Retribution is no longer relying on DCS Liberation updates,
-though occasionally we might still sync a feature to our fork.
-However, we are no longer backwards compatible with Liberation, and will no longer attempt to do so.
+### Air-defense planning rework
+- **Overlapping BARCAP waves** with jittered timing so CAP doesn't all arrive at once
+  (`barcap_overlap_time` setting).
+- **Forward CAP line** that pushes CAP toward friendly control points anchoring active
+  front lines instead of orbiting deep.
+- **Reactive-scramble doctrine toggle** (`enable_reactive_scramble`) plus a QRA reserve
+  (`reactive_scramble_reserve`) so the auto-planner leaves interceptors uncommitted, and
+  a RED airspace border (`scramble_border`) that triggers the launch.
+- OPFOR-aggressiveness direction fix and CAS / Armed-Recon engagement-range bumps.
 
-Instead, we are focussing on keeping our campaigns forward compatible so that you as a user
-can continue on whatever campaign you had going on.
-Please keep in mind that once you save a campaign that was started
-in a previous (save-compatibility breaking) build, your save file
-will have been migrated and thus no longer compatible with the previous build.
-Therefore, we recommend backing up your saves and perhaps organizing them by version/build number.
+### Quality-of-life & robustness
+- **Auto-hide mobile SAMs (SHORAD/AAA) on the MFD** at campaign generation
+  (`hide_on_mfd`).
+- **Crash fixes:** flight-combat-exit `IndexError`, AWACS orbit stacking, tanker orbit
+  placement/deconfliction, and malformed mod-aircraft payload Lua (e.g. CJS Super
+  Hornet v2.4 files that use local-variable table indices).
 
-In the past, we've relied very little on GitHub's "Releases" since our setup is rather based on
-preview builds which are made easily available through our Discord server, where a channel
-will trigger a message with a link to the latest preview build whenever we push a commit to the dev branch.
-However, we're planning to change this strategy and attempt to publish a new release whenever DCS releases a new
-version, unless it's a minor patch which doesn't require any changes on our end.
+### Assets
+- **CurrentHill Iran assets pack** support: Shahed-136, IRGCN FAC variants, and a
+  dedicated `[CH] Iran 2020` faction, behind a new-game mod toggle.
 
-Over the years we've extended the original DCS Liberation with a lot of features, 
-such as support for road-bases, neutral bases, weapon-settings, additional mission types, etc.
-For a more complete overview of our features, check the
-[changelog](https://github.com/dcs-retribution/dcs-retribution/blob/main/changelog.md).
+A per-feature breakdown with file paths lives in [`CLAUDE.md`](CLAUDE.md).
 
-## Downloads
+---
 
-Latest release is available here : https://github.com/dcs-retribution/dcs-retribution/releases
+## Running it
 
-To download preview builds of the next version of DCS Retribution, see https://github.com/dcs-retribution/dcs-retribution/wiki/Betas.
+Same as upstream Retribution. Quick start (Windows, PowerShell):
 
-## DCS bugs
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python qt_ui\main.py
+```
 
-~~These DCS bugs prevent us from improving AI behavior. Please upvote them! (But please
-_don't_ spam them with comments):~~
+You need a working DCS World install and the MOOSE-dependent features assume the
+bundled mission plugins under `resources/plugins/` are present. See
+[`README.upstream.md`](README.upstream.md) for the full upstream setup, dependencies,
+and wiki links.
 
-* ~~[A2A and SEAD escorts don't escort](https://forums.eagle.ru/topic/251798-options-for-alternate-ai-escort-behavior/?tab=comments#comment-4668033)~~
-* ~~[DEAD can't use mixed loadouts effectively](https://forums.eagle.ru/topic/271941-ai-rtbs-after-firing-decoys-despite-full-load-of-bombs/)~~
+### Dev checks (must pass before pushing)
 
-While DCS bugs are still a thing, we don't quite agree with the ones stated above.
-We believe to have addressed these, although some quirks still exist.
-For example, SEAD Escorts tend to be a little picky with what they engage,
-especially with older SAM systems.
+```powershell
+.venv\Scripts\python.exe -m black --check .      # formatting
+.venv\Scripts\python.exe -m mypy game tests       # type checking (CI only checks game + tests)
+.venv\Scripts\python.exe -m pytest tests -q       # unit tests
+```
 
-## Bugs and feature requests
+---
 
-If you need to report a bug or want to suggest a new feature, you can do this on our 
-[bug tracker](https://github.com/dcs-retribution/dcs-retribution/issues).
-In either case, please use the search bar at the top of the page to see if it has already been reported.
-Note that you may need to remove the filter for open bugs if it's something we've recently fixed.
+## Relationship to the 414th workspace
 
-## Roadmap
+The 414th also maintains a separate **mission-building workspace** (campaign plans,
+`.miz` files, and Mission-Editor-loaded Lua scripts such as the standalone MANTIS IADS,
+AI_A2A_DISPATCHER, and the original C-130J EW script). That workspace is private.
 
-Our plans for future releases can be found on our
-[Projects page](https://github.com/dcs-retribution/dcs-retribution/projects).
-Each planned release has a Project, and the page for that project has columns for to do,
-in progress, and done. Items in the Done column are in the
-[preview build](https://github.com/dcs-retribution/dcs-retribution/wiki/Preview-builds)
-for that release. Items in the To do column are planned to be added to that release.
+This repo is the **engine-level** side: the same capabilities, but implemented inside
+the Retribution campaign generator so they are planned and spawned automatically rather
+than hand-placed in the Mission Editor.
 
-## Resources
+---
 
-Tutorials, contributors and developer's guides are available in the project's
-[Wiki](https://github.com/dcs-retribution/dcs-retribution/wiki/)
+## License & credit
 
-(Some historical information is also availabe on
-[Liberation's Wiki](https://github.com/dcs-liberation/dcs_liberation/wiki/))
-
-## Special Thanks
-
-First, a big thanks to shdwp, for starting the original DCS Liberation project. 
-
-Then, DCS Liberation/Retribution uses [pydcs](https://github.com/pydcs/dcs) for mission generation, and nothing would be possible without this.
-It also uses the popular [Mist](https://github.com/mrSkortch/MissionScriptingTools) lua framework for mission scripting. Support for the 
-impressive [Moose](https://github.com/FlightControl-Master/MOOSE) framework was also introduced,
-allowing for even more customization.
-
-Excellent lua scripts DCS Liberation/Retribution uses as plugins:
-
-* For the JTAC feature, DCS Retribution embeds Ciribob's JTAC Autolase [script](https://github.com/ciribob/DCS-JTACAutoLaze).
-* Walder's [Skynet-IADS](https://github.com/walder/Skynet-IADS) is used for Integrated Air Defense System.
-* Carstens Arty Spotter https://www.digitalcombatsimulator.com/en/files/3339128/ is an amazing force multiplyer to drop the hammer on enemies.
-* MBot's [Call Artillery Script](https://forum.dcs.world/topic/310506-call-artillery-script/) uses in-map artillery and forward observers to enable artillery fire missions.
-
-Please also show some support to these projects ! 
+DCS Retribution is licensed under the LGPL (see [`LICENSE`](LICENSE)). All upstream
+authorship and the project's history are preserved. The 414th additions are provided
+under the same terms. Upstream project: <https://github.com/dcs-retribution/dcs-retribution>.
