@@ -232,7 +232,7 @@ class Settings:
         "Default QRA reserve per OPFOR interceptor squadron",
         page=CAMPAIGN_DOCTRINE_PAGE,
         section=GENERAL_SECTION,
-        default=0,
+        default=2,
         min=0,
         max=12,
         detail=(

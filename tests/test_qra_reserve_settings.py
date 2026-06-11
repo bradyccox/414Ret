@@ -5,8 +5,10 @@ def test_ownfor_default_qra_reserve_defaults_to_zero() -> None:
     assert Settings().ownfor_default_qra_reserve == 0
 
 
-def test_opfor_default_qra_reserve_defaults_to_zero() -> None:
-    assert Settings().opfor_default_qra_reserve == 0
+def test_opfor_default_qra_reserve_defaults_to_two() -> None:
+    # Intentional divergence from upstream #782 (which ships 0): OPFOR fields QRA
+    # by default so RED defends with hot-alert interceptors out of the box.
+    assert Settings().opfor_default_qra_reserve == 2
 
 
 def test_qra_gci_max_radius_defaults_to_hundred() -> None:
