@@ -222,7 +222,7 @@ class Settings:
         default=True,
         invert=False,
         detail=(
-            "When checked, RED parks air-to-air-capable leftover aircraft cold on"
+            "When checked, RED parks Scramble-capable leftover aircraft cold on"
             " the ramp as a quick-reaction (QRA) pool. reactive_scramble.lua wakes"
             " the nearest one to intercept when a BLUE aircraft penetrates RED"
             " airspace. The pool is generated even if untasked OPFOR aircraft are"
@@ -237,7 +237,7 @@ class Settings:
         min=0,
         max=8,
         detail=(
-            "How many air-to-air-capable aircraft each RED squadron holds back"
+            "How many Scramble-capable aircraft each RED squadron holds back"
             " from the auto-planner so they remain on the ramp as QRA"
             " interceptors. 0 lets the planner commit every aircraft (no reserve),"
             " which is why squadrons were leaving no interceptors. Capped per"

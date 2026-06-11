@@ -6,6 +6,7 @@ aircraft for the reactive-scramble interceptor pool.
 from __future__ import annotations
 
 from game.ato import FlightType
+from game.settings import Settings
 from game.squadrons.squadron import Squadron
 
 
@@ -71,3 +72,10 @@ def test_red_ground_attack_only_does_not_reserve() -> None:
 
 def test_disabled_setting_disables_reserve() -> None:
     assert reserve_of(is_red=True, caps={FlightType.SCRAMBLE}, enabled=False) == 0
+
+
+def test_reactive_scramble_is_enabled_by_default() -> None:
+    settings = Settings()
+
+    assert settings.enable_reactive_scramble
+    assert settings.reactive_scramble_reserve == 2
