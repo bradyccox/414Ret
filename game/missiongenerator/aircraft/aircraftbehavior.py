@@ -471,8 +471,9 @@ class AircraftBehavior:
 
     def configure_isr(self, group: FlyingGroup[Any], flight: Flight) -> None:
         # Standoff ISR orbit: C-130J holds a racetrack outside the threat zone.
-        # c130j_mission_systems.lua drives ISR detection and ELINT at runtime.
-        self.configure_task(flight, group, AWACS)
+        # c130j_mission_systems.lua drives ISR detection and ELINT at runtime, so
+        # this only needs a DCS-compatible non-combat main task.
+        self.configure_task(flight, group, Transport, [GroundAttack])
         if not isinstance(flight.flight_plan, AewcFlightPlan):
             logging.error(
                 f"Cannot configure ISR tasks for {flight} because it does not "
@@ -487,12 +488,12 @@ class AircraftBehavior:
             restrict_jettison=True,
             mission_uses_gun=False,
         )
-        group.points[0].tasks.append(AWACSTaskAction())
 
     def configure_jamming(self, group: FlyingGroup[Any], flight: Flight) -> None:
         # Package-support jamming follows an escort-style route. The mission systems
-        # script provides the EW effect; DCS AI should not attack.
-        self.configure_task(flight, group, AWACS)
+        # script provides the EW effect; DCS AI should not attack, so it only needs
+        # a DCS-compatible non-combat main task.
+        self.configure_task(flight, group, Transport, [GroundAttack])
         self.configure_behavior(
             flight,
             group,

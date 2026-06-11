@@ -107,7 +107,10 @@ class GroundUnitType(UnitType[Type[VehicleType]]):
 
     @classmethod
     def _data_directory(cls) -> Path:
-        return Path("resources/units/ground_units")
+        # Resolve from the repo root so startup does not depend on cwd.
+        return (
+            Path(__file__).resolve().parents[2] / "resources" / "units" / "ground_units"
+        )
 
     @staticmethod
     def _migrator() -> Dict[str, str]:

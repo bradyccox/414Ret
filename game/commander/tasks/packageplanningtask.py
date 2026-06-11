@@ -59,6 +59,8 @@ class PackagePlanningTask(TheaterCommanderTask, Generic[MissionTargetT]):
             if f.departure.is_fleet and not f.is_helo and f.departure not in seen:
                 state.recovery_targets[f.departure] += f.count
                 seen.add(f.departure)
+            if f.flight_type is FlightType.JAMMING:
+                state.jamming_planned = True
 
     def execute(self, coalition: Coalition) -> None:
         if self.package is None:
@@ -104,6 +106,10 @@ class PackagePlanningTask(TheaterCommanderTask, Generic[MissionTargetT]):
     def fulfill_mission(self, state: TheaterState) -> bool:
         color = "blue" if state.context.coalition.player.is_blue else "red"
         self.propose_flights()
+        if state.jamming_planned:
+            self.flights = [
+                f for f in self.flights if f.task is not FlightType.JAMMING
+            ]
         fulfiller = PackageFulfiller(
             state.context.coalition,
             state.context.theater,

@@ -82,6 +82,7 @@ class Flight(
         self.start_type = start_type
         self.custom_name = custom_name
         self.group_id: int = 0
+        self.group_name: str = ""
 
         self.frequency = frequency
         if self.unit_type.dcs_unit_type.tacan:

@@ -513,7 +513,9 @@ class AircraftType(UnitType[Type[FlyingType]]):
 
     @classmethod
     def _data_directory(cls) -> Path:
-        return Path("resources/units/aircraft")
+        # Resolve from the repo root so startup does not depend on the current
+        # working directory chosen by the launcher.
+        return Path(__file__).resolve().parents[2] / "resources" / "units" / "aircraft"
 
     @classmethod
     def _variant_from_dict(

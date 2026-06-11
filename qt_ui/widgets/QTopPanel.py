@@ -199,14 +199,58 @@ class QTopPanel(QFrame):
                     return True
         return False
 
+    def combined_arms_slot_count(self) -> int:
+        settings = self.game.settings
+        return (
+            settings.game_masters_count
+            + settings.tactical_commander_count
+            + settings.jtac_count
+            + settings.observer_count
+        )
+
+    def mission_has_human_slots(self) -> bool:
+        return self.ato_has_clients() or self.combined_arms_slot_count() > 0
+
+    def show_no_human_slot_error(self) -> None:
+        mbox = QMessageBox(
+            QMessageBox.Icon.Critical,
+            "No human-accessible slots",
+            (
+                "This mission has no player aircraft slots and no observer or "
+                "Combined Arms slots. DCS can hang when loading a mission with no "
+                "human-accessible slots at all.<br />"
+                "<br />"
+                "Assign at least one player pilot to a flight, or enable one of the "
+                "observer / game master / tactical commander / JTAC slot options in "
+                "Mission Generator settings."
+            ),
+            parent=self,
+        )
+        mbox.setEscapeButton(mbox.addButton(QMessageBox.StandardButton.Close))
+        mbox.exec_()
+
     def confirm_no_client_launch(self) -> bool:
+        ca_slots = self.combined_arms_slot_count()
+        if ca_slots > 0:
+            description = (
+                "No player pilots have been assigned to flights. The mission still has "
+                f"{ca_slots} observer / Combined Arms slot"
+                f"{'' if ca_slots == 1 else 's'}, so players can join the mission, "
+                "but nobody will be able to fly an aircraft.<br />"
+            )
+            continue_text = "Continue with observer / Combined Arms only mission"
+        else:
+            description = (
+                "No player pilots have been assigned to flights. Continuing will allow "
+                "the AI to perform the mission, but players will be unable to "
+                "participate.<br />"
+            )
+            continue_text = "Continue with AI only mission"
         result = QMessageBox.question(
             self,
             "Continue without player pilots?",
             (
-                "No player pilots have been assigned to flights. Continuing will allow "
-                "the AI to perform the mission, but players will be unable to "
-                "participate.<br />"
+                f"{description}"
                 "<br />"
                 "To assign player pilots to a flight, select a package from the "
                 "Packages panel on the left of the main window, and then a flight from "
@@ -214,7 +258,7 @@ class QTopPanel(QFrame):
                 "Flights panel will allow you to assign specific pilots to the flight. "
                 "If you have no player pilots available, the checkbox next to the "
                 "name will convert them to a player.<br />"
-                "<br />Click 'Yes' to continue with an AI only mission"
+                f"<br />Click 'Yes' to {continue_text.lower()}."
                 "<br />Click 'No' if you'd like to make more changes."
             ),
             QMessageBox.StandardButton.No,
@@ -295,8 +339,12 @@ class QTopPanel(QFrame):
 
     def launch_mission(self):
         """Finishes planning and waits for mission completion."""
-        if not self.ato_has_clients() and not self.confirm_no_client_launch():
-            return
+        if not self.ato_has_clients():
+            if not self.mission_has_human_slots():
+                self.show_no_human_slot_error()
+                return
+            if not self.confirm_no_client_launch():
+                return
 
         if self.check_no_missing_pilots():
             return

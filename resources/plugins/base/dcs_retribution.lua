@@ -221,12 +221,24 @@ write_state_error_handling()
 -- Escorts are kept within their engagement range relative to the escorted group.
 -- This is driven by the mission-injected dcsRetribution.Escorts table.
 
-local function escort_leash_get_group(id)
+local function escort_leash_get_group(id, name)
+    if name and name ~= "" then
+        local by_name = Group.getByName(name)
+        if by_name then
+            return by_name
+        end
+    end
+
     local group_id = tonumber(id)
     if not group_id or group_id <= 0 then
         return nil
     end
-    return Group.getByID(group_id)
+
+    if Group.getByID then
+        return Group.getByID(group_id)
+    end
+
+    return nil
 end
 
 local function escort_leash_set_roe(group, roe)
@@ -246,8 +258,8 @@ local function escort_leash_update()
     end
 
     for _, pair in pairs(dcsRetribution.Escorts) do
-        local escort_group = escort_leash_get_group(pair.escortGroupId)
-        local escorted_group = escort_leash_get_group(pair.escortedGroupId)
+        local escort_group = escort_leash_get_group(pair.escortGroupId, pair.escortGroupName)
+        local escorted_group = escort_leash_get_group(pair.escortedGroupId, pair.escortedGroupName)
 
         -- If the escorted group no longer exists (dead/despawned), ensure escort isn't stuck.
         if escort_group and not escorted_group then

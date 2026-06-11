@@ -203,6 +203,8 @@ class FlightGroupConfigurator:
             EscortInfo(
                 escort_group_id=escort_group_id,
                 escorted_group_id=escorted_group_id,
+                escort_group_name=str(self.group.name),
+                escorted_group_name=str(self.flight.package.primary_flight.group_name),
                 engagement_range_meters=int(engagement_range),
             )
         )

@@ -52,7 +52,8 @@ class ShipUnitType(UnitType[Type[ShipType]]):
 
     @classmethod
     def _data_directory(cls) -> Path:
-        return Path("resources/units/ships")
+        # Resolve from the repo root so startup does not depend on cwd.
+        return Path(__file__).resolve().parents[2] / "resources" / "units" / "ships"
 
     @staticmethod
     def _migrator() -> Dict[str, str]:

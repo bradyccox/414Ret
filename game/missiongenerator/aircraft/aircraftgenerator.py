@@ -286,7 +286,11 @@ class AircraftGenerator:
                 if resource_count <= 0:
                     continue
 
-                template_prefix = f"Intercept|{control_point.name}|{squadron.id}"
+                aircraft_name = str(squadron.aircraft).replace("|", "-")
+                template_prefix = (
+                    f"Intercept|{control_point.name}|{aircraft_name}|"
+                    f"{str(squadron.id)[:8]}"
+                )
 
                 flight = Flight(
                     Package(squadron.location, self.game.db.flights),

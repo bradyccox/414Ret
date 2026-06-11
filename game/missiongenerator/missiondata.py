@@ -78,6 +78,8 @@ class EscortInfo:
 
     escort_group_id: int
     escorted_group_id: int
+    escort_group_name: str
+    escorted_group_name: str
     engagement_range_meters: int
 
 

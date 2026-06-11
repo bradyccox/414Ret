@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING, Union, Dict
 
+from game.ato import FlightType
 from game.commander.battlepositions import BattlePositions
 from game.commander.objectivefinder import ObjectiveFinder
 from game.db import GameDb
@@ -72,6 +73,7 @@ class TheaterState(WorldState["TheaterState"]):
     vulnerable_control_points: list[ControlPoint]
     control_point_priority_queue: list[ControlPoint]
     priority_cp: Optional[ControlPoint]
+    jamming_planned: bool = dataclasses.field(default=False)
 
     def _rebuild_threat_zones(self) -> None:
         """Recreates the theater's threat zones based on the current planned state."""
@@ -81,6 +83,41 @@ class TheaterState(WorldState["TheaterState"]):
             barcap_locations=self.enemy_barcaps,
             air_defenses=itertools.chain(self.enemy_air_defenses, self.enemy_ships),
         )
+
+    @staticmethod
+    def _aewc_targets_for(
+        finder: ObjectiveFinder, threat_zones: ThreatZones, player: Player
+    ) -> list[MissionTarget]:
+        """Build a sensible AWACS target list from actual AEWC-capable bases."""
+        candidates: list[tuple[ControlPoint, int, float]] = []
+        for cp in finder.friendly_control_points():
+            available_awacs = [
+                squadron
+                for squadron in cp.squadrons
+                if squadron.aircraft.capable_of(FlightType.AEWC)
+                and squadron.untasked_aircraft > 0
+            ]
+            if not available_awacs:
+                continue
+
+            score = threat_zones.distance_to_threat(cp.position)
+            score_meters = score.meters if hasattr(score, "meters") else float(score)
+            candidates.append((cp, len(available_awacs), score_meters))
+
+        if not candidates:
+            return [finder.farthest_friendly_control_point()]
+
+        targets: list[MissionTarget] = []
+        for cp, count, _score in sorted(
+            candidates,
+            key=lambda item: (
+                item[2].meters if hasattr(item[2], "meters") else float(item[2]),
+                item[0].name,
+            ),
+            reverse=not player.is_blue,
+        ):
+            targets.extend([cp] * count)
+        return targets
 
     def eliminate_air_defense(self, target: IadsGroundObject) -> None:
         if target in self.threatening_air_defenses:
@@ -149,6 +186,7 @@ class TheaterState(WorldState["TheaterState"]):
             vulnerable_control_points=self.vulnerable_control_points,
             control_point_priority_queue=self.control_point_priority_queue,
             priority_cp=self.priority_cp,
+            jamming_planned=self.jamming_planned,
         )
 
     @classmethod
@@ -191,10 +229,9 @@ class TheaterState(WorldState["TheaterState"]):
             if not bp.blocking_capture or cp.is_fleet
         ]
 
-        aewc_targets = [cp for cp in finder.friendly_control_points() if cp.is_carrier]
-        aewc_targets.append(finder.farthest_friendly_control_point())
-
         vulnerable_cps = list(finder.vulnerable_control_points())
+        threat_zones = game.threat_zone_for(player.opponent)
+        aewc_targets = cls._aewc_targets_for(finder, threat_zones, player)
 
         return TheaterState(
             context=context,
@@ -222,7 +259,7 @@ class TheaterState(WorldState["TheaterState"]):
             ),
             strike_targets=list(finder.strike_targets()),
             enemy_barcaps=list(game.theater.control_points_for(player.opponent)),
-            threat_zones=game.threat_zone_for(player.opponent),
+            threat_zones=threat_zones,
             vulnerable_control_points=vulnerable_control_points,
             control_point_priority_queue=ordered_capturable_points,
             priority_cp=(

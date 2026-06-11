@@ -32,6 +32,8 @@ from dcs.unitgroup import (
 from game.ato import Flight
 from game.ato.flightstate import InFlight
 from game.ato.starttype import StartType
+from game.data.weapons import Pylon
+from game.missiongenerator.aircraft.aircraftbehavior import AircraftBehavior
 from game.ato.traveltime import GroundSpeed
 from game.missiongenerator.missiondata import MissionData
 from game.naming import namegen
@@ -62,9 +64,10 @@ HELI_ALT = 500
 #: in-air spawn (AI_A2A_DISPATCHER SetDefaultTakeoffInAir) applies the template's
 #: first-waypoint speed as starting velocity but sets none of its own; a parked
 #: template's waypoint speed is ~0, which stalls high-stall-speed early jets (e.g.
-#: MiG-19P) before the dispatcher tasks them ~5s later. 150 m/s (~291 kt) clears
-#: their stall margin without being excessive. DCS waypoint speed is m/s.
-QRA_AIRSTART_SPEED_MS = 150.0
+#: MiG-19P) before the dispatcher tasks them ~5s later. 250 m/s (~486 kt) keeps
+#: QRA fighters from sagging into low-altitude missile envelopes while sorting.
+#: DCS waypoint speed is m/s.
+QRA_AIRSTART_SPEED_MS = 250.0
 
 
 class FlightGroupSpawner:
@@ -114,9 +117,11 @@ class FlightGroupSpawner:
         ):
             grp = self.generate_flight_at_departure()
             self.flight.group_id = grp.id
+            self.flight.group_name = str(grp.name)
             return grp
         grp = self.generate_mid_mission()
         self.flight.group_id = grp.id
+        self.flight.group_name = str(grp.name)
         return grp
 
     def create_idle_aircraft(self) -> Optional[FlyingGroup[Any]]:
@@ -168,8 +173,25 @@ class FlightGroupSpawner:
         # at ~0 and stall early types like the MiG-19P. See QRA_AIRSTART_SPEED_MS.
         for point in group.points:
             point.speed = QRA_AIRSTART_SPEED_MS
+        AircraftBehavior(self.flight.flight_type, self.mission_data).apply_to(
+            self.flight, group
+        )
+        self._setup_qra_template_payloads(group)
         group.late_activation = True
         return group
+
+    def _setup_qra_template_payloads(self, group: FlyingGroup[Any]) -> None:
+        for unit, member in zip(group.units, self.flight.iter_members()):
+            unit.pylons.clear()
+            for pylon_number, weapon in member.loadout.pylons.items():
+                if weapon is None:
+                    continue
+                pylon = Pylon.for_aircraft(self.flight.unit_type, pylon_number)
+                pylon.equip(
+                    unit,
+                    weapon,
+                    member.loadout.pylon_settings.get(pylon_number),
+                )
 
     def _restricted_parking_slots(self, cp: Airfield) -> Optional[List[ParkingSlot]]:
         # TODO: remove hack when fixed in DCS

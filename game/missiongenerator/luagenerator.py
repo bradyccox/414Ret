@@ -318,6 +318,8 @@ class LuaGenerator:
             escort_item = escorts_object.add_item()
             escort_item.add_key_value("escortGroupId", str(escort.escort_group_id))
             escort_item.add_key_value("escortedGroupId", str(escort.escorted_group_id))
+            escort_item.add_key_value("escortGroupName", escort.escort_group_name)
+            escort_item.add_key_value("escortedGroupName", escort.escorted_group_name)
             escort_item.add_key_value(
                 "engagementRangeMeters", str(escort.engagement_range_meters)
             )
