@@ -31,12 +31,22 @@ class MissionScheduler:
                 error = random.randint(-margin, margin)
                 yield timedelta(seconds=max(0, time + error))
 
+        def cap_patrol_duration(package: Package) -> timedelta:
+            """On-station duration of a CAP package's patrol flight plan."""
+            for flight in package.flights:
+                duration = getattr(flight.flight_plan, "patrol_duration", None)
+                if duration is not None:
+                    return duration
+            return self.coalition.game.settings.desired_barcap_mission_duration
+
         dca_types = {
             FlightType.BARCAP,
             FlightType.TARCAP,
         }
 
         previous_cap_end_time: dict[MissionTarget, datetime] = defaultdict(now.replace)
+        previous_cap_start_time: dict[MissionTarget, datetime] = {}
+        barcap_overlap = self.coalition.game.settings.barcap_overlap_time
         non_dca_packages = [
             p for p in self.coalition.ato.packages if p.primary_task not in dca_types
         ]
@@ -58,31 +68,54 @@ class MissionScheduler:
             if package.primary_task is FlightType.RECOVERY:
                 continue
             tot = TotEstimator(package).earliest_tot(now)
-            if package.primary_task in dca_types:
-                previous_end_time = previous_cap_end_time[package.target]
-                if tot > previous_end_time:
-                    # Can't get there exactly on time, so get there ASAP. This
-                    # will typically only happen for the first CAP at each
-                    # target.
-                    package.time_over_target = tot
-                else:
-                    package.time_over_target = previous_end_time
-
-                departure_time = self._get_departure_time(package)
-                if departure_time is None:
-                    continue
-                is_naval_cp = isinstance(package.target, NavalControlPoint)
-                count = carrier_barcaps[package.target]
-                if count >= max_carrier_simultaneous_barcaps - 1 and is_naval_cp:
-                    previous_cap_end_time[package.target] = departure_time
-                    carrier_barcaps[package.target] = 0
-                elif is_naval_cp:
-                    carrier_barcaps[package.target] += 1
-                elif not is_naval_cp:
-                    previous_cap_end_time[package.target] = departure_time
-            elif package.auto_asap:
+            if package.auto_asap:
                 package.set_tot_asap(now)
-            elif package.primary_task in {FlightType.AEWC, FlightType.ISR}:
+            elif package.primary_task in dca_types:
+                if isinstance(package.target, NavalControlPoint):
+                    # Carriers stack several simultaneous BARCAPs rather than
+                    # overlapping waves; keep the legacy queueing for them.
+                    previous_end_time = previous_cap_end_time[package.target]
+                    if tot > previous_end_time:
+                        # Can't get there exactly on time, so get there ASAP.
+                        package.time_over_target = tot
+                    else:
+                        package.time_over_target = previous_end_time
+                    departure_time = self._get_departure_time(package)
+                    if departure_time is None:
+                        continue
+                    count = carrier_barcaps[package.target]
+                    if count >= max_carrier_simultaneous_barcaps - 1:
+                        previous_cap_end_time[package.target] = departure_time
+                        carrier_barcaps[package.target] = 0
+                    else:
+                        carrier_barcaps[package.target] += 1
+                else:
+                    # Land CPs: schedule overlapping waves so coverage has no
+                    # handoff gap, and jitter the first wave so CAP no longer
+                    # deterministically arrives at mission start (which let
+                    # attackers wait out the front-loaded CAP and strike a clear
+                    # sky). With barcap_overlap_time == 0 this reproduces the
+                    # legacy back-to-back, no-jitter schedule exactly.
+                    previous_start = previous_cap_start_time.get(package.target)
+                    if previous_start is None:
+                        jitter_ceiling = int(
+                            min(
+                                barcap_overlap, timedelta(minutes=5)
+                            ).total_seconds()
+                        )
+                        jitter = timedelta(
+                            seconds=random.randint(0, jitter_ceiling)
+                        )
+                        package.time_over_target = tot + jitter
+                    else:
+                        interval = cap_patrol_duration(package) - barcap_overlap
+                        if interval < timedelta(minutes=1):
+                            interval = timedelta(minutes=1)
+                        desired = previous_start + interval
+                        # Can't arrive before the flight can physically get there.
+                        package.time_over_target = max(tot, desired)
+                    previous_cap_start_time[package.target] = package.time_over_target
+            elif package.primary_task is FlightType.AEWC:
                 last = previous_aewc_end_time[package.target]
                 package.time_over_target = tot if tot > last else last
                 departure_time = self._get_departure_time(package)

@@ -141,10 +141,14 @@ class ObjectiveFinder:
         yield from self.game.theater.conflicts()
 
     def vulnerable_control_points(self) -> Iterator[ControlPoint]:
-        """Iterates over friendly CPs that are vulnerable to enemy CPs.
+        """Iterates over friendly CPs that should be defended with BARCAP.
 
-        Vulnerability is defined as any enemy CP within threat range of the
-        CP.
+        A control point is defended if it either has an enemy CP within
+        ``airbase_threat_range`` (proximity to an enemy airfield) *or* it anchors
+        an active front line. The latter establishes a forward defensive CAP line
+        along the edge of friendly territory so coverage reaches raids inbound to
+        rear income points, not just bases that happen to sit near an enemy
+        airfield.
         """
         for cp in self.friendly_control_points():
             if isinstance(cp, OffMapSpawn):
@@ -153,16 +157,27 @@ class ObjectiveFinder:
             if isinstance(cp, NavalControlPoint):
                 yield cp  # always consider CVN/LHA as vulnerable
                 continue
-            airfields_in_proximity = self.closest_airfields_to(cp)
             airbase_threat_range = self.game.settings.airbase_threat_range
-            if (
+            # OPFOR aggressiveness is the ratio of threat that OPFOR ignores
+            # (0 = consider all threats / defend everything, 100 = ignore all
+            # threats / commit fully offensive), matching the label and
+            # PackagePlanningTask._get_weighted_threat_range. So a higher value
+            # makes OPFOR *more* likely to abandon a base/front for offense.
+            plan_offensively = (
                 self.is_player.is_red
                 and randint(1, 100)
-                > self.game.settings.opfor_autoplanner_aggressiveness
-            ):
-                # Chance that the airfield threat range will be evaluated as zero,
-                # causing the OPFOR autoplanner to plan offensively
+                <= self.game.settings.opfor_autoplanner_aggressiveness
+            )
+            if plan_offensively:
+                # Treat the airfield threat range as zero so this CP isn't
+                # considered vulnerable; OPFOR commits its fighters offensively
+                # instead of defending here (front-line CAP is skipped too).
                 airbase_threat_range = 0
+            if cp.has_active_frontline and not plan_offensively:
+                # Forward defensive CAP line: this CP borders enemy territory.
+                yield cp
+                continue
+            airfields_in_proximity = self.closest_airfields_to(cp)
             airfields_in_threat_range = (
                 airfields_in_proximity.operational_airfields_within(
                     nautical_miles(airbase_threat_range)

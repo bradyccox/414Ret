@@ -171,10 +171,14 @@ class TheaterState(WorldState["TheaterState"]):
         )
 
         # Plan enough rounds of CAP that the target has coverage over the expected
-        # mission duration.
+        # mission duration. Waves overlap by barcap_overlap_time, so each wave only
+        # contributes (duration - overlap) of *fresh* coverage; plan enough rounds
+        # to span the mission even with overlapping handoffs.
         mission_duration = game.settings.desired_player_mission_duration.total_seconds()
         barcap_duration = game.settings.desired_barcap_mission_duration.total_seconds()
-        barcap_rounds = math.ceil(mission_duration / barcap_duration)
+        barcap_overlap = game.settings.barcap_overlap_time.total_seconds()
+        effective_coverage = max(barcap_duration - barcap_overlap, 60.0)
+        barcap_rounds = math.ceil(mission_duration / effective_coverage)
 
         battle_postitions: Dict[ControlPoint, BattlePositions] = {
             cp: BattlePositions.for_control_point(cp)
@@ -190,11 +194,13 @@ class TheaterState(WorldState["TheaterState"]):
         aewc_targets = [cp for cp in finder.friendly_control_points() if cp.is_carrier]
         aewc_targets.append(finder.farthest_friendly_control_point())
 
+        vulnerable_cps = list(finder.vulnerable_control_points())
+
         return TheaterState(
             context=context,
             barcaps_needed={
                 cp: 2 * barcap_rounds if cp.is_fleet else barcap_rounds
-                for cp in finder.vulnerable_control_points()
+                for cp in vulnerable_cps
             },
             active_front_lines=list(finder.front_lines()),
             front_line_stances={f: None for f in finder.front_lines()},

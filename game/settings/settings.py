@@ -203,6 +203,18 @@ class Settings:
         detail="Implicitly determines the number of BARCAPs planned by taking the mission duration"
         " and dividing it by the desired on-station time.",
     )
+    barcap_overlap_time: timedelta = minutes_option(
+        "BARCAP wave overlap",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        default=timedelta(minutes=15),
+        min=0,
+        max=60,
+        detail="How long consecutive BARCAP waves overlap on-station. Higher values"
+        " plan more, more-frequent waves so coverage has no handoff gap and the"
+        " first wave's timing is less predictable. 0 restores back-to-back,"
+        " non-overlapping waves (the legacy behaviour).",
+    )
     ownfor_default_qra_reserve: int = bounded_int_option(
         "Default QRA reserve per OWNFOR interceptor squadron",
         page=CAMPAIGN_DOCTRINE_PAGE,
@@ -469,7 +481,7 @@ class Settings:
         "CAS engagement range (NM)",
         page=CAMPAIGN_DOCTRINE_PAGE,
         section=DOCTRINE_DISTANCES_SECTION,
-        default=10,
+        default=15,
         min=0,
         max=100,
     )
@@ -477,7 +489,7 @@ class Settings:
         "Armed Recon engagement range (NM)",
         page=CAMPAIGN_DOCTRINE_PAGE,
         section=DOCTRINE_DISTANCES_SECTION,
-        default=5,
+        default=10,
         min=0,
         max=25,
     )
