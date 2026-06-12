@@ -8,7 +8,6 @@ livery: Bf-109 K4 Jagdgeschwader 53
 mission_types:
   - CAS
   - Escort
-  - Scramble
   - OCA/Aircraft
   - Fighter sweep
   - BARCAP

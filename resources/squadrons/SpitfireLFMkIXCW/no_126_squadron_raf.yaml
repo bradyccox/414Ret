@@ -9,7 +9,6 @@ livery: RAF, No. 126 Squadron, Harrowbeer
 mission_types:
   - CAS
   - Escort
-  - Scramble
   - OCA/Aircraft
   - Fighter sweep
   - BARCAP

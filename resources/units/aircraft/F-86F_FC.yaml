@@ -28,7 +28,6 @@ tasks:
   CAS: 255
   Escort: 275
   Fighter sweep: 280
-  Scramble: 300
   OCA/Aircraft: 270
   Strike: 225
   TARCAP: 290

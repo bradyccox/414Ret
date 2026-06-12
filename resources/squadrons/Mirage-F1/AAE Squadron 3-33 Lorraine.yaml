@@ -9,7 +9,6 @@ livery: EC 3 33 Lorraine
 mission_types:
   - BARCAP
   - Escort
-  - Scramble
   - Fighter sweep
   - TARCAP
   - BAI

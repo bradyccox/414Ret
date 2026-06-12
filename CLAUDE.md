@@ -75,13 +75,14 @@ The old 414th ramp-scramble system is legacy only and should not be extended.
   `qt_ui/windows/basemenu/airfield/QAircraftRecruitmentMenu.py`,
   `qt_ui/windows/basemenu/QBaseMenu2.py`, and the debrief/settings windows.
 
-Legacy note: the old ramp-scramble Lua script (`resources/plugins/scramble/reactive_scramble.lua`)
-has been removed — the upstream PR #782 dispatcher above is the only live QRA path.
-`FlightType.SCRAMBLE` is intentionally retained: it is still wired into the planner
-(`flightplanbuildertypes.py`, `missionscheduler.py`, `loadouts.py`, `aircraftbehavior.py`,
-`pretenseaircraftgenerator.py`) as a manually-assignable, BARCAP-backed flight type, so
-removing the enum is a real refactor, not a cleanup. Leave it unless that refactor is
-explicitly undertaken.
+Legacy note: the old ramp-scramble system has been fully retired — the upstream PR #782
+dispatcher above is the only live QRA path. Both the `reactive_scramble.lua` script and the
+`FlightType.SCRAMBLE` enum (plus its `Scramble:` aircraft-task weights and `- Scramble`
+squadron mission-type entries in `resources/units|squadrons|campaigns/*.yaml`) have been
+removed. SCRAMBLE always behaved as a BARCAP, so old saves are migrated SCRAMBLE -> BARCAP
+in two places: `FlightType._missing_` (runtime lookups) and `persistency.py`
+`_handle_flight_type` (the unpickler). `FlightType.INTERCEPTION` is the only remaining
+legacy A2A type and is kept for upstream save compatibility.
 
 ### 2. JAMMING flight type - C-130J EW/ISR
 - Enum: `game/ato/flighttype.py` (`FlightType.JAMMING` ->

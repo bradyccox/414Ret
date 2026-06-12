@@ -8,7 +8,6 @@ livery: FW-190A8 JG26 Priller
 mission_types:
   - CAS
   - Escort
-  - Scramble
   - OCA/Aircraft
   - Fighter sweep
   - BARCAP

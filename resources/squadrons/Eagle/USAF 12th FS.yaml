@@ -9,7 +9,6 @@ livery: 12th Fighter SQN (AK)
 mission_types:
   - BARCAP
   - Escort
-  - Scramble
   - Fighter sweep
   - TARCAP
 

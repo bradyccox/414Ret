@@ -125,7 +125,7 @@ squadrons:
       secondary: air-to-air
       aircraft:
         - MiG-29S Fulcrum-C
-    - primary: Scramble
+    - primary: BARCAP
       secondary: air-to-air
       aircraft:
         - MiG-25PD Foxbat-E
@@ -247,7 +247,7 @@ squadrons:
       secondary: air-to-air
       aircraft:
         - MiG-29S Fulcrum-C
-    - primary: Scramble
+    - primary: BARCAP
       secondary: air-to-air
       aircraft:
         - MiG-25PD Foxbat-E

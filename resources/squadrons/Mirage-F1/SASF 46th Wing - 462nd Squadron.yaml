@@ -9,7 +9,6 @@ livery: ALA 46 Camu Lagarto 1975-1990 Gando SQ 462
 mission_types:
   - BARCAP
   - Escort
-  - Scramble
   - Fighter sweep
   - TARCAP
   - BAI
