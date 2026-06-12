@@ -1,0 +1,5 @@
+name: Hercules Battle Station with TGP
+type: TGP
+year: 2020
+clsids:
+  - "Herc_BattleStation_TGP"

@@ -123,6 +123,8 @@ class WaypointGenerator:
         for idx, point in enumerate(filtered_points):
             self.builder_for_waypoint(point).build()
 
+        self.ensure_in_flight_route_has_locked_time()
+
         # Set here rather than when the FlightData is created so they waypoints
         # have their TOTs and fuel minimums set. Once we're more confident in our fuel
         # estimation ability the minimum fuel amounts will be calculated during flight
@@ -130,6 +132,18 @@ class WaypointGenerator:
         # late.
         self._estimate_min_fuel_for(waypoints)
         return mission_start_time, waypoints
+
+    def ensure_in_flight_route_has_locked_time(self) -> None:
+        if not self.flight.state.in_flight:
+            return
+        if any(point.ETA_locked for point in self.group.points):
+            return
+        if not self.group.points:
+            return
+        point = self.group.points[0]
+        point.ETA = 0
+        point.ETA_locked = True
+        point.speed_locked = True
 
     def builder_for_waypoint(self, waypoint: FlightWaypoint) -> PydcsWaypointBuilder:
         builders = {

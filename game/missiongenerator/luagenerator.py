@@ -48,13 +48,10 @@ class LuaGenerator:
             x for x in self.mission.triggerrules.triggers if isinstance(x, TriggerStart)
         ]
         self.generate_plugin_data()
-        # Prevent these plugins from double-loading their scripts — we own
-        # injection below and fire each only when the relevant flights exist.
-        self.bypass_plugin_script("reactive_scramble")
-        self.bypass_plugin_script("c130j")
+        # Core scramble injection is mission-conditional; plugin-managed scripts
+        # are loaded through the standard plugin manager below.
         self.inject_plugins()
         self._inject_scramble_script()
-        self._inject_c130j_script()
         self._inject_tic_script()
         for t in ewrj_triggers:
             self.mission.triggerrules.triggers.remove(t)

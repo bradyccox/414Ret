@@ -20,6 +20,14 @@ if TYPE_CHECKING:
 
 
 class Loadout:
+    F16_LITENING_INTRODUCTION_YEAR = 2005
+    F16_LITENING_CLSIDS = {"{A111396E-D3E8-4b9c-8AC9-2432489304D5}"}
+    HORNET_LITENING_INTRODUCTION_YEAR = 2003
+    HORNET_LITENING_CLSIDS = {
+        "{AAQ-28_LEFT}",
+        "{A111396E-D3E8-4b9c-8AC9-2432489304D5}",
+    }
+
     def __init__(
         self,
         name: str,
@@ -74,6 +82,7 @@ class Loadout:
     def _fallback_for(
         weapon: Weapon,
         pylon: Pylon,
+        unit_type: AircraftType,
         date: datetime.date,
         faction: Faction,
         skip_types: Optional[Iterable[WeaponType]] = None,
@@ -85,10 +94,31 @@ class Loadout:
                 continue
             if not fallback.available_on(date, faction):
                 continue
+            if not Loadout._weapon_available_for_aircraft(fallback, unit_type, date):
+                continue
             if fallback.weapon_group.type in skip_types:
                 continue
             return fallback
         return None
+
+    @classmethod
+    def _weapon_available_for_aircraft(
+        cls, weapon: Weapon, unit_type: AircraftType, date: datetime.date
+    ) -> bool:
+        aircraft_id = unit_type.dcs_unit_type.id
+        if (
+            weapon.clsid in cls.F16_LITENING_CLSIDS
+            and aircraft_id.startswith("F-16")
+            and date < datetime.date(cls.F16_LITENING_INTRODUCTION_YEAR, 1, 1)
+        ):
+            return False
+        if (
+            weapon.clsid in cls.HORNET_LITENING_CLSIDS
+            and aircraft_id == "FA-18C_hornet"
+            and date < datetime.date(cls.HORNET_LITENING_INTRODUCTION_YEAR, 1, 1)
+        ):
+            return False
+        return True
 
     def degrade_for_date(
         self,
@@ -113,9 +143,11 @@ class Loadout:
                 del new_pylons[pylon_number]
                 new_settings.pop(pylon_number, None)
                 continue
-            if not weapon.available_on(date, faction):
+            if not weapon.available_on(
+                date, faction
+            ) or not self._weapon_available_for_aircraft(weapon, unit_type, date):
                 pylon = Pylon.for_aircraft(unit_type, pylon_number)
-                fallback = self._fallback_for(weapon, pylon, date, faction)
+                fallback = self._fallback_for(weapon, pylon, unit_type, date, faction)
                 if fallback is None:
                     del new_pylons[pylon_number]
                     new_settings.pop(pylon_number, None)
@@ -157,7 +189,12 @@ class Loadout:
             if weapon is not None and weapon.weapon_group.type is WeaponType.LGB:
                 pylon = Pylon.for_aircraft(unit_type, pylon_number)
                 fallback = self._fallback_for(
-                    weapon, pylon, date, faction, skip_types={WeaponType.LGB}
+                    weapon,
+                    pylon,
+                    unit_type,
+                    date,
+                    faction,
+                    skip_types={WeaponType.LGB},
                 )
                 if fallback is None:
                     del new_pylons[pylon_number]

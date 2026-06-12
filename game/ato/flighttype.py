@@ -66,6 +66,13 @@ class FlightType(Enum):
     ARMED_RECON = "Armed Recon"
     RECOVERY = "Recovery"
 
+    @classmethod
+    def _missing_(cls, value: object) -> FlightType | None:
+        """Handle legacy persisted values from older 414th builds."""
+        if value == "ISR":
+            return cls.JAMMING
+        return None
+
     def __str__(self) -> str:
         return self.value
 

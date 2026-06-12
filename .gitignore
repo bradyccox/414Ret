@@ -5,6 +5,8 @@ build/**
 docs/_build
 resources/payloads/*.lua
 venv
+.venv/
+run_retribution.bat
 .DS_Store
 .vscode/settings.json
 dist/**

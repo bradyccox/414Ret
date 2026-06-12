@@ -78,8 +78,10 @@ fixes that.
   (AWACS-style orbit + `WEAPON_HOLD` ROE).
 - Spawn fallback: `game/missiongenerator/aircraft/flightgroupspawner.py` tries RUNWAY
   start when no parking is available.
-- Lua injection: `game/missiongenerator/luagenerator.py` `_has_c130j_flights()` +
-  `_inject_c130j_script()`.
+- Script loading: registered as a normal plugin (`c130j` in `plugins.json`,
+  `scriptsWorkOrders` in `resources/plugins/c130j/plugin.json`) since the
+  2026-06-11 refactor. `_has_c130j_flights()`/`_inject_c130j_script()` in
+  `luagenerator.py` are dead code retained from the old conditional injection.
 - Plugin script: `resources/plugins/c130j/c130j_mission_systems.lua` (+ `plugin.json`).
 - Loadout/package wiring: `game/ato/loadouts.py`, `game/ato/package.py`,
   `game/theater/missiontarget.py`, `game/pretense/pretenseaircraftgenerator.py`.
@@ -201,6 +203,23 @@ units. Enable per-game via the plugins UI ("Troops In Contact").
 - Reactive scramble has been validated in code/unit tests but the end-to-end in-game
   launch (border trigger → cold start → takeoff → intercept) should be re-checked after
   any change to the pool or border logic.
+
+## PINNED — do not modify
+
+- **`resources/plugins/splashdamage3/Splash_Damage_3.4.2_414th.lua`** is the 414th's
+  **buddy-tuned** Splash Damage build (softened weapon table, `overall_scaling=0.6`,
+  `rocket_multiplier=0.8`, `static_damage_boost=1`, shaped-charge rocket flags,
+  `game_messages=true`). **Do NOT overwrite it from upstream stevey/source** — the
+  414th prefers this version. If you must update it, diff against the tuned build and
+  preserve these values; don't blind-copy.
+  - The settings are LOCKED by design (Tyler's call): `plugin.json` has no
+    `specificOptions` and `sd3-config.lua` was removed, so the script's baked-in
+    values always apply and nothing in the app UI (or `dcsRetribution.plugins.*`)
+    can override them. Don't reintroduce the config layer.
+  - Merge note (2026-06-12): main and splash-script pinned byte-identical builds
+    independently; the only delta was `game_messages` (main false, splash-script
+    true). Resolved to `true` — flip the single line in the lua if the squadron
+    prefers silence.
 
 ## Conventions
 
