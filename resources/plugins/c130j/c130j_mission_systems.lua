@@ -116,6 +116,15 @@ end, nil, timer.getTime() + 0)
 -- Shared utility
 -- ---------------------------------------------------------------------------
 
+local function protectedTick(label, fn, interval)
+    return function()
+        local ok, nextTime = pcall(fn)
+        if ok and type(nextTime) == "number" then return nextTime end
+        env.error("C-130J Mission Systems | " .. label .. " tick failed: " .. tostring(nextTime))
+        return timer.getTime() + interval
+    end
+end
+
 local function getHeading(unit)
     if not unit or not unit.isExist or not unit:isExist() then return 0 end
     local pos = unit:getPosition()
@@ -420,6 +429,7 @@ local _flushTimer        = {}
 local _evtSeenInSlot     = {}
 local _lastEWStatusTime  = {}
 local _lastISRStatusTime = {}
+local _isrExportWarned   = false
 
 local function _nextAligned(now, gap)
     return (math.floor(now / gap) + 1) * gap
@@ -842,8 +852,6 @@ local function spotJammingTick(name)
             local dur = jamDuration[nato] or 60
             suppressedSAMs[tgtGroup] = { sam = tu, lastSuppressed = timer.getTime(), spot = true, duration = dur, nato = nato }
         end
-        emitterCapacity[name] = math.max(0, (emitterCapacity[name] or 0) - CFG_spotDrainPerSec)
-
         -- Coalition broadcast on state change (new target, or suppressed <-> not).
         local nowSupp = suppressedSAMs[tgtGroup] ~= nil
         local st = _spotState[name]
@@ -1994,10 +2002,10 @@ local function refreshMenusTick()
     return timer.getTime() + 10
 end
 
-timer.scheduleFunction(ewTick,            {}, timer.getTime() + 1)
-timer.scheduleFunction(isrTick,           {}, timer.getTime() + 1)
-timer.scheduleFunction(statusDisplayTick, {}, timer.getTime() + 1)
-timer.scheduleFunction(refreshMenusTick,  {}, timer.getTime() + 10)
+timer.scheduleFunction(protectedTick("EW", ewTick, 1), {}, timer.getTime() + 1)
+timer.scheduleFunction(protectedTick("ISR", isrTick, 1), {}, timer.getTime() + 1)
+timer.scheduleFunction(protectedTick("status", statusDisplayTick, 1), {}, timer.getTime() + 1)
+timer.scheduleFunction(protectedTick("menu refresh", refreshMenusTick, 10), {}, timer.getTime() + 10)
 
 -- ---------------------------------------------------------------------------
 -- ISR precise-fix export (written to Logs\ on mission end)
@@ -2028,8 +2036,17 @@ writeISRPreciseFixLog = function()
     -- On first call it scans for the next unused _NNN suffix and stores it; all subsequent
     -- calls for this mission reuse that number, overwriting the same file with the latest log.
     -- %%03d in the long-string becomes %03d in the emitted GUI Lua code.
-    if net and net.dostring_in then
-        net.dostring_in('gui', string.format([[
+    if not (net and net.dostring_in) then
+        if not _isrExportWarned then
+            _isrExportWarned = true
+            trigger.action.outTextForCoalition(coalition.side.BLUE,
+                "C-130J ISR log export unavailable: net.dostring_in is not exposed in this mission environment",
+                20)
+        end
+        return
+    end
+
+    net.dostring_in('gui', string.format([[
 pcall(function()
     if not _C130_ISR_log_num then
         local base = lfs.writedir().."Logs/C130_ISR_Report"
@@ -2043,7 +2060,6 @@ pcall(function()
     local f = io.open(lfs.writedir().."Logs/C130_ISR_Report_"..string.format("%%03d",_C130_ISR_log_num)..".txt","w")
     if f then f:write(%q); f:close() end
 end)]], report))
-    end
 end
 
 -- ---------------------------------------------------------------------------
