@@ -231,6 +231,25 @@ class Squadron:
         # repopulating the same size flight from the same squadron.
         self.available_pilots.extend(reversed(pilots))
 
+    def lose_pilots(self, count: int) -> None:
+        """Kill up to ``count`` idle pilots, preferring AI over players.
+
+        Used to attribute QRA intercept losses back to the squadron roster. Only
+        pilots still in ``available_pilots`` (i.e. not tasked to another flight)
+        are eligible, AI pilots are killed before players, and players are spared
+        entirely when ``invulnerable_player_pilots`` is set. Killed pilots are
+        removed from the available pool. The count is capped at the number of
+        eligible pilots.
+        """
+        if count <= 0:
+            return
+        killable = [p for p in self.available_pilots if not p.player]
+        if not self.settings.invulnerable_player_pilots:
+            killable += [p for p in self.available_pilots if p.player]
+        for pilot in killable[:count]:
+            pilot.kill()
+            self.available_pilots.remove(pilot)
+
     def _recruit_pilots(self, count: int) -> None:
         new_pilots = self.pilot_pool[:count]
         self.pilot_pool = self.pilot_pool[count:]

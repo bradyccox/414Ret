@@ -308,14 +308,19 @@ class Debriefing:
         return losses_by_type
 
     def qra_losses_by_type(self, player: Player) -> Dict[AircraftType, int]:
-        survivors = self.state_data.intercept_survivors
+        losses_by_type: Dict[AircraftType, int] = defaultdict(int)
+        # state_data/game are only absent on lightweight Debriefings built for
+        # tests; missions without intercept data simply have no QRA losses.
+        state_data = getattr(self, "state_data", None)
+        if state_data is None:
+            return losses_by_type
+        survivors = state_data.intercept_survivors
         squadrons = (
             self.game.blue.air_wing.iter_squadrons()
             if player.is_blue
             else self.game.red.air_wing.iter_squadrons()
         )
         fielded_by_squadron, squadrons_by_id = fielded_qra_by_squadron(squadrons)
-        losses_by_type: Dict[AircraftType, int] = defaultdict(int)
         for squadron_id, loss in reconcile_intercept_losses(
             fielded_by_squadron, survivors
         ).items():
