@@ -73,8 +73,8 @@ Any issues/suggestions etc feel free to post on the forum or DM me in Discord - 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-]]
 splash_damage_options = {
     ---------------------------------------------------------------------- Debug and Messages ----------------------------------------------------------------
-    ["game_messages"] = false, --enable some messages on screen
-    ["debug"] = false,  --enable debugging messages 
+    ["game_messages"] = true, --enable some messages on screen
+    ["debug"] = false,  --enable debugging messages
     ["weapon_missing_message"] = false, --false disables messages alerting you to weapons missing from the explTable
     ["track_pre_explosion_debug"] = false, --Toggle to enable/disable pre-explosion tracking debugging
     ["track_groundunitordnance_debug"] = false, --Enable detailed debug messages for ground unit ordnance tracking
@@ -90,22 +90,21 @@ splash_damage_options = {
     ["GU_Explode_debug"] = false, --Toggle debug logging
     ["CBU_Bomblet_Hit_debug"] = false, --Toggle debug logging
     ["StrobeMarker_debug"] = false, --Logging for StrobeMarker
-    ["shipRadarDamageEnable"] = false, -- Ship Raders turn off from HARM Radiation
-    ["oca_aircraft_damage_boost"] = 3000, --apply extra damage to parked Unit.Category.AIRPLANEs and Unit.Category.HELICOPTERs with wave explosions
+	
     ---------------------------------------------------------------------- Radio -----------------------------------------------------------------------------
     ["enable_radio_menu"] = false, --enables the in-game radio menu for modifying settings
     
 
     ---------------------------------------------------------------------- Basic Splash Settings -------------------------------------------------------------
-    ["static_damage_boost"] = 2000, --apply extra damage to Unit.Category.STRUCTUREs with wave explosions
+    ["static_damage_boost"] = 1, --apply extra damage to Unit.Category.STRUCTUREs with wave explosions
     ["wave_explosions"] = true, --secondary explosions on top of game objects, radiating outward from the impact point and scaled based on size of object and distance from weapon impact point
     ["larger_explosions"] = true, --secondary explosions on top of weapon impact points, dictated by the values in the explTable
     ["damage_model"] = true, --allow blast wave to affect ground unit movement and weapons
     ["blast_search_radius"] = 90, --this is the max size of any blast wave radius, since we will only find objects within this zone.  Only used if dynamic is not enabled
     ["use_dynamic_blast_radius"] = true,   --if true, blast radius is calculated from explosion power; if false, blast_search_radius (90) is used
-    ["dynamic_blast_radius_modifier"] = 2,  --multiplier for the blast radius
+    ["dynamic_blast_radius_modifier"] = 1,  --multiplier for the blast radius
     ["blast_stun"] = false, --not implemented
-    ["overall_scaling"] = 1,    --overall scaling for explosive power
+    ["overall_scaling"] = 0.6,    --overall scaling for explosive power
     ["only_players_weapons"] = false, --track only weapons launched by players
 	
     ---------------------------------------------------------------------- Units -----------------------------------------------------------------------------
@@ -115,7 +114,7 @@ splash_damage_options = {
 	
 
     ---------------------------------------------------------------------- Rockets ---------------------------------------------------------------------------
-    ["rocket_multiplier"] = 1.3, --multiplied by the explTable value for rockets
+    ["rocket_multiplier"] = 0.8, --multiplied by the explTable value for rockets. Tuned down for smaller splash AoE (APKWS/Hydra etc.); native direct-hit damage is unaffected.
 
     ---------------------------------------------------------------------- Shaped Charge ---------------------------------------------------------------------    
     ["apply_shaped_charge_effects"] = true, --apply reduction in blastwave etc for shaped charge munitions
@@ -185,16 +184,16 @@ splash_damage_options = {
 	
     ---------------------------------------------------------------------- Ordnance Protection  --------------------------------------------------------------	
     ["ordnance_protection"] = true, --Toggle ordinance protection features
-    ["ordnance_protection_radius"] = 20, --Distance in meters to protect nearby bombs
+    ["ordnance_protection_radius"] = 800, --Distance in meters to protect nearby bombs
     ["detect_ordnance_destruction"] = true, --Toggle detection of ordnance destroyed by large explosions
-    ["snap_to_ground_if_destroyed_by_large_explosion"] = true, --If the ordnance protection fails or is disabled we can snap larger_explosions to the ground (if enabled - power as set in weapon list) - so an explosion still does hit the ground
+    ["snap_to_ground_if_destroyed_by_large_explosion"] = false, --If the ordnance protection fails or is disabled we can snap larger_explosions to the ground (if enabled - power as set in weapon list) - so an explosion still does hit the ground
     ["max_snapped_height"] = 80, --max height it will snap to ground from
     ["recent_large_explosion_snap"] = true, --enable looking for a recent large_explosion generated by the script
     ["recent_large_explosion_range"] = 100, --range its looking for in meters for a recent large_explosion generated by the script
     ["recent_large_explosion_time"] = 4, --in seconds how long ago there was a recent large_explosion generated by the script
 
     ---------------------------------------------------------------------- Cluster Bombs Spread Mimic  -------------------------------------------------------
-    ["cluster_enabled"] = false,
+    ["cluster_enabled"] = true,
     ["cluster_base_length"] = 150,           --Base forward spread (meters)
     ["cluster_base_width"] = 200,            --Base lateral spread (meters)
     ["cluster_max_length"] = 300,            --Max forward spread (meters)
@@ -213,13 +212,13 @@ splash_damage_options = {
     ["giant_explosion_count"] = 250,      --Number of explosions (default 250)
     ["giantexplosion_ondamage"] = true,   --Trigger explosion when unit is damaged
     ["giantexplosion_ondeath"] = true,    --Trigger explosion when unit is destroyed
-    ["giantexplosion_testmode"] = true,  --Enable test mode with separate array for radio commands	
+    ["giantexplosion_testmode"] = false,  --Enable test mode with separate array for radio commands
     
 
     ---------------------------------------------------------------------- Ground/Ship Ordnance  -------------------------------------------------------------
     ["track_groundunitordnance"] = true, --Enable tracking of ground unit ordnance for larger explosion function and blastwave cookoffs(shells)
     ["groundunitordnance_damage_modifier"] = 1.0, --Multiplier for ground unit ordnance explosive power
-    ["groundunitordnance_blastwave_modifier"] = 4.0, --Additional multiplier for blast wave intensity of ground unit ordnance
+    ["groundunitordnance_blastwave_modifier"] = 2.0, --Additional multiplier for blast wave intensity of ground unit ordnance
     ["groundunitordnance_maxtrackedcount"] = 100, --Maximum number of ground ordnance shells tracked at once to prevent overload
     ["scan_50m_for_groundordnance"] = true, --If true, uses a 50m scan radius for ground ordnance instead of dynamic blast radius
 	
@@ -653,11 +652,11 @@ explTable = {
   
     ["Mk_81"] = { explosive = 60 },
     ["MK-81SE"] = { explosive = 60 },
-	["Mk_82"] = { explosive = 100},
-    ["MK_82AIR"] = { explosive = 100 },
-    ["MK_82SNAKEYE"] = { explosive = 100 },
+	["Mk_82"] = { explosive = 85},
+    ["MK_82AIR"] = { explosive = 85 },
+    ["MK_82SNAKEYE"] = { explosive = 85 },
     ["Mk_83"] = { explosive = 274 },
-    ["Mk_84"] = { explosive = 582 },
+    ["Mk_84"] = { explosive = 450 },
   
     ["HEBOMB"] = { explosive = 40 },
     ["HEBOMBD"] = { explosive = 40 },
@@ -689,10 +688,10 @@ explTable = {
     ["BetAB_500ShP"] = { explosive = 107 },
     
     --*** GUIDED BOMBS (GBU) ***
-    ["GBU_10"] = { explosive = 582 },
-    ["GBU_12"] = { explosive = 100 }, 
+    ["GBU_10"] = { explosive = 450 },
+    ["GBU_12"] = { explosive = 85 },
     ["GBU_16"] = { explosive = 274 },
-    ["GBU_24"] = { explosive = 582 },
+    ["GBU_24"] = { explosive = 450 },
     ["KAB_1500Kr"] = { explosive = 675 },
     ["KAB_500Kr"] = { explosive = 213 },
     ["KAB_500"] = { explosive = 213 },
@@ -722,13 +721,13 @@ explTable = {
     ["RBK_500_255_ShO"] = { explosive = 0, cluster = true, submunition_count = 565, submunition_explosive = 0.1, submunition_name = "ShO" },  
 
     --*** INS/GPS BOMBS (JDAM) ***
-    ["GBU_31"] = { explosive = 582 },
-    ["GBU_31_V_3B"] = { explosive = 582 },
-    ["GBU_31_V_2B"] = { explosive = 582 },
-    ["GBU_31_V_4B"] = { explosive = 582 },
+    ["GBU_31"] = { explosive = 450 },
+    ["GBU_31_V_3B"] = { explosive = 450 },
+    ["GBU_31_V_2B"] = { explosive = 450 },
+    ["GBU_31_V_4B"] = { explosive = 450 },
     ["GBU_32_V_2B"] = { explosive = 202 },
-    ["GBU_38"] = { explosive = 100 },
-    ["GBU_54_V_1B"] = { explosive = 100 },
+    ["GBU_38"] = { explosive = 85 },
+    ["GBU_54_V_1B"] = { explosive = 85 },
   
     --*** GLIDE BOMBS (JSOW) ***
     ["AGM_154A"] = { explosive = 0, cluster = true, submunition_count = 145, submunition_explosive = 2, submunition_name = "BLU-97/B" }, --JSOW-A, confirmed 145 BLU-97 bomblets from datamine
@@ -755,7 +754,7 @@ explTable = {
     ["AGM_65K"] = { explosive = 80, shaped_charge = true },
     ["AGM_65L"] = { explosive = 80, shaped_charge = true },
     ["AGM_123"] = { explosive = 274 },
-    ["AGM_130"] = { explosive = 582 },
+    ["AGM_130"] = { explosive = 450 },
     ["AGM_119"] = { explosive = 176 },
     ["AGM_114"] = { explosive = 10, shaped_charge = true },
     ["AGM_114K"] = { explosive = 10, shaped_charge = true },
@@ -817,16 +816,16 @@ explTable = {
     --*** ROCKETS ***
     ["HYDRA_70M15"] = { explosive = 5 },
     ["HYDRA_70_MK1"] = { explosive = 5 },
-    ["HYDRA_70_MK5"] = { explosive = 8 },
+    ["HYDRA_70_MK5"] = { explosive = 8, shaped_charge = true }, --HEAT
     ["HYDRA_70_M151"] = { explosive = 5 },
     ["HYDRA_70_M151_M433"] = { explosive = 5 },
     ["HYDRA_70_M229"] = { explosive = 10 },
     ["FFAR Mk1 HE"] = { explosive = 5 },
-    ["FFAR Mk5 HEAT"] = { explosive = 8 },
+    ["FFAR Mk5 HEAT"] = { explosive = 8, shaped_charge = true }, --HEAT
     ["HVAR"] = { explosive = 5 },
     ["Zuni_127"] = { explosive = 8 },
     ["ARAKM70BHE"] = { explosive = 5 },
-    ["ARAKM70BAP"] = { explosive = 8 },
+    ["ARAKM70BAP"] = { explosive = 8, shaped_charge = true }, --AP
     ["SNEB_TYPE251_F1B"] = { explosive = 4 },
     ["SNEB_TYPE252_F1B"] = { explosive = 4 },
     ["SNEB_TYPE253_F1B"] = { explosive = 5 },
@@ -851,7 +850,7 @@ explTable = {
     ["TELSON8_SNEBT253"] = { explosive = 8 },
     ["TELSON8_SNEBT256"] = { explosive = 4 },
     ["TELSON8_SNEBT257"] = { explosive = 6 },
-    ["ARF8M3API"] = { explosive = 8 },
+    ["ARF8M3API"] = { explosive = 8, shaped_charge = true }, --API
     ["UG_90MM"] = { explosive = 8 },
     ["S-24A"] = { explosive = 24 },
     ["S-25OF"] = { explosive = 194 },
@@ -3423,7 +3422,7 @@ function track_wpns()
 
                     local blastRadius = splash_damage_options.blast_search_radius * 2 --Wider post-scan (180m default)
                     if splash_damage_options.use_dynamic_blast_radius then
-                        blastRadius = math.pow(explosionPower, 1/3) * 10 * splash_damage_options.dynamic_blast_radius_modifier
+                        blastRadius = math.pow(explosionPower, 1/3) * 10 * splash_damage_options.dynamic_blast_radius_modifier 
                     end
 
                     --Set tightRadius, use 50m for ground ordnance if enabled
@@ -3484,7 +3483,7 @@ function track_wpns()
                         end
                         local parentWeaponData = explTable[wpnData.parent] or { submunition_count = 30, submunition_explosive = 1 }
                         local submunitionCount = parentWeaponData.submunition_count or 30
-                        local submunitionPower = (parentWeaponData.submunition_explosive or 1) * splash_damage_options.cluster_bomblet_damage_modifier * (splash_damage_options.overall_scaling /100)
+                        local submunitionPower = (parentWeaponData.submunition_explosive or 1) * splash_damage_options.cluster_bomblet_damage_modifier * splash_damage_options.overall_scaling
                         if splash_damage_options.cluster_bomblet_reductionmodifier then
                             if submunitionCount > 35 then
                                 local reductionFactor = (60 - 35) / (247 - 35)
@@ -6996,22 +6995,6 @@ function blastWave(_point, _radius, weapon, power, isShapedCharge)
                     if obj:getDesc().category == Unit.Category.STRUCTURE then
                         explosion_size = intensity * splash_damage_options.static_damage_boost
                     end
-                    local obj_altitude_ground = getAGL(obj)
-                    -- Deal extra damage to parked airplanes and helicopters to make OCA/Aircraft missions more viable
-                    if (obj:getDesc().category == Unit.Category.AIRPLANE or obj:getDesc().category == Unit.Category.HELICOPTER) and (obj:inAir() == false or obj_altitude_ground < 50) then
-                        explosion_size = intensity * splash_damage_options.oca_aircraft_damage_boost --apply an extra damage boost for aircraft to increase kill probability on OCA/Aircraft missions.
-                        --debugMsg("static obj :"..obj:getTypeName())
-                    end
-                    -- According to toutenglisse on DCS World forums (2022-06-11), ships do not have sensors attributes and therefore obj:hasSensors(Unit.SensorType.RADAR) cannot be used
-                    -- "I don't know why, but no Ship in DCS has ["sensors"] in its attributes (while obviously they have and can use them in game...). No way to use Ship with getDetectedTargets function (except for visual detection)."
-                    if splash_damage_options.shipRadarDamageEnable and obj:getDesc().category == Unit.Category.SHIP and antiRadiationMissile[weapon:getTypeName()] ~= nil then
-                        obj:enableEmission(false)
-                        env.info("BDA: "..event.target:getTypeName().." radar destroyed")
-                        if player ~= nil then
-                            gameMsg("BDA: "..obj:getTypeName().." radar destroyed")
-                        end
-                    end
-
                     if explosion_size > power then explosion_size = power end
                     local triggerExplosion = false
                     if splash_damage_options.always_cascade_explode then
