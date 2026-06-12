@@ -73,7 +73,7 @@ Any issues/suggestions etc feel free to post on the forum or DM me in Discord - 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-]]
 splash_damage_options = {
     ---------------------------------------------------------------------- Debug and Messages ----------------------------------------------------------------
-    ["game_messages"] = false, --enable some messages on screen
+    ["game_messages"] = true, --enable some messages on screen
     ["debug"] = false,  --enable debugging messages
     ["weapon_missing_message"] = false, --false disables messages alerting you to weapons missing from the explTable
     ["track_pre_explosion_debug"] = false, --Toggle to enable/disable pre-explosion tracking debugging

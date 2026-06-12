@@ -62,9 +62,27 @@ class GameLoop:
         self.pause()
         if not self.started:
             self.start()
+        # Every stop condition requires a flight with players
+        # (client_count > 0). Without one the loop below can never complete
+        # and would hang the UI thread.
+        if not any(f.client_count for f in self.sim.aircraft_simulation.iter_flights()):
+            logging.warning(
+                "Skipping sim to first contact: no flight has player slots, so "
+                "no fast-forward stop condition could ever fire"
+            )
+            return
         logging.info("Running sim to first contact")
-        while not self.completed:
+        # Safety bound: if every player flight dies during the fast-forward,
+        # no stop condition can fire anymore. 24 hours of sim time is far
+        # beyond any mission; bail out rather than hang the UI thread.
+        deadline = self.sim.time + timedelta(hours=24)
+        while not self.completed and self.sim.time < deadline:
             self.tick(suppress_events=False)
+        if not self.completed:
+            logging.error(
+                "Sim to first contact never reached a stop condition within 24 "
+                "hours of sim time; continuing with mission generation"
+            )
 
     def pause_and_generate_miz(self, output: Path) -> None:
         self.pause()
