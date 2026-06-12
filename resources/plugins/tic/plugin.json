@@ -1,6 +1,6 @@
 {
     "nameInUI": "Troops In Contact (frontline battle sim)",
-    "defaultValue": false,
+    "defaultValue": true,
     "specificOptions": [
         {
             "nameInUI": "StormTrooper AI (longer cinematic firefights; ground units hidden from AI sensors)",

@@ -1,4 +1,4 @@
-# CLAUDE.md — 414Ret engineering handoff
+# CLAUDE.md - 414Ret engineering handoff
 
 This is the **414th Joint Fighter Group's fork of DCS Retribution**. Read this before
 touching anything. It explains what the 414th added on top of upstream, where each piece
@@ -16,7 +16,7 @@ deep version for the next coding session.
   fixes, and the CurrentHill Iran assets pack. ~25 commits.
 - **Lua 5.1** sandbox for the mission plugins (no `os`/`io`, no `goto`, definition order
   matters). Python side is normal Python 3.11.
-- CI gates: **Black** (`black --check .`) and **mypy** (`mypy game` + `mypy tests` only —
+- CI gates: **Black** (`black --check .`) and **mypy** (`mypy game` + `mypy tests` only -
   `qt_ui` is NOT type-checked in CI but DOES get Black-checked). Plus pytest.
 
 ---
@@ -34,7 +34,7 @@ Notes learned the hard way:
   checks `game` and `tests`. So a type error in `qt_ui` will pass CI but a formatting
   miss anywhere will fail it.
 - `qt_ui/main.py` has ~5 PRE-EXISTING mypy errors that also exist on upstream `dev`.
-  Don't try to "fix" those — they're not in the CI mypy path and aren't ours.
+  Don't try to "fix" those - they're not in the CI mypy path and aren't ours.
 - For test files that fake Retribution objects (duck-typed `Coalition`, `Faction`,
   `AircraftType`), prefer a narrow `# type: ignore[arg-type]` over restructuring, matching
   how the existing fakes are annotated.
@@ -43,36 +43,44 @@ Notes learned the hard way:
 
 ## The 414th features, by area
 
-### 1. SCRAMBLE flight type — reactive QRA interceptors
-RED air-to-air aircraft sit cold/uncontrolled on the ramp and launch only when BLUE
-crosses a forward border.
+### 1. QRA intercept reserve - upstream Moose dispatcher
+Current authoritative note: Retribution now uses the upstream PR `#782` QRA path.
+The old 414th ramp-scramble system is legacy only and should not be extended.
 
-- Enum: `game/ato/flighttype.py` (`FlightType.SCRAMBLE`, in `is_air_to_air`, mapped to
-  `AirEntity.FIGHTER`).
-- Planner reserve: `game/squadrons/squadron.py` `scramble_reserve` property +
-  `can_auto_assign_mission()` guard. Holds back `reactive_scramble_reserve` airframes so
-  the pool isn't empty.
+- Squadron model: `game/squadrons/squadron.py` stores `intercept_reserve` per squadron.
+  `untasked_aircraft` is now `owned_aircraft - intercept_reserve`, so the auto-planner
+  leaves those aircraft available for QRA instead of fragging them.
+- Reserve helpers: `game/squadrons/intercept_reserve.py` owns clamping, default seeding,
+  and live-campaign repropagation when coalition doctrine defaults change.
+- Campaign doctrine: `game/settings/settings.py` exposes
+  `ownfor_default_qra_reserve`, `opfor_default_qra_reserve`,
+  `qra_gci_max_radius_nm`, `qra_engagement_range_nm`, and `qra_comms_enabled`.
 - Mission generation: `game/missiongenerator/aircraft/aircraftgenerator.py`
-  `_spawn_unused_for()` collects eligible RED untasked uncontrolled A/A into the scramble
-  pool (`MAX_SCRAMBLE_GROUPS_PER_AIRFIELD = 4`).
-- Lua injection + border: `game/missiongenerator/luagenerator.py`
-  `_inject_scramble_script()` and `_scramble_border_points()` (`SCRAMBLE_BORDER_BUFFER`,
-  30 nm forward of RED territory). Pool is emitted as `dcsRetribution.scramble_pool`.
-- Plugin script: `resources/plugins/scramble/reactive_scramble.lua` (+ `plugin.json`).
-  It does **not** key off group names — it wakes whatever is in `scramble_pool`. Requires
-  the "Disable untasked OPFOR aircraft at airfields" option to be **unchecked**.
-- Settings: `enable_reactive_scramble`, `reactive_scramble_reserve` in
-  `game/settings/settings.py`.
+  `spawn_intercept_templates()` emits late-activated parked template groups and
+  appends `mission_data.intercept_entries`.
+- Template spawn details: `game/missiongenerator/aircraft/flightgroupspawner.py`
+  `create_intercept_template()` places the parked template and seeds
+  `QRA_AIRSTART_SPEED_MS` onto its waypoints so Moose in-air spawns do not drop early
+  jets nearly stationary and stall them.
+- Lua/config path: `game/missiongenerator/interceptluadata.py` populates
+  `dcsRetribution.Intercept`, and `resources/plugins/intercept/intercept-config.lua`
+  instantiates Moose `AI_A2A_DISPATCHER` behavior from that table.
+- Results/debrief: `resources/plugins/base/dcs_retribution.lua` writes
+  `intercept_survivors`; `game/debriefing.py` and
+  `game/sim/missionresultsprocessor.py` reconcile those survivor counts back into
+  squadron aircraft and pilot losses.
+- UI touchpoints: QRA reserve editing and display now live in
+  `qt_ui/windows/AirWingConfigurationDialog.py`,
+  `qt_ui/windows/SquadronDialog.py`,
+  `qt_ui/windows/basemenu/airfield/QAircraftRecruitmentMenu.py`,
+  `qt_ui/windows/basemenu/QBaseMenu2.py`, and the debrief/settings windows.
 
-**Launch lesson (important):** pooled groups spawn route-less (single `TakeOffParking`,
-uncontrolled). `GROUP:StartUncontrolled()` only starts engines; the `setTask(EngageTargets)`
-is what actually drives takeoff. Do NOT gate tasking on an `InAir` poll — that deadlocks.
-Start, wait `CFG_spawnDelay`, then task. Early builds registered QRA as ONLINE but never
-launched because the radar-proximity trigger never fired; the border-penetration trigger
-fixes that.
+Legacy note: `FlightType.SCRAMBLE` and `resources/plugins/scramble/reactive_scramble.lua`
+still exist in the tree, but they are no longer the live mission QRA path. Treat them as
+historical leftovers unless a future cleanup explicitly removes them.
 
-### 2. JAMMING flight type — C-130J EW/ISR
-- Enum: `game/ato/flighttype.py` (`FlightType.JAMMING` →
+### 2. JAMMING flight type - C-130J EW/ISR
+- Enum: `game/ato/flighttype.py` (`FlightType.JAMMING` ->
   `AirEntity.ELECTRONIC_COMBAT_JAMMER`).
 - Behavior: `game/missiongenerator/aircraft/aircraftbehavior.py` `configure_jamming()`
   (AWACS-style orbit + `WEAPON_HOLD` ROE).
@@ -87,7 +95,7 @@ fixes that.
   `game/theater/missiontarget.py`, `game/pretense/pretenseaircraftgenerator.py`.
 
 **C-130 EW hard constraints (carried over from the standalone ME script):** do NOT toggle
-SAM radar emissions (`enableEmission(false)` crashed DCS — suppression is ROE WEAPON_HOLD
+SAM radar emissions (`enableEmission(false)` crashed DCS - suppression is ROE WEAPON_HOLD
 only); the burn-through model intentionally RAISES jam probability with distance; spot
 jamming has flat altitude-independent range; the missile-spoof curve is intentionally steep
 at close range. Don't "fix" these.
@@ -99,7 +107,7 @@ Design notes: `docs/dev/design/414th-air-defense-planning-notes.md` (read this f
 - Forward CAP line: `game/commander/objectivefinder.py` `vulnerable_control_points()`
   (checks `cp.has_active_frontline`; also fixes an inverted aggressiveness comparison).
 - Engagement-range bumps: `game/settings/settings.py` (`cas_engagement_range_distance`
-  10→15 nm, `armed_recon_engagement_range_distance` 5→10 nm).
+  10->15 nm, `armed_recon_engagement_range_distance` 5->10 nm).
 
 ### 4. Auto-hide mobile SAMs on MFD
 - `game/armedforces/forcegroup.py`: `hide_on_mfd` field, `_MOBILE_TASKS = {SHORAD, AAA}`,
@@ -114,14 +122,14 @@ Design notes: `docs/dev/design/414th-air-defense-planning-notes.md` (read this f
   pydcs Lua parser rejects with `ValueError`): patched loader in `qt_ui/main.py`
   (`_patch_pydcs_payload_loader()`), plus the offending files are skipped with a warning.
 
-### 6. TIC — Troops In Contact frontline battle sim (plugin, default OFF)
+### 6. TIC - Troops In Contact frontline battle sim (plugin, default ON)
 Grendel's TIC v1.1 (MIT, lua globals named `GLSCO*`) replaces vanilla ground AI
 with formation-keeping, prolonged scripted firefights for frontline maneuver
 units. Enable per-game via the plugins UI ("Troops In Contact").
 
 - Plugin: `resources/plugins/tic/` (`TIC_v1.1.lua` + `tic_414_init.lua` +
   `plugin.json`; options: `stormtrooper`, `createMenus`, `boundPause`,
-  `ambientFire`). Script injection is NOT a work order — it's
+  `ambientFire`). Script injection is NOT a work order - it's
   `_inject_tic_script()` in `game/missiongenerator/luagenerator.py` (scramble
   pattern): a DoScript preamble pre-seeds `GLSCO.*` from
   `dcsRetribution.plugins.tic.*` and sets `AutoInitialize/AutoStart = false`,
@@ -129,7 +137,7 @@ units. Enable per-game via the plugins UI ("Troops In Contact").
   installs the 414th ambient-fire extension (wraps
   `GLSCO_COMBATANT:simulate()`: combatants with no LOS target have a 50%
   chance per firing cycle to area-fire a salvo at 30-150 m around the nearest
-  enemy formation within 6 km — tracers over LOS blockers, no aimed
+  enemy formation within 6 km - tracers over LOS blockers, no aimed
   lethality) and then owns `GLSCO:Initialize()` + `battle:Activate()`.
   CRITICAL: TIC's auto-init is disabled, so if tic_414_init.lua is removed or
   fails, the battle never starts.
@@ -141,25 +149,25 @@ units. Enable per-game via the plugins UI ("Troops In Contact").
   the carrier's formation as `TIC:<formation>#<infantry name>`. Artillery and
   the manpads-only branch stay vanilla. TIC group names are recorded in
   `mission_data.tic_groups` (the injection gate).
-- ROE/waypoint design (settled after in-game testing, intentional — keep):
+- ROE/waypoint design (settled after in-game testing, intentional - keep):
   TIC's "simulate" ROE fires theatrical near-miss salvos ONLY while
   stationary; moving units don't shoot at all, and `roe=kill` was judged too
   lethal/accurate by the 414th. Advancing formations get a 3-leg timed route
   (`_plan_tic_action()`, using TIC's native `t+N` waypoint schedules):
   (1) advance to TIC_CONTACT_STANDOFF (600-900 m) short of the front-line
   trace (`_tic_distance_to_front()` projects the group onto the forward
-  axis) — opposing lines halt ~1.2-1.8 km apart, inside TIC's ~2 NM
+  axis) - opposing lines halt ~1.2-1.8 km apart, inside TIC's ~2 NM
   targeting bubble, and fight; (2) slide TIC_LATERAL_SLIDE (1.5-3 km)
   sideways along the front to break LOS deadlocks behind towns/ridges (the
   Dzhukhur lesson: TIC targeting is LOS-checked and TIC does not path around
   terrain); (3) press TIC_PUSH_DEPTH (400-800 m) PAST the trace into close
   contact so combat is guaranteed. Minutes between legs = the
-  `tic.boundPause` plugin option (default 25, jittered ±25% per leg via
+  `tic.boundPause` plugin option (default 25, jittered +/-25% per leg via
   `_tic_jitter()`), sizing the battle arc to ~1.5-2 h; players read/change it
   in the plugin settings UI. Losses from scripted fire are sparse near-miss
   kills by design; players flying CAS are the real attrition source. The
   campaign front moves on player kills, not TIC kills.
-- Loss tracking: TIC destroys originals (no dead event — scripted destroy is
+- Loss tracking: TIC destroys originals (no dead event - scripted destroy is
   silent) and respawns single-unit clones renamed by MOOSE SPAWN to
   `<group>-<i>#NNN-UU`. `game/unitmap.py` registers `front_line_groups` and
   `front_line_unit_from_tic_clone()` strips the suffixes (regex
@@ -167,11 +175,11 @@ units. Enable per-game via the plugins UI ("Troops In Contact").
   falls back to it when the exact unit-name lookup misses. Tests:
   `tests/test_tic_clone_mapping.py`.
 - KNOWN LIMITATION: with StormTrooper AI on (default), TIC cloaks managed
-  units from DCS AI sensors — AI CAS flights and the AFAC JTAC cannot detect
+  units from DCS AI sensors - AI CAS flights and the AFAC JTAC cannot detect
   the enemy frontline. Human CAS is unaffected. Turn StormTrooper off for
   visible real-AI ground combat.
 - Do NOT call `ScanAndRegisterFormations` twice and do not ME-activate TIC
-  groups — TIC owns their lifecycle.
+  groups - TIC owns their lifecycle.
 
 ### 7. CurrentHill Iran assets pack
 - Unit defs: `pydcs_extensions/iranmilitaryassetspack/` (Shahed-136 `CH_Shahed136`,
@@ -188,9 +196,9 @@ units. Enable per-game via the plugins UI ("Troops In Contact").
 - This repo (`bradyccox/414Ret`) `main` = the consolidated, most-up-to-date 414th build.
 - Upstream is `dcs-retribution/dcs-retribution`; the 414th's PR fork is
   `bradyccox/dcs-retribution`. Open upstream PRs carved out of this work:
-  - **#784** `codex/currenthill-iran-pack` — the Iran pack (the branch also carries the
+  - **#784** `codex/currenthill-iran-pack` - the Iran pack (the branch also carries the
     full feature stack).
-  - **#786** `codex/fix-aaq33-era-restriction` — targeting-pod era-restriction fix
+  - **#786** `codex/fix-aaq33-era-restriction` - targeting-pod era-restriction fix
     (separate, small; NOT part of the feature stack on `main`).
 - The 414th's primary "all features" working branch in the dev checkout is
   `414th-all-features`; `main` here = that + the Iran pack + a Black/mypy lint pass.
@@ -201,15 +209,15 @@ units. Enable per-game via the plugins UI ("Troops In Contact").
   scramble/CAP validation is done. Two targeted YAML fixes already landed (Tu-22M3
   anti-ship 800, M-2000C A2A 460).
 - Reactive scramble has been validated in code/unit tests but the end-to-end in-game
-  launch (border trigger → cold start → takeoff → intercept) should be re-checked after
+  launch (border trigger -> cold start -> takeoff -> intercept) should be re-checked after
   any change to the pool or border logic.
 
-## PINNED — do not modify
+## PINNED - do not modify
 
 - **`resources/plugins/splashdamage3/Splash_Damage_3.4.2_414th.lua`** is the 414th's
   **buddy-tuned** Splash Damage build (softened weapon table, `overall_scaling=0.6`,
   `rocket_multiplier=0.8`, `static_damage_boost=1`, shaped-charge rocket flags,
-  `game_messages=true`). **Do NOT overwrite it from upstream stevey/source** — the
+  `game_messages=true`). **Do NOT overwrite it from upstream stevey/source** - the
   414th prefers this version. If you must update it, diff against the tuned build and
   preserve these values; don't blind-copy.
   - The settings are LOCKED by design (Tyler's call): `plugin.json` has no
@@ -218,7 +226,7 @@ units. Enable per-game via the plugins UI ("Troops In Contact").
     can override them. Don't reintroduce the config layer.
   - Merge note (2026-06-12): main and splash-script pinned byte-identical builds
     independently; the only delta was `game_messages` (main false, splash-script
-    true). Resolved to `true` — flip the single line in the lua if the squadron
+    true). Resolved to `true` - flip the single line in the lua if the squadron
     prefers silence.
 
 ## Conventions
