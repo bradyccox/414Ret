@@ -53,6 +53,11 @@
             "maximumValue": 60
         }
     ],
-    "scriptsWorkOrders": [],
+    "scriptsWorkOrders": [
+        {
+            "file": "c130j_mission_systems.lua",
+            "mnemonic": "c130j_mission_systems"
+        }
+    ],
     "configurationWorkOrders": []
 }
