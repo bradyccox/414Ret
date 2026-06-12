@@ -42,6 +42,7 @@ class MigrationUnpickler(pickle.Unpickler):
             self._handle_weather_classes,
             self._handle_ch_russian_assets,
             self._handle_su30,
+            self._handle_flight_type,
             self._handle_misc,
         ]
 
@@ -236,6 +237,23 @@ class MigrationUnpickler(pickle.Unpickler):
 
         return None
     
+    def _handle_flight_type(self, module: str, name: str) -> Any:
+        """Migrate legacy FlightType values from older 414th builds (ISR -> JAMMING)"""
+        if name != "FlightType" or not module.endswith("flighttype"):
+            return None
+
+        from game.ato.flighttype import FlightType
+
+        legacy_values = {"ISR": FlightType.JAMMING}
+
+        def migrate(value: str) -> FlightType:
+            legacy = legacy_values.get(value)
+            if legacy is not None:
+                return legacy
+            return FlightType(value)
+
+        return migrate
+
     def _handle_misc(self, module: str, name: str) -> Any:
         """Handle migrations for mods"""
         if module == "pydcs_extensions.f4b.f4b":
