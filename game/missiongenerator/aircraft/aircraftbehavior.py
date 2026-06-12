@@ -62,7 +62,6 @@ class AircraftBehavior:
             FlightType.BARCAP,
             FlightType.TARCAP,
             FlightType.INTERCEPTION,
-            FlightType.SCRAMBLE,
         ]:
             self.configure_cap(group, flight)
         elif self.task == FlightType.SWEEP:

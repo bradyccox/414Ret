@@ -57,6 +57,7 @@ STACK_SEPARATION = feet(200)
 RTB_ALTITUDE = meters(800)
 RTB_DISTANCE = 5000
 HELI_ALT = 500
+QRA_AIRSTART_SPEED_MS = 150.0
 
 
 class FlightGroupSpawner:
@@ -125,33 +126,46 @@ class FlightGroupSpawner:
                 cp=self.flight.squadron.location,
             )
         elif isinstance(cp, Airfield):
-            # TODO: remove hack when fixed in DCS
-            slots = None
-            if self._check_nevatim_hack(cp):
-                ac_type = self.flight.unit_type.dcs_unit_type
-                slots = [
-                    slot
-                    for slot in cp.dcs_airport.free_parking_slots(ac_type)
-                    if slot.slot_name in [str(n) for n in range(55, 66)]
-                ]
-            elif self._check_ramon_airbase_hack(cp):
-                ac_type = self.flight.unit_type.dcs_unit_type
-                slots = [
-                    slot
-                    for slot in cp.dcs_airport.free_parking_slots(ac_type)
-                    if slot.slot_name
-                    not in [
-                        str(n) for n in [1, 2, 3, 4, 5, 6, 13, 14, 15, 16, 17, 18, 61]
-                    ]
-                ]
             group = self._generate_at_airfield(
                 name=namegen.next_aircraft_name(self.country, self.flight),
                 airfield=cp,
-                parking_slots=slots,
+                parking_slots=self._restricted_parking_slots(cp),
             )
         if group:
             group.uncontrolled = True
         return group
+
+    def create_intercept_template(self, group_name: str) -> Optional[FlyingGroup[Any]]:
+        cp = self.flight.squadron.location
+        if not isinstance(cp, Airfield):
+            return None
+        group = self._generate_at_airfield(
+            name=group_name,
+            airfield=cp,
+            parking_slots=self._restricted_parking_slots(cp),
+        )
+        for point in group.points:
+            point.speed = QRA_AIRSTART_SPEED_MS
+        group.late_activation = True
+        return group
+
+    def _restricted_parking_slots(self, cp: Airfield) -> Optional[List[ParkingSlot]]:
+        if self._check_nevatim_hack(cp):
+            ac_type = self.flight.unit_type.dcs_unit_type
+            return [
+                slot
+                for slot in cp.dcs_airport.free_parking_slots(ac_type)
+                if slot.slot_name in [str(n) for n in range(55, 66)]
+            ]
+        if self._check_ramon_airbase_hack(cp):
+            ac_type = self.flight.unit_type.dcs_unit_type
+            return [
+                slot
+                for slot in cp.dcs_airport.free_parking_slots(ac_type)
+                if slot.slot_name
+                not in [str(n) for n in [1, 2, 3, 4, 5, 6, 13, 14, 15, 16, 17, 18, 61]]
+            ]
+        return None
 
     @property
     def start_type(self) -> StartType:

@@ -238,13 +238,18 @@ class MigrationUnpickler(pickle.Unpickler):
         return None
     
     def _handle_flight_type(self, module: str, name: str) -> Any:
-        """Migrate legacy FlightType values from older 414th builds (ISR -> JAMMING)"""
+        """Migrate legacy FlightType values from older 414th builds.
+
+        ISR -> JAMMING (C-130 consolidation) and the retired SCRAMBLE QRA type ->
+        BARCAP (it always behaved as a BARCAP). FlightType._missing_ covers the
+        same values for any non-pickle lookup path.
+        """
         if name != "FlightType" or not module.endswith("flighttype"):
             return None
 
         from game.ato.flighttype import FlightType
 
-        legacy_values = {"ISR": FlightType.JAMMING}
+        legacy_values = {"ISR": FlightType.JAMMING, "Scramble": FlightType.BARCAP}
 
         def migrate(value: str) -> FlightType:
             legacy = legacy_values.get(value)

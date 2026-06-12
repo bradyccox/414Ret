@@ -9,7 +9,6 @@ livery: EC 1 5 Vendee BA Orange-Cariat
 mission_types:
   - BARCAP
   - Escort
-  - Scramble
   - Fighter sweep
   - TARCAP
   - BAI

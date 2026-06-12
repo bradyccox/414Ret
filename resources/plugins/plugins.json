@@ -1,20 +1,12 @@
 [
     "base",
     "ctld",
-    "arty",
-    "artymbot",
-    "bigeye",
-    "dismounts",
     "ewrj",
-    "ewrs",
     "c130j",
     "herculescargo",
-    "lotatc",
     "skynetiads",
     "splashdamage3",
     "tic",
     "airboss",
-    "MooseSoundhandler",
-    "MooseAutolase",
-    "MooseMarkerOps"
+    "intercept"
 ]

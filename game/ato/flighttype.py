@@ -41,10 +41,9 @@ class FlightType(Enum):
     TARCAP = "TARCAP"
     BARCAP = "BARCAP"
     CAS = "CAS"
-    # Legacy/unplanned task retained for save compatibility only. New data should
-    # use SCRAMBLE for QRA-capable interceptors.
+    # Legacy/unplanned task retained for save compatibility only. QRA interceptors
+    # are now modeled via the squadron intercept_reserve, not a dedicated FlightType.
     INTERCEPTION = "Intercept"
-    SCRAMBLE = "Scramble"
     STRIKE = "Strike"
     ANTISHIP = "Anti-ship"
     SEAD = "SEAD"
@@ -71,6 +70,10 @@ class FlightType(Enum):
         """Handle legacy persisted values from older 414th builds."""
         if value == "ISR":
             return cls.JAMMING
+        # The 414th's SCRAMBLE QRA flight type was retired; it always behaved as a
+        # BARCAP (BarCap flight plan, configure_cap, BARCAP loadout). Map old saves.
+        if value == "Scramble":
+            return cls.BARCAP
         return None
 
     def __str__(self) -> str:
@@ -89,7 +92,6 @@ class FlightType(Enum):
             FlightType.TARCAP,
             FlightType.BARCAP,
             FlightType.INTERCEPTION,
-            FlightType.SCRAMBLE,
             FlightType.ESCORT,
             FlightType.SWEEP,
         }
@@ -128,7 +130,6 @@ class FlightType(Enum):
             FlightType.ESCORT: AirEntity.ESCORT,
             FlightType.FERRY: AirEntity.UNSPECIFIED,
             FlightType.INTERCEPTION: AirEntity.FIGHTER,
-            FlightType.SCRAMBLE: AirEntity.FIGHTER,
             FlightType.OCA_AIRCRAFT: AirEntity.ATTACK_STRIKE,
             FlightType.OCA_RUNWAY: AirEntity.ATTACK_STRIKE,
             FlightType.RECOVERY: AirEntity.TANKER,

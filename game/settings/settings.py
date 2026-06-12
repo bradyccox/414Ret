@@ -215,33 +215,64 @@ class Settings:
         " first wave's timing is less predictable. 0 restores back-to-back,"
         " non-overlapping waves (the legacy behaviour).",
     )
-    enable_reactive_scramble: bool = boolean_option(
-        "Reactive OPFOR scramble (QRA)",
+    ownfor_default_qra_reserve: int = bounded_int_option(
+        "Default QRA reserve per OWNFOR interceptor squadron",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        default=0,
+        min=0,
+        max=12,
+        detail=(
+            "At new-game start, seeds this many QRA (hot-alert intercept) aircraft "
+            "for each BARCAP-capable OWNFOR squadron. Per-squadron values can be "
+            "edited afterward and are saved with the campaign."
+        ),
+    )
+    opfor_default_qra_reserve: int = bounded_int_option(
+        "Default QRA reserve per OPFOR interceptor squadron",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        default=0,
+        min=0,
+        max=12,
+        detail=(
+            "At new-game start, seeds this many QRA (hot-alert intercept) aircraft "
+            "for each BARCAP-capable OPFOR squadron. Lets OPFOR lean on interception "
+            "independently of OWNFOR. Per-squadron values can be edited afterward."
+        ),
+    )
+    qra_gci_max_radius_nm: int = bounded_int_option(
+        "QRA GCI max scramble radius (NM)",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        default=100,
+        min=1,
+        max=400,
+        detail=(
+            "Caps how close a detected raid must be to a defended base before that "
+            "base scrambles its QRA interceptors."
+        ),
+    )
+    qra_engagement_range_nm: int = bounded_int_option(
+        "QRA interceptor engagement range (NM)",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        default=60,
+        min=1,
+        max=200,
+        detail=(
+            "How far a scrambled interceptor chases a target (Moose SetEngageRadius) "
+            "before disengaging."
+        ),
+    )
+    qra_comms_enabled: bool = boolean_option(
+        "QRA radio scramble callouts",
         page=CAMPAIGN_DOCTRINE_PAGE,
         section=GENERAL_SECTION,
         default=True,
-        invert=False,
         detail=(
-            "When checked, RED parks Scramble-capable leftover aircraft cold on"
-            " the ramp as a quick-reaction (QRA) pool. reactive_scramble.lua wakes"
-            " the nearest one to intercept when a BLUE aircraft penetrates RED"
-            " airspace. The pool is generated even if untasked OPFOR aircraft are"
-            " otherwise disabled (only the dormant interceptors are spawned)."
-        ),
-    )
-    reactive_scramble_reserve: int = bounded_int_option(
-        "Reactive scramble reserve (aircraft per RED A/A squadron)",
-        page=CAMPAIGN_DOCTRINE_PAGE,
-        section=GENERAL_SECTION,
-        default=2,
-        min=0,
-        max=8,
-        detail=(
-            "How many Scramble-capable aircraft each RED squadron holds back"
-            " from the auto-planner so they remain on the ramp as QRA"
-            " interceptors. 0 lets the planner commit every aircraft (no reserve),"
-            " which is why squadrons were leaving no interceptors. Capped per"
-            " airfield by the dormant-interceptor limit."
+            "Enables the dispatcher's defender-POV radio/text callouts (scramble, "
+            "wheels up, engaging, RTB) on the coalition F10 menu and radio TTS."
         ),
     )
     desired_awacs_mission_duration: timedelta = minutes_option(

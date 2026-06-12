@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QListView,
     QPushButton,
+    QSpinBox,
     QVBoxLayout,
     QApplication,
     QInputDialog,
@@ -323,6 +324,24 @@ class SquadronDialog(QDialog):
 
             self._refresh_aircraft_controls()
 
+        left_column.addWidget(QLabel("QRA reserve"))
+        self.qra_reserve_selector = QSpinBox()
+        self.qra_reserve_selector.lineEdit().setEnabled(False)
+        self.qra_reserve_selector.setToolTip(
+            "Aircraft held on quick-reaction alert; scramble airborne to intercept. "
+            "Bounded by the squadron's max size."
+        )
+        self.qra_reserve_selector.setMinimum(0)
+        self.qra_reserve_selector.setMaximum(self.squadron.max_size)
+        self.qra_reserve_selector.setValue(self.squadron.intercept_reserve)
+        if not self.squadron.capable_of(FlightType.BARCAP):
+            self.qra_reserve_selector.setEnabled(False)
+            self.qra_reserve_selector.setToolTip(
+                "QRA is only available for fixed-wing squadrons capable of BARCAP."
+            )
+        self.qra_reserve_selector.valueChanged.connect(self.on_qra_reserve_changed)
+        left_column.addWidget(self.qra_reserve_selector)
+
         auto_assigned_tasks = AutoAssignedTaskControls(squadron_model)
         left_column.addLayout(auto_assigned_tasks)
 
@@ -379,6 +398,9 @@ class SquadronDialog(QDialog):
     @property
     def squadron(self) -> Squadron:
         return self.squadron_model.squadron
+
+    def on_qra_reserve_changed(self, value: int) -> None:
+        self.squadron.intercept_reserve = value
 
     def _aircraft_stats_text(self) -> str:
         s = self.squadron

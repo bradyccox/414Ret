@@ -1283,7 +1283,6 @@ class Airfield(ControlPoint, CTLD):
             yield from [
                 FlightType.AEWC,
                 FlightType.ESCORT,
-                # TODO: FlightType.SCRAMBLE
                 # TODO: FlightType.LOGISTICS
             ]
 
@@ -1401,7 +1400,6 @@ class NavalControlPoint(
                 FlightType.RECOVERY,
                 FlightType.REFUELING,
                 FlightType.ESCORT,
-                # TODO: FlightType.SCRAMBLE
                 # TODO: Buddy tanking for the A-4?
                 # TODO: Rescue chopper?
                 # TODO: Inter-ship logistics?

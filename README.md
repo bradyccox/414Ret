@@ -1,7 +1,7 @@
-# 414Ret — 414th Joint Fighter Group's DCS Retribution Fork
+# 414Ret - 414th Joint Fighter Group's DCS Retribution Fork
 
 This repository is the **414th Joint Fighter Group's customized build of
-[DCS Retribution](https://github.com/dcs-retribution/dcs-retribution)** — a turn-based
+[DCS Retribution](https://github.com/dcs-retribution/dcs-retribution)** - a turn-based
 dynamic campaign generator for [DCS World](https://www.digitalcombatsimulator.com/en/products/world/).
 
 It is a snapshot of upstream Retribution (`dev` branch) **plus the 414th's own
@@ -9,7 +9,7 @@ air-defense, electronic-warfare, and assets-pack features**. The unmodified upst
 project README is preserved as [`README.upstream.md`](README.upstream.md).
 
 > **For AI assistants / other Claude sessions:** read [`CLAUDE.md`](CLAUDE.md) first.
-> It is the engineering handoff doc — architecture, where each feature lives, the
+> It is the engineering handoff doc - architecture, where each feature lives, the
 > branch layout, and what is still in flight.
 
 ---
@@ -20,21 +20,18 @@ This fork is upstream `dev` at commit `dce851ea` with the following 414th additi
 stacked on top (newest first):
 
 ### New flight types
-- **`FlightType.SCRAMBLE`** — reactive QRA (Quick Reaction Alert) interceptors. RED
-  air-to-air aircraft are held cold on the ramp and woken only when BLUE penetrates a
-  defined border. Driven by the bundled `reactive_scramble.lua` mission plugin.
-- **`FlightType.JAMMING`** — standoff electronic-warfare support flown by the C-130J,
+- **`FlightType.JAMMING`** - standoff electronic-warfare support flown by the C-130J,
   acting as an EC-130H Compass Call / RC-130H Rivet Joint platform. Driven by the
   bundled `c130j_mission_systems.lua` plugin.
 
 ### Air-defense planning rework
+- **Per-squadron QRA intercept reserve** from upstream PR `#782`. BARCAP-capable
+  squadrons can hold aircraft back on alert via `intercept_reserve`, with coalition
+  defaults and Moose `AI_A2A_DISPATCHER` runtime interception.
 - **Overlapping BARCAP waves** with jittered timing so CAP doesn't all arrive at once
   (`barcap_overlap_time` setting).
 - **Forward CAP line** that pushes CAP toward friendly control points anchoring active
   front lines instead of orbiting deep.
-- **Reactive-scramble doctrine toggle** (`enable_reactive_scramble`) plus a QRA reserve
-  (`reactive_scramble_reserve`) so the auto-planner leaves interceptors uncommitted, and
-  a RED airspace border (`scramble_border`) that triggers the launch.
 - OPFOR-aggressiveness direction fix and CAS / Armed-Recon engagement-range bumps.
 
 ### Quality-of-life & robustness

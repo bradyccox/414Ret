@@ -1,6 +1,6 @@
 {
     "nameInUI": "Include C130 Cargo script (Anubis Hercules mod)",
-    "defaultValue": false,
+    "defaultValue": true,
 	"specificOptions": [],
     "scriptsWorkOrders": [
         {

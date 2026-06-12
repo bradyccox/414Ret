@@ -9,7 +9,6 @@ livery: RAF, No. 145 Squadron
 mission_types:
   - CAS
   - Escort
-  - Scramble
   - OCA/Aircraft
   - Fighter sweep
   - BARCAP

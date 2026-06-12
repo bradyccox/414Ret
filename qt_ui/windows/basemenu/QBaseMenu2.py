@@ -20,6 +20,7 @@ from game.radio.TacanContainer import TacanContainer
 from game.server import EventStream
 from game.sim import GameUpdateEvents
 from game.sim.missionresultsprocessor import MissionResultsProcessor
+from game.squadrons.intercept_reserve import qra_resource_count
 from game.theater import (
     AMMO_DEPOT_FRONTLINE_UNIT_CONTRIBUTION,
     ControlPoint,
@@ -332,10 +333,23 @@ class QBaseMenu2(QDialog):
         mixed_parking = [
             slot for slot in self.cp.parking_slots if slot.helicopter and slot.airplanes
         ]
+        qra_alert = sum(
+            qra_resource_count(
+                squadron.intercept_reserve,
+                squadron.owned_aircraft,
+                (
+                    squadron.number_of_available_pilots
+                    if squadron.pilot_limits_enabled
+                    else None
+                ),
+            )
+            for squadron in self.cp.squadrons
+        )
         self.intel_summary.setText(
             "\n".join(
                 [
                     f"{aircraft}/{parking} aircraft",
+                    f"{qra_alert} on QRA alert",
                     f"{len(fixed_wing_airfield_parking)} fixed-wing only parking",
                     f"{len(rotary_wing_airfield_parking) + helipads} rotary-wing only parking",
                     f"{len(mixed_parking)} mixed parking",

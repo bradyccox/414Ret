@@ -8,7 +8,6 @@ livery: Peru052
 mission_types:
   - BARCAP
   - Escort
-  - Scramble
   - Fighter sweep
   - TARCAP
   - BAI

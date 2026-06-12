@@ -1,6 +1,6 @@
 {
     "nameInUI": "Moose Airboss",
-    "defaultValue": false,
+    "defaultValue": true,
     "specificOptions": [        
         {
             "nameInUI": "Enable Airboss for LHA",

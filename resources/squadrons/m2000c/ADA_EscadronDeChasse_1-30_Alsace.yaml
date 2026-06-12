@@ -9,7 +9,6 @@ livery: AdA Alsace LF-2
 mission_types:
   - BARCAP
   - Escort
-  - Scramble
   - Fighter sweep
   - TARCAP
   - BAI

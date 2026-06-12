@@ -49,7 +49,6 @@ class FlightPlanBuilderTypes:
             FlightType.ANTISHIP: AntiShipFlightPlan.builder_type(),
             FlightType.BAI: BaiFlightPlan.builder_type(),
             FlightType.BARCAP: BarCapFlightPlan.builder_type(),
-            FlightType.SCRAMBLE: BarCapFlightPlan.builder_type(),
             FlightType.CAS: CasFlightPlan.builder_type(),
             FlightType.DEAD: DeadFlightPlan.builder_type(),
             FlightType.ESCORT: EscortFlightPlan.builder_type(),

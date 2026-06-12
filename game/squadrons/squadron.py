@@ -17,6 +17,7 @@ from game.ato import Flight, FlightType, Package
 from game.settings import AutoAtoBehavior, Settings
 from game.theater import ParkingType
 from game.theater.player import Player
+from .intercept_reserve import clamp_intercept_reserve
 from .pilot import Pilot, PilotStatus
 from ..db.database import Database
 from ..radio.radios import RadioFrequency
@@ -81,6 +82,9 @@ class Squadron:
 
     use_livery_set: bool = False  # if livery-set should be used when present
 
+    #: Number of airframes held on QRA (hot-alert intercept). 0 = none.
+    intercept_reserve: int = 0
+
     def __setstate__(self, state: dict[str, Any]) -> None:
         if "id" not in state:
             state["id"] = uuid4()
@@ -94,6 +98,8 @@ class Squadron:
             state["destroyed_aircraft"] = 0
         if "purchased_aircraft" not in state:
             state["purchased_aircraft"] = 0
+        if "intercept_reserve" not in state:
+            state["intercept_reserve"] = 0
         self.__dict__.update(state)
 
     def __str__(self) -> str:
@@ -225,6 +231,25 @@ class Squadron:
         # repopulating the same size flight from the same squadron.
         self.available_pilots.extend(reversed(pilots))
 
+    def lose_pilots(self, count: int) -> None:
+        """Kill up to ``count`` idle pilots, preferring AI over players.
+
+        Used to attribute QRA intercept losses back to the squadron roster. Only
+        pilots still in ``available_pilots`` (i.e. not tasked to another flight)
+        are eligible, AI pilots are killed before players, and players are spared
+        entirely when ``invulnerable_player_pilots`` is set. Killed pilots are
+        removed from the available pool. The count is capped at the number of
+        eligible pilots.
+        """
+        if count <= 0:
+            return
+        killable = [p for p in self.available_pilots if not p.player]
+        if not self.settings.invulnerable_player_pilots:
+            killable += [p for p in self.available_pilots if p.player]
+        for pilot in killable[:count]:
+            pilot.kill()
+            self.available_pilots.remove(pilot)
+
     def _recruit_pilots(self, count: int) -> None:
         new_pilots = self.pilot_pool[:count]
         self.pilot_pool = self.pilot_pool[count:]
@@ -260,7 +285,9 @@ class Squadron:
 
     def return_all_pilots_and_aircraft(self) -> None:
         self.available_pilots = list(self.active_pilots)
-        self.untasked_aircraft = self.owned_aircraft
+        # QRA-reserved airframes are held on alert by the intercept dispatcher,
+        # so they are not available to the auto-planner or spawned as filler.
+        self.untasked_aircraft = max(0, self.owned_aircraft - self.intercept_reserve)
 
     @staticmethod
     def send_on_leave(pilot: Pilot) -> None:
@@ -369,11 +396,6 @@ class Squadron:
             return False
         if this_turn and not self.can_fulfill_flight(size):
             return False
-        # Hold back the QRA reserve (aircraft only, not pilots) so the planner
-        # stops short of committing every air-to-air airframe and some remain
-        # untasked to form the reactive-scramble interceptor pool.
-        if this_turn and self.untasked_aircraft < size + self.scramble_reserve:
-            return False
 
         if task in [FlightType.ESCORT, FlightType.SEAD_ESCORT]:
             if heli and not self.aircraft.helicopter and not self.aircraft.lha_capable:
@@ -425,24 +447,6 @@ class Squadron:
 
     def can_fulfill_flight(self, count: int) -> bool:
         return self.can_provide_pilots(count) and self.untasked_aircraft >= count
-
-    @property
-    def scramble_reserve(self) -> int:
-        """Aircraft held back from the auto-planner to stay on the ramp as QRA.
-
-        Without this the planner commits every air-to-air airframe to packages,
-        leaving nothing untasked for reactive_scramble.lua's interceptor pool.
-        Only RED, scramble-capable squadrons reserve, and only while reactive
-        scramble is enabled.
-        """
-        if (
-            not self.settings.enable_reactive_scramble
-            or not self.coalition.player.is_red
-        ):
-            return 0
-        if not self.aircraft.capable_of(FlightType.SCRAMBLE):
-            return 0
-        return self.settings.reactive_scramble_reserve
 
     def refund_orders(self, count: Optional[int] = None) -> None:
         if count is None:
@@ -619,4 +623,7 @@ class Squadron:
             game.db.flights,
             game.settings,
             base,
+            intercept_reserve=clamp_intercept_reserve(
+                squadron_def.intercept_reserve, max_size
+            ),
         )

@@ -304,6 +304,10 @@ class MissionGenerator:
             self.game.red.ato,
             tgo_generator.runways,
         )
+        aircraft_generator.spawn_intercept_templates(
+            self.p_country,
+            self.e_country,
+        )
         aircraft_generator.spawn_unused_aircraft(
             self.p_country,
             self.e_country,

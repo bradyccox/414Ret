@@ -25,7 +25,12 @@ from game.ato.flightstate import Completed, WaitingForStart
 from game.ato.flighttype import FlightType
 from game.ato.package import Package
 from game.ato.starttype import StartType
+from game.missiongenerator.interceptluadata import (
+    DEFAULT_BACKSTOP_EWR_TYPE,
+    InterceptEntry,
+)
 from game.missiongenerator.missiondata import MissionData
+from game.squadrons.intercept_reserve import qra_resource_count
 from game.radio.radios import RadioRegistry
 from game.radio.tacan import TacanRegistry
 from game.runways import RunwayData
@@ -46,9 +51,6 @@ from ...radio.datalink import DataLinkRegistry
 if TYPE_CHECKING:
     from game import Game
     from game.squadrons import Squadron
-
-
-MAX_SCRAMBLE_GROUPS_PER_AIRFIELD = 4
 
 
 class AircraftGenerator:
@@ -82,7 +84,6 @@ class AircraftGenerator:
         self.ground_spawns_roadbase = ground_spawns_roadbase
         self.ground_spawns_large = ground_spawns_large
         self.ground_spawns = ground_spawns
-        self.scramble_groups_by_control_point: dict[ControlPoint, int] = {}
 
         self.ewrj_package_dict: Dict[int, List[FlyingGroup[Any]]] = {}
         self.ewrj = settings.plugins.get("ewrj")
@@ -236,15 +237,95 @@ class AircraftGenerator:
                     # If we run out of parking, stop spawning aircraft at this base.
                     break
 
+    def spawn_intercept_templates(
+        self, player_country: Country, enemy_country: Country
+    ) -> None:
+        engagement_range_nm = self.game.settings.qra_engagement_range_nm
+        gci_max_radius_nm = self.game.settings.qra_gci_max_radius_nm
+        comms_enabled = self.game.settings.qra_comms_enabled
+
+        for control_point in self.game.theater.controlpoints:
+            if not isinstance(control_point, Airfield):
+                continue
+
+            base_is_blue = control_point.captured.is_blue
+            country = player_country if base_is_blue else enemy_country
+
+            for squadron in control_point.squadrons:
+                if not squadron.capable_of(FlightType.BARCAP):
+                    continue
+
+                available_pilots = (
+                    squadron.number_of_available_pilots
+                    if squadron.pilot_limits_enabled
+                    else None
+                )
+                resource_count = qra_resource_count(
+                    squadron.intercept_reserve,
+                    squadron.owned_aircraft,
+                    available_pilots,
+                )
+                if resource_count <= 0:
+                    continue
+
+                template_prefix = f"Intercept|{control_point.name}|{squadron.id}"
+
+                flight = Flight(
+                    Package(squadron.location, self.game.db.flights),
+                    squadron,
+                    2,
+                    FlightType.BARCAP,
+                    StartType.COLD,
+                    divert=None,
+                    claim_inv=False,
+                )
+                flight.state = Completed(flight, self.game.settings)
+
+                try:
+                    group = FlightGroupSpawner(
+                        flight,
+                        country,
+                        self.mission,
+                        self.helipads,
+                        self.ground_spawns_roadbase,
+                        self.ground_spawns_large,
+                        self.ground_spawns,
+                        self.mission_data,
+                    ).create_intercept_template(template_prefix)
+                except NoParkingSlotError:
+                    logging.warning(
+                        f"No parking slots available for QRA template at "
+                        f"{control_point.name} ({squadron}); skipping intercept entry."
+                    )
+                    continue
+                else:
+                    if group is None:
+                        continue
+
+                    self.mission_data.intercept_entries.append(
+                        InterceptEntry(
+                            squadron_id=str(squadron.id),
+                            squadron_name=str(squadron),
+                            airbase_name=control_point.name,
+                            template_prefix=template_prefix,
+                            coalition="BLUE" if base_is_blue else "RED",
+                            resource_count=resource_count,
+                            engagement_range_nm=engagement_range_nm,
+                            gci_max_radius_nm=gci_max_radius_nm,
+                            comms_enabled=comms_enabled,
+                            country_id=country.id,
+                            backstop_ewr_type=DEFAULT_BACKSTOP_EWR_TYPE[
+                                "BLUE" if base_is_blue else "RED"
+                            ],
+                        )
+                    )
+                finally:
+                    flight.roster.clear()
+
     def _spawn_unused_for(self, squadron: Squadron, country: Country) -> None:
         assert isinstance(squadron.location, Airfield) or isinstance(
             squadron.location, Fob
         )
-        reactive_scramble = self.game.settings.enable_reactive_scramble
-        # When untasked OPFOR aircraft are disabled but reactive scramble is on,
-        # we still spawn the dormant QRA interceptors (and nothing else) so the
-        # toggle alone guarantees a scramble pool.
-        scramble_only = False
         if (
             squadron.coalition.player.is_blue
             and self.game.settings.perf_disable_untasked_blufor_aircraft
@@ -254,39 +335,9 @@ class AircraftGenerator:
             squadron.coalition.player.is_red
             and self.game.settings.perf_disable_untasked_opfor_aircraft
         ):
-            if not reactive_scramble:
-                return
-            scramble_only = True
-
-        is_scramble_eligible_squadron = (
-            reactive_scramble
-            and squadron.coalition.player.is_red
-            and squadron.aircraft.capable_of(FlightType.SCRAMBLE)
-            and not (
-                squadron.aircraft.flyable
-                and (
-                    self.game.settings.enable_squadron_pilot_limits
-                    or squadron.number_of_available_pilots > 0
-                )
-                and self.game.settings.untasked_opfor_client_slots
-            )
-        )
+            return
 
         for _ in range(squadron.untasked_aircraft):
-            scramble_group_count = self.scramble_groups_by_control_point.get(
-                squadron.location, 0
-            )
-            can_be_scramble = (
-                is_scramble_eligible_squadron
-                and scramble_group_count < MAX_SCRAMBLE_GROUPS_PER_AIRFIELD
-            )
-            if scramble_only and not can_be_scramble:
-                # Only dormant interceptors are spawned when untasked OPFOR
-                # aircraft are otherwise disabled.
-                continue
-            # Creating a flight even those this isn't a fragged mission lets us
-            # reuse the existing debriefing code. Use BARCAP for A/A loadout
-            # selection, but name idle RED fighters as Scramble/QRA assets.
             flight = Flight(
                 Package(squadron.location, self.game.db.flights),
                 squadron,
@@ -294,9 +345,6 @@ class AircraftGenerator:
                 FlightType.BARCAP,
                 StartType.COLD,
                 divert=None,
-                custom_name=(
-                    f"{squadron.location.name} Scramble" if can_be_scramble else None
-                ),
                 claim_inv=False,
             )
             flight.state = Completed(flight, self.game.settings)
@@ -326,15 +374,6 @@ class AircraftGenerator:
                     )
                     group.uncontrolled = False
                     group.units[0].skill = Skill.Client
-                # Reactive GCI scramble pool: a RED group left uncontrolled (cold
-                # on the ramp) that can fly air-to-air becomes a dormant
-                # interceptor. reactive_scramble.lua wakes the nearest one when a
-                # Blue aircraft penetrates RED airspace (radar range is fallback).
-                if group.uncontrolled and can_be_scramble:
-                    self.mission_data.scramble_pool.append(group.name)
-                    self.scramble_groups_by_control_point[squadron.location] = (
-                        scramble_group_count + 1
-                    )
                 AircraftPainter(flight, group).apply_livery()
                 self.unit_map.add_aircraft(group, flight)
 

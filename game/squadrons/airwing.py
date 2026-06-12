@@ -161,6 +161,22 @@ class AirWing:
     def iter_squadrons(self) -> Iterator[Squadron]:
         return itertools.chain.from_iterable(self.squadrons.values())
 
+    def repropagate_qra_reserve(self, old_default: int, new_default: int) -> None:
+        """Re-apply a changed QRA-reserve default to this wing's squadrons."""
+        if old_default == new_default:
+            return
+        from ..ato.flighttype import FlightType
+        from .intercept_reserve import repropagated_intercept_reserve
+
+        for squadron in self.iter_squadrons():
+            squadron.intercept_reserve = repropagated_intercept_reserve(
+                squadron.capable_of(FlightType.BARCAP),
+                squadron.intercept_reserve,
+                old_default,
+                new_default,
+                squadron.max_size,
+            )
+
     def squadron_at_index(self, index: int) -> Squadron:
         return list(self.iter_squadrons())[index]
 

@@ -30,7 +30,6 @@ tasks:
   BARCAP: 590
   Escort: 565
   Fighter sweep: 565
-  Scramble: 590
   TARCAP: 590
 
 has_built_in_ecm: true

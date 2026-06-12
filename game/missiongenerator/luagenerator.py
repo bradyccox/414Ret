@@ -12,20 +12,15 @@ from dcs.action import DoScript, DoScriptFile
 from dcs.translation import String
 from dcs.triggers import TriggerStart
 
-from shapely.geometry import MultiPoint
-
 from game.ato import FlightType
 from game.data.units import UnitClass
 from game.dcs.aircrafttype import AircraftType
 from game.plugins import LuaPluginManager
-from game.theater import OffMapSpawn, Player, TheaterGroundObject
+from game.theater import TheaterGroundObject
 from game.theater.iadsnetwork.iadsrole import IadsRole
-from game.utils import escape_string_for_lua, nautical_miles
+from game.utils import escape_string_for_lua
+from .interceptluadata import populate_intercept_lua
 from .missiondata import MissionData
-
-# How far forward of RED territory the reactive-scramble border is pushed so BLUE
-# raids are detected as they approach the front, not only once overhead.
-SCRAMBLE_BORDER_BUFFER = nautical_miles(30).meters
 
 if TYPE_CHECKING:
     from game import Game
@@ -48,66 +43,11 @@ class LuaGenerator:
             x for x in self.mission.triggerrules.triggers if isinstance(x, TriggerStart)
         ]
         self.generate_plugin_data()
-        # Core scramble injection is mission-conditional; plugin-managed scripts
-        # are loaded through the standard plugin manager below.
         self.inject_plugins()
-        self._inject_scramble_script()
         self._inject_tic_script()
         for t in ewrj_triggers:
             self.mission.triggerrules.triggers.remove(t)
             self.mission.triggerrules.triggers.append(t)
-
-    def _inject_scramble_script(self) -> None:
-        """Inject reactive_scramble.lua as a core mission script.
-
-        Fires only when the RED untasked-aircraft scramble pool is non-empty.
-        The pool (dcsRetribution.scramble_pool) is emitted by
-        generate_plugin_data(); reactive_scramble.lua wakes those dormant
-        uncontrolled interceptors when a Blue threat is detected.
-        """
-        if not self.mission_data.scramble_pool:
-            return
-        script_path = Path("./resources/plugins/scramble/reactive_scramble.lua")
-        if not script_path.exists():
-            logging.error(
-                "reactive_scramble.lua not found at %s — RED scramble pool will "
-                "stay dormant",
-                script_path.resolve(),
-            )
-            return
-        trigger = TriggerStart(comment="Load reactive_scramble (core GCI)")
-        fileref = self.mission.map_resource.add_resource_file(script_path.resolve())
-        trigger.add_action(DoScriptFile(fileref))
-        self.mission.triggerrules.triggers.append(trigger)
-
-    def _has_c130j_flights(self) -> bool:
-        """True if the mission has any BLUE JAMMING flight (i.e. a player C-130J EW slot)."""
-        return any(
-            f.friendly.is_blue and f.flight_type == FlightType.JAMMING
-            for f in self.mission_data.flights
-        )
-
-    def _inject_c130j_script(self) -> None:
-        """Inject c130j_mission_systems.lua as a core mission script.
-
-        Fires only when a BLUE JAMMING flight is present — the C-130J EW/ISR
-        aircraft.  Same pattern as _inject_scramble_script: no plugin toggle
-        needed, the script is always bundled when the aircraft is in the mission.
-        """
-        if not self._has_c130j_flights():
-            return
-        script_path = Path("./resources/plugins/c130j/c130j_mission_systems.lua")
-        if not script_path.exists():
-            logging.error(
-                "c130j_mission_systems.lua not found at %s — C-130J EW/ISR "
-                "systems will be unavailable",
-                script_path.resolve(),
-            )
-            return
-        trigger = TriggerStart(comment="Load c130j_mission_systems (core EW/ISR)")
-        fileref = self.mission.map_resource.add_resource_file(script_path.resolve())
-        trigger.add_action(DoScriptFile(fileref))
-        self.mission.triggerrules.triggers.append(trigger)
 
     def _inject_tic_script(self) -> None:
         """Inject TIC_v1.1.lua (Troops In Contact, by Grendel) as a core script.
@@ -344,6 +284,8 @@ class LuaGenerator:
             for role, connections in node.connections.items():
                 iads_element.add_data_array(role, connections)
 
+        populate_intercept_lua(lua_data, self.mission_data.intercept_entries)
+
         # Add artillery and support units info
         artillery_object = lua_data.add_item("artilleryGroups")
         ground_artillery_group_collection = artillery_object.get_or_create_item(
@@ -411,65 +353,6 @@ class LuaGenerator:
         trigger = TriggerStart(comment="Set DCS Retribution data")
         trigger.add_action(DoScript(String(lua_data.create_operations_lua())))
         self.mission.triggerrules.triggers.append(trigger)
-
-        # Emit the RED reactive-GCI scramble pool: names of uncontrolled untasked
-        # A/A groups (collected in AircraftGenerator._spawn_unused_for).
-        # reactive_scramble.lua reads this list, holds those groups dormant, and
-        # wakes the nearest one when a Blue aircraft penetrates RED airspace
-        # (the scramble_border polygon below; radar range is the fallback).
-        if self.mission_data.scramble_pool:
-            lines = ["dcsRetribution.scramble_pool = {}"]
-            for name in self.mission_data.scramble_pool:
-                lines.append(
-                    "dcsRetribution.scramble_pool[#dcsRetribution.scramble_pool + 1]"
-                    f' = "{escape_string_for_lua(name)}"'
-                )
-            pool_trigger = TriggerStart(comment="Set DCS Retribution scramble pool")
-            pool_trigger.add_action(DoScript(String("\n".join(lines))))
-            self.mission.triggerrules.triggers.append(pool_trigger)
-
-            # Emit the RED airspace border so reactive_scramble.lua can wake QRA
-            # on territory penetration rather than raw radar range. Radar range
-            # remains the fallback when no border is available.
-            border = self._scramble_border_points()
-            if border:
-                border_lines = ["dcsRetribution.scramble_border = {}"]
-                for x, z in border:
-                    border_lines.append(
-                        "dcsRetribution.scramble_border"
-                        "[#dcsRetribution.scramble_border + 1]"
-                        f" = {{ x = {x:.1f}, z = {z:.1f} }}"
-                    )
-                border_trigger = TriggerStart(
-                    comment="Set DCS Retribution scramble border"
-                )
-                border_trigger.add_action(DoScript(String("\n".join(border_lines))))
-                self.mission.triggerrules.triggers.append(border_trigger)
-
-    def _scramble_border_points(self) -> list[tuple[float, float]] | None:
-        """RED-territory border polygon for reactive scramble, as (x, z) world coords.
-
-        The convex hull of RED control points, buffered forward by
-        SCRAMBLE_BORDER_BUFFER. pydcs ``Point.x``/``Point.y`` map to DCS world
-        ``x``/``z``; the Lua compares against ``Unit:getPoint()`` which is also
-        ``x``/``z``, so we emit the buffered hull ring with those axes.
-        """
-        positions = [
-            (cp.position.x, cp.position.y)
-            for cp in self.game.theater.control_points_for(Player.RED)
-            if not isinstance(cp, OffMapSpawn)
-        ]
-        if not positions:
-            return None
-        # join_style=2 (mitre) keeps a convex hull's vertex count tight so the
-        # emitted polygon stays compact instead of a 60+ vertex rounded ring.
-        hull = MultiPoint(positions).convex_hull.buffer(
-            SCRAMBLE_BORDER_BUFFER, join_style=2
-        )
-        exterior = getattr(hull, "exterior", None)
-        if exterior is None:
-            return None
-        return [(float(x), float(z)) for x, z in exterior.coords]
 
     def inject_lua_trigger(self, contents: str, comment: str) -> None:
         trigger = TriggerStart(comment=comment)

@@ -9,7 +9,6 @@ livery: 58th Fighter SQN (EG)
 mission_types:
   - BARCAP
   - Escort
-  - Scramble
   - Fighter sweep
   - TARCAP
 

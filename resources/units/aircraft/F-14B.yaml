@@ -52,7 +52,6 @@ tasks:
   DEAD: 390
   Escort: 565
   Fighter sweep: 565
-  Scramble: 585
   OCA/Aircraft: 690
   OCA/Runway: 605
   SEAD: 100
