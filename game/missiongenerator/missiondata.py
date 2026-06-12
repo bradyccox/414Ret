@@ -131,3 +131,6 @@ class MissionData:
     # scramble. Emitted to the mission as dcsRetribution.scramble_pool and read
     # by reactive_scramble.lua.
     scramble_pool: list[str] = field(default_factory=list)
+    # Names of frontline ground groups handed over to the Troops In Contact
+    # script (TIC plugin). Non-empty means TIC_v1.1.lua must be injected.
+    tic_groups: list[str] = field(default_factory=list)

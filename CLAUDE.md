@@ -112,7 +112,66 @@ Design notes: `docs/dev/design/414th-air-defense-planning-notes.md` (read this f
   pydcs Lua parser rejects with `ValueError`): patched loader in `qt_ui/main.py`
   (`_patch_pydcs_payload_loader()`), plus the offending files are skipped with a warning.
 
-### 6. CurrentHill Iran assets pack
+### 6. TIC — Troops In Contact frontline battle sim (plugin, default OFF)
+Grendel's TIC v1.1 (MIT, lua globals named `GLSCO*`) replaces vanilla ground AI
+with formation-keeping, prolonged scripted firefights for frontline maneuver
+units. Enable per-game via the plugins UI ("Troops In Contact").
+
+- Plugin: `resources/plugins/tic/` (`TIC_v1.1.lua` + `tic_414_init.lua` +
+  `plugin.json`; options: `stormtrooper`, `createMenus`, `boundPause`,
+  `ambientFire`). Script injection is NOT a work order — it's
+  `_inject_tic_script()` in `game/missiongenerator/luagenerator.py` (scramble
+  pattern): a DoScript preamble pre-seeds `GLSCO.*` from
+  `dcsRetribution.plugins.tic.*` and sets `AutoInitialize/AutoStart = false`,
+  then DoScriptFile TIC_v1.1.lua, then DoScriptFile `tic_414_init.lua`, which
+  installs the 414th ambient-fire extension (wraps
+  `GLSCO_COMBATANT:simulate()`: combatants with no LOS target have a 50%
+  chance per firing cycle to area-fire a salvo at 30-150 m around the nearest
+  enemy formation within 6 km — tracers over LOS blockers, no aimed
+  lethality) and then owns `GLSCO:Initialize()` + `battle:Activate()`.
+  CRITICAL: TIC's auto-init is disabled, so if tic_414_init.lua is removed or
+  fails, the battle never starts.
+- Generator contract: `game/missiongenerator/flotgenerator.py`. When the
+  plugin is enabled, TANK/IFV/APC/ATGM frontline groups are named
+  `TIC:<namegen name>` (one TIC formation per group), late-activated, and get
+  TIC orders as waypoint NAMES (`t+N hdg=H roe=simulate`) via
+  `_plan_tic_action()` instead of DCS tasks/triggers. Squad infantry joins
+  the carrier's formation as `TIC:<formation>#<infantry name>`. Artillery and
+  the manpads-only branch stay vanilla. TIC group names are recorded in
+  `mission_data.tic_groups` (the injection gate).
+- ROE/waypoint design (settled after in-game testing, intentional — keep):
+  TIC's "simulate" ROE fires theatrical near-miss salvos ONLY while
+  stationary; moving units don't shoot at all, and `roe=kill` was judged too
+  lethal/accurate by the 414th. Advancing formations get a 3-leg timed route
+  (`_plan_tic_action()`, using TIC's native `t+N` waypoint schedules):
+  (1) advance to TIC_CONTACT_STANDOFF (600-900 m) short of the front-line
+  trace (`_tic_distance_to_front()` projects the group onto the forward
+  axis) — opposing lines halt ~1.2-1.8 km apart, inside TIC's ~2 NM
+  targeting bubble, and fight; (2) slide TIC_LATERAL_SLIDE (1.5-3 km)
+  sideways along the front to break LOS deadlocks behind towns/ridges (the
+  Dzhukhur lesson: TIC targeting is LOS-checked and TIC does not path around
+  terrain); (3) press TIC_PUSH_DEPTH (400-800 m) PAST the trace into close
+  contact so combat is guaranteed. Minutes between legs = the
+  `tic.boundPause` plugin option (default 25, jittered ±25% per leg via
+  `_tic_jitter()`), sizing the battle arc to ~1.5-2 h; players read/change it
+  in the plugin settings UI. Losses from scripted fire are sparse near-miss
+  kills by design; players flying CAS are the real attrition source. The
+  campaign front moves on player kills, not TIC kills.
+- Loss tracking: TIC destroys originals (no dead event — scripted destroy is
+  silent) and respawns single-unit clones renamed by MOOSE SPAWN to
+  `<group>-<i>#NNN-UU`. `game/unitmap.py` registers `front_line_groups` and
+  `front_line_unit_from_tic_clone()` strips the suffixes (regex
+  `TIC_CLONE_NAME`, handles nested respawn generations); `game/debriefing.py`
+  falls back to it when the exact unit-name lookup misses. Tests:
+  `tests/test_tic_clone_mapping.py`.
+- KNOWN LIMITATION: with StormTrooper AI on (default), TIC cloaks managed
+  units from DCS AI sensors — AI CAS flights and the AFAC JTAC cannot detect
+  the enemy frontline. Human CAS is unaffected. Turn StormTrooper off for
+  visible real-AI ground combat.
+- Do NOT call `ScanAndRegisterFormations` twice and do not ME-activate TIC
+  groups — TIC owns their lifecycle.
+
+### 7. CurrentHill Iran assets pack
 - Unit defs: `pydcs_extensions/iranmilitaryassetspack/` (Shahed-136 `CH_Shahed136`,
   `IranFAC_MG`, `IranFAC_MG_AShM`), re-exported from `pydcs_extensions/__init__.py`.
 - Radar DB: `game/data/radar_db.py`. Mod removal logic: `game/factions/faction.py`.
