@@ -471,7 +471,14 @@ class AircraftBehavior:
         # Standoff EW orbit — C-130J holds a racetrack outside the threat zone
         # (AewcFlightPlan) with WeaponHold.  c130j_mission_systems.lua drives
         # jamming and ISR at runtime.
-        self.configure_task(flight, group, AWACS)
+        #
+        # The C-130J-30 has no AWACS task in pydcs (tasks = Transport,
+        # GroundAttack, Refueling), so requesting AWACS outright raised a
+        # RuntimeError and crashed the whole MIZ generation. Fall back to a task
+        # the airframe actually supports — the standoff orbit comes from the
+        # AewcFlightPlan waypoints, not the DCS group task, and all EW/ISR is
+        # driven by the Lua plugin.
+        self.configure_task(flight, group, AWACS, fallback_tasks=[Transport, Nothing])
         if not isinstance(flight.flight_plan, AewcFlightPlan):
             logging.error(
                 f"Cannot configure jamming tasks for {flight} because it does not "
@@ -486,7 +493,10 @@ class AircraftBehavior:
             restrict_jettison=True,
             mission_uses_gun=False,
         )
-        group.points[0].tasks.append(AWACSTaskAction())
+        # The AWACS enroute task only applies to AWACS-capable airframes; adding
+        # it to a non-AWACS jammer like the C-130J does nothing useful, so skip it.
+        if AWACS in flight.unit_type.dcs_unit_type.tasks:
+            group.points[0].tasks.append(AWACSTaskAction())
 
     def configure_transport(self, group: FlyingGroup[Any], flight: Flight) -> None:
         self.configure_task(flight, group, Transport)

@@ -35,8 +35,10 @@ stacked on top (newest first):
 - OPFOR-aggressiveness direction fix and CAS / Armed-Recon engagement-range bumps.
 
 ### Quality-of-life & robustness
-- **Auto-hide mobile SAMs (SHORAD/AAA) on the MFD** at campaign generation
-  (`hide_on_mfd`).
+- **Auto-hide mobile SAMs (SHORAD/AAA/MANPAD) on the MFD** at campaign generation
+  (`hide_on_mfd`), including escorts generated inside an armor or missile group
+  (which previously slipped onto the datalink). Standalone MERAD/LORAD sites stay
+  visible for SEAD.
 - **Crash fixes:** flight-combat-exit `IndexError`, AWACS orbit stacking, tanker orbit
   placement/deconfliction, and malformed mod-aircraft payload Lua (e.g. CJS Super
   Hornet v2.4 files that use local-variable table indices).

@@ -33,6 +33,7 @@ from .infos.information import Information
 from .lasercodes.lasercoderegistry import LaserCodeRegistry
 from .profiling import logged_duration
 from .settings import Settings
+from .data.groups import GroupTask
 from .theater import ConflictTheater, Player
 from .theater.bullseye import Bullseye
 from .theater.theatergroundobject import (
@@ -326,10 +327,21 @@ class Game:
                     events.update_front_line(front_line)
                 cp.base.affect_strength(+PLAYER_BASE_STRENGTH_RECOVERY)
 
+        # After the first mission, reveal surviving MERAD groups. They start hidden
+        # so players don't know enemy SA-6/11/17 positions before flying; the first
+        # mission acts as intel gathering and they become visible from turn 2 onward.
+        if self.turn == 1:
+            self._reveal_merad_groups()
+
         # We don't actually advance time or change the conditions between turn 0 and
         # turn 1.
         if self.turn > 1:
             self.conditions = self.generate_conditions()
+
+    def _reveal_merad_groups(self) -> None:
+        for tgo in self.theater.ground_objects:
+            if tgo.task == GroupTask.MERAD and tgo.hide_on_mfd:
+                tgo.hide_on_mfd = False
 
     def begin_turn_0(self, squadrons_start_full: bool) -> None:
         """Initialization for the first turn of the game."""

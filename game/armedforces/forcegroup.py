@@ -41,7 +41,9 @@ if TYPE_CHECKING:
     from game.theater import TheaterGroundObject, ControlPoint, PresetLocation
 
 # Tasks whose groups are always mobile and should be hidden on the MFD by default.
-_MOBILE_TASKS = {GroupTask.SHORAD, GroupTask.AAA}
+# MERAD (SA-6/11/17) is mobile and hidden per user request; LORAD (SA-2/3/5/10)
+# is fixed-site and intentionally left visible.
+_MOBILE_TASKS = {GroupTask.SHORAD, GroupTask.AAA, GroupTask.MERAD}
 
 
 @dataclass

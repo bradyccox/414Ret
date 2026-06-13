@@ -85,16 +85,24 @@ in two places: `FlightType._missing_` (runtime lookups) and `persistency.py`
 legacy A2A type and is kept for upstream save compatibility.
 
 ### 2. JAMMING flight type - C-130J EW/ISR
+A ~1,950-line script (`c130j_mission_systems.lua`) turning the C-130J into an
+EC-130H Compass Call (EW) + RC-130H Rivet Joint (ISR) platform. EW: area,
+directional, and spot jamming, plus range-banded per-tick missile spoofing (with
+a ~3 nm arming distance so it never spoofs a missile still next to its launcher).
+ISR: altitude-gated radar detection, up to 3 simultaneous ELINT tracks with
+progressive lock (60-360 s by range), F10 map marks, Bullseye reporting, and an
+ELINT-Lock coalition alert. COORD: an EW/ISR handoff brief deliverable to any
+selected friendly group.
 - Enum: `game/ato/flighttype.py` (`FlightType.JAMMING` ->
   `AirEntity.ELECTRONIC_COMBAT_JAMMER`).
 - Behavior: `game/missiongenerator/aircraft/aircraftbehavior.py` `configure_jamming()`
-  (AWACS-style orbit + `WEAPON_HOLD` ROE).
+  -- AWACS task + `AewcFlightPlan` standoff racetrack outside the threat zone +
+  `WEAPON_HOLD` ROE. Runtime EW/ISR is driven by the Lua, not the planner.
 - Spawn fallback: `game/missiongenerator/aircraft/flightgroupspawner.py` tries RUNWAY
   start when no parking is available.
 - Script loading: registered as a normal plugin (`c130j` in `plugins.json`,
   `scriptsWorkOrders` in `resources/plugins/c130j/plugin.json`) since the
-  2026-06-11 refactor. `_has_c130j_flights()`/`_inject_c130j_script()` in
-  `luagenerator.py` are dead code retained from the old conditional injection.
+  2026-06-11 refactor.
 - Plugin script: `resources/plugins/c130j/c130j_mission_systems.lua` (+ `plugin.json`).
 - Loadout/package wiring: `game/ato/loadouts.py`, `game/ato/package.py`,
   `game/theater/missiontarget.py`, `game/pretense/pretenseaircraftgenerator.py`.
@@ -109,14 +117,29 @@ at close range. Don't "fix" these.
 Design notes: `docs/dev/design/414th-air-defense-planning-notes.md` (read this for intent).
 - Overlapping CAP waves + jitter: `game/commander/missionscheduler.py` (uses
   `barcap_overlap_time`); rounds math in `game/commander/theaterstate.py`.
+  **Land CPs only** schedule overlapping waves; carriers keep the legacy
+  simultaneous-stacking behavior. The jitter applies to the **first wave only**,
+  capped at `min(barcap_overlap_time, 5 min)`, so CAP no longer deterministically
+  arrives at mission start (which let attackers wait it out). With
+  `barcap_overlap_time == 0` this reproduces the old back-to-back schedule exactly.
 - Forward CAP line: `game/commander/objectivefinder.py` `vulnerable_control_points()`
   (checks `cp.has_active_frontline`; also fixes an inverted aggressiveness comparison).
 - Engagement-range bumps: `game/settings/settings.py` (`cas_engagement_range_distance`
   10->15 nm, `armed_recon_engagement_range_distance` 5->10 nm).
 
 ### 4. Auto-hide mobile SAMs on MFD
-- `game/armedforces/forcegroup.py`: `hide_on_mfd` field, `_MOBILE_TASKS = {SHORAD, AAA}`,
-  propagated through `for_layout()` / `from_preset_group()` / `create_ground_object_for_layout()`.
+- Task-level (`game/armedforces/forcegroup.py`): `hide_on_mfd` field,
+  `_MOBILE_TASKS = {SHORAD, AAA}`, propagated through `for_layout()` /
+  `from_preset_group()` / `create_ground_object_for_layout()`. `hide_on_mfd` is a
+  per-task default that YAML can override explicitly (`data.get("hide_on_mfd", ...)`).
+- Unit-level (`game/missiongenerator/tgogenerator.py` `GroundObjectGenerator`):
+  `hidden_on_mfd` is a group-level DCS property, so the task-based flag missed
+  SHORAD/AAA/MANPAD escorts generated *inside* a non-air-defense group (armor or
+  missile site) -- they stayed on the datalink. `_contains_mobile_air_defense()`
+  now also hides a generated vehicle/ship group when it contains a unit of class
+  `MOBILE_AIR_DEFENSE_UNIT_CLASSES = {AAA, SHORAD, MANPAD}` (`game/data/units.py`).
+  TELAR and radar/launcher classes are excluded on purpose, so standalone mobile
+  MERAD/LORAD sites (SA-6/11, SA-2/3/5/10) stay visible/targetable for SEAD.
 
 ### 5. Robustness / crash fixes
 - Flight-combat-exit `IndexError`: `game/ato/flightstate/inflight.py` guards in
