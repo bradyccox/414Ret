@@ -12,7 +12,6 @@ from game.ato.flightstate.flightstate import FlightState
 from game.ato.flightwaypoint import FlightWaypoint
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.ato.starttype import StartType
-from game.settings.settings import FastForwardStopCondition
 from game.utils import Distance, LBS_TO_KG, Speed, pairwise
 
 if TYPE_CHECKING:
@@ -60,22 +59,23 @@ class InFlight(FlightState, ABC):
         return True
 
     def should_halt_sim(self) -> bool:
-        # Hot-spawn player flights start directly in an InFlight substate, bypassing
-        # Startup/Taxi/Takeoff. The halt checks on those states never fire for them,
-        # so treat an already-airborne player flight as having satisfied any pre-flight
-        # stop condition.
-        _player_conditions = {
-            FastForwardStopCondition.PLAYER_STARTUP,
-            FastForwardStopCondition.PLAYER_TAXI,
-            FastForwardStopCondition.PLAYER_TAKEOFF,
-        }
+        # Genuine air-start (IN_FLIGHT) player flights begin directly in this state,
+        # bypassing Startup/Taxi/Takeoff, so no pre-flight halt can fire for them.
+        # Treat them as having satisfied any player pre-flight stop condition.
+        # NB: ground-start flights (COLD/WARM/RUNWAY) now always halt at their own
+        # pre-flight state via AtDeparture.should_halt_sim, so by construction any
+        # player flight that reaches this state is a true air start. The start_type
+        # guard makes that explicit and prevents re-introducing the WARM/RUNWAY
+        # "spawned airborne" bug if that invariant ever changes.
         if (
             self.flight.client_count > 0
-            and self.settings.fast_forward_stop_condition in _player_conditions
+            and self.flight.start_type is StartType.IN_FLIGHT
+            and self.settings.fast_forward_stop_condition.player_preflight_phase
+            is not None
         ):
             logging.info(
                 f"Interrupting simulation because {self.flight} has players and "
-                "is already in-flight (hot-spawn bypasses pre-flight states)"
+                "is an air start (hot-spawn bypasses pre-flight states)"
             )
             return True
         return False

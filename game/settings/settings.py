@@ -42,6 +42,25 @@ class FastForwardStopCondition(Enum):
     PLAYER_STARTUP = "Player startup time"
     MANUAL = "Manual fast forward control"
 
+    @property
+    def player_preflight_phase(self) -> int | None:
+        """Ordering of the player pre-flight stop conditions, earliest first.
+
+        A player flight should halt the sim at the *earliest* pre-flight state it
+        actually occupies whose phase is at or after the configured stop condition.
+        This matters when the flight's start type skips earlier phases: a WARM
+        (hot-ramp) flight enters at Taxi, so under the PLAYER_STARTUP condition it
+        must halt at Taxi rather than fast-forwarding into the air (which would make
+        its spawn_type IN_FLIGHT and spawn the player airborne).
+
+        Returns None for conditions that are not player pre-flight phases.
+        """
+        return {
+            FastForwardStopCondition.PLAYER_STARTUP: 0,
+            FastForwardStopCondition.PLAYER_TAXI: 1,
+            FastForwardStopCondition.PLAYER_TAKEOFF: 2,
+        }.get(self)
+
 
 @unique
 class CombatResolutionMethod(Enum):
