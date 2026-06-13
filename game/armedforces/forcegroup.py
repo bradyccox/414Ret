@@ -44,6 +44,38 @@ if TYPE_CHECKING:
 # MERAD (SA-6/11/17) is mobile and hidden per user request; LORAD (SA-2/3/5/10)
 # is fixed-site and intentionally left visible.
 _MOBILE_TASKS = {GroupTask.SHORAD, GroupTask.AAA, GroupTask.MERAD}
+_DOG_EAR_RADAR_NAME = "Dog Ear radar"
+_DOG_EAR_SHORAD_MARKERS = (
+    "SA-8",
+    "SA-9",
+    "SA-13",
+    "SA-15",
+    "SA-19",
+    "Osa",
+    "Pantsir",
+    "Strela",
+    "Tor",
+    "Tunguska",
+)
+
+
+def _should_add_dog_ear(tasks: list[GroupTask], units: list[UnitType[Any]]) -> bool:
+    if GroupTask.SHORAD not in tasks:
+        return False
+    return any(
+        any(marker in unit.variant_id for marker in _DOG_EAR_SHORAD_MARKERS)
+        for unit in units
+    )
+
+
+def _add_dog_ear_if_needed(
+    tasks: list[GroupTask], units: list[UnitType[Any]]
+) -> None:
+    if not _should_add_dog_ear(tasks, units):
+        return
+    if any(unit.variant_id == _DOG_EAR_RADAR_NAME for unit in units):
+        return
+    units.append(GroundUnitType.named(_DOG_EAR_RADAR_NAME))
 
 
 @dataclass
@@ -93,7 +125,7 @@ class ForceGroup:
                 elif issubclass(unit_type, StaticType):
                     statics.add(unit_type)
 
-        return ForceGroup(
+        force_group = ForceGroup(
             ", ".join([t.description for t in layout.tasks]),
             list(units),
             list(statics),
@@ -101,6 +133,8 @@ class ForceGroup:
             [layout],
             hide_on_mfd=any(t in _MOBILE_TASKS for t in layout.tasks),
         )
+        _add_dog_ear_if_needed(force_group.tasks, force_group.units)
+        return force_group
 
     def __str__(self) -> str:
         return self.name
@@ -407,5 +441,6 @@ class ForceGroup:
                 layouts=layouts,
                 hide_on_mfd=hide_on_mfd,
             )
+            _add_dog_ear_if_needed(force_group.tasks, force_group.units)
 
             cls._by_name[force_group.name] = force_group
