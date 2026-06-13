@@ -71,6 +71,21 @@ class GameLoop:
                 "no fast-forward stop condition could ever fire"
             )
             return
+        # Hot-spawn player flights (StartType.IN_FLIGHT) start directly in Navigating
+        # state. No Startup/Taxi/Takeoff state is ever entered, so the normal
+        # should_halt_sim() checks never fire and the sim runs until the 24-hour
+        # deadline. If all player flights are already in-flight, there is nothing
+        # to simulate — bail out immediately.
+        player_flights = [
+            f for f in self.sim.aircraft_simulation.iter_flights() if f.client_count > 0
+        ]
+        if all(f.state.in_flight for f in player_flights):
+            logging.info(
+                "Sim to first contact: all player flights are hot-spawn "
+                "(already in-flight); skipping fast-forward"
+            )
+            return
+
         logging.info("Running sim to first contact")
         # Safety bound: if every player flight dies during the fast-forward,
         # no stop condition can fire anymore. 24 hours of sim time is far

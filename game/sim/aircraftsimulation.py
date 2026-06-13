@@ -62,6 +62,18 @@ class AircraftSimulation:
         # positions are used.
         CombatInitiator(self.game, self.combats, events).update_active_combats()
 
+        # Stop as soon as any combat exists. Without this, hot-spawn flights (already
+        # airborne at sim start) and SKIP resolution create an unbounded loop: combat
+        # resolves with no losses, both sides immediately re-engage at the same position,
+        # and no other halt condition ever fires.
+        if (
+            self.game.settings.fast_forward_stop_condition
+            == FastForwardStopCondition.FIRST_CONTACT
+            and self.combats
+        ):
+            events.complete_simulation()
+            return
+
         # After updating all combat states, check for halts.
         for flight in self.iter_flights():
             if flight.should_halt_sim():
