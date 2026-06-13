@@ -44,9 +44,10 @@ def test_pure_armor_group_is_not_hidden() -> None:
     assert not _contains(UnitClass.TANK, UnitClass.IFV, UnitClass.APC)
 
 
-def test_standalone_merad_telar_site_stays_visible() -> None:
-    # SA-6/11 style mobile SAM sites are TELAR-class and deliberately left
-    # targetable for SEAD, matching the existing _MOBILE_TASKS scope.
+def test_telar_inside_mixed_group_is_not_hidden_by_unit_check() -> None:
+    # MERAD groups (SA-6/11/17) are hidden via the task-level _MOBILE_TASKS check,
+    # not the unit-level one. TELAR is excluded here to avoid double-hiding and
+    # to keep the unit-level check focused on escorts inside non-AD groups.
     assert not _contains(UnitClass.TELAR, UnitClass.TRACK_RADAR)
 
 
