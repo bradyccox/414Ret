@@ -27,3 +27,10 @@ def test_soviet_style_shorad_presets_include_dog_ear() -> None:
 
 def test_non_soviet_shorad_presets_do_not_include_dog_ear() -> None:
     assert _DOG_EAR not in _unit_names(ForceGroup.from_preset_group("Roland"))
+
+
+def test_big_soviet_sam_sites_include_dog_ear_point_defense() -> None:
+    # SA-2/3/5 batteries and S-300 sites carry a Dog Ear search radar in their
+    # point-defense, so the Sborka shows up across the IADS, not just at SHORAD.
+    for preset in ("SA-2/S-75", "SA-3/S-125", "SA-5/S-200", "SA-10/S-300PS"):
+        assert _DOG_EAR in _unit_names(ForceGroup.from_preset_group(preset)), preset

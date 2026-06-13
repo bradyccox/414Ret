@@ -34,6 +34,14 @@ groups:
         - Ural-4320-31
         - Ural-4320T
   - PD:
+    - name: Dog Ear
+      sub_task: PointDefense
+      optional: true
+      fill: false
+      unit_count:
+        - 1
+      unit_types:
+        - Dog Ear radar
     - name: PD
       sub_task: PointDefense
       optional: true

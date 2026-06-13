@@ -49,6 +49,8 @@ _MOBILE_TASKS = {GroupTask.SHORAD, GroupTask.AAA, GroupTask.MERAD}
 # "Dog Ear radar.yaml"), not the DCS unit/file id, or GroundUnitType.named()
 # raises KeyError and crashes preset loading.
 _DOG_EAR_RADAR_NAME = 'MCC-SR Sborka "Dog Ear" SR'
+# The DCS unit-type id a layout uses (in unit_types) to declare a Dog Ear slot.
+_DOG_EAR_DCS_ID = "Dog Ear radar"
 _DOG_EAR_SHORAD_MARKERS = (
     "SA-8",
     "SA-9",
@@ -63,21 +65,43 @@ _DOG_EAR_SHORAD_MARKERS = (
 )
 
 
-def _should_add_dog_ear(tasks: list[GroupTask], units: list[UnitType[Any]]) -> bool:
-    if GroupTask.SHORAD not in tasks:
-        return False
+def _has_soviet_shorad(units: list[UnitType[Any]]) -> bool:
     return any(
         any(marker in unit.variant_id for marker in _DOG_EAR_SHORAD_MARKERS)
         for unit in units
     )
 
 
-def _add_dog_ear_if_needed(tasks: list[GroupTask], units: list[UnitType[Any]]) -> None:
-    if not _should_add_dog_ear(tasks, units):
+def _layout_offers_dog_ear(layouts: list[TgoLayout]) -> bool:
+    """True if any layout has a slot that explicitly accepts the Dog Ear radar."""
+    return any(
+        unit_type.id == _DOG_EAR_DCS_ID
+        for layout in layouts
+        for unit_group in layout.all_unit_groups
+        for unit_type in unit_group.unit_types
+    )
+
+
+def _add_dog_ear_if_needed(force_group: ForceGroup) -> None:
+    """Force the Sborka "Dog Ear" radar into the group so a layout's optional Dog
+    Ear slot actually spawns.
+
+    Soviet factions have no direct Dog Ear access, so the unit has to be added to
+    the group itself, but only when a layout actually has a slot for it. The
+    generic SHORAD layout is shared by every faction, so it is additionally gated
+    to Soviet SHORAD (marker units) to avoid handing a Sborka to e.g. US Avengers;
+    the dedicated Soviet SAM-site layouts (SA-2/3/5, S-300) carry the slot only in
+    their own templates, so no extra gate is needed there.
+    """
+    if not _layout_offers_dog_ear(force_group.layouts):
         return
-    if any(unit.variant_id == _DOG_EAR_RADAR_NAME for unit in units):
+    if GroupTask.SHORAD in force_group.tasks and not _has_soviet_shorad(
+        force_group.units
+    ):
         return
-    units.append(GroundUnitType.named(_DOG_EAR_RADAR_NAME))
+    if any(unit.variant_id == _DOG_EAR_RADAR_NAME for unit in force_group.units):
+        return
+    force_group.units.append(GroundUnitType.named(_DOG_EAR_RADAR_NAME))
 
 
 @dataclass
@@ -135,7 +159,7 @@ class ForceGroup:
             [layout],
             hide_on_mfd=any(t in _MOBILE_TASKS for t in layout.tasks),
         )
-        _add_dog_ear_if_needed(force_group.tasks, force_group.units)
+        _add_dog_ear_if_needed(force_group)
         return force_group
 
     def __str__(self) -> str:
@@ -443,6 +467,6 @@ class ForceGroup:
                 layouts=layouts,
                 hide_on_mfd=hide_on_mfd,
             )
-            _add_dog_ear_if_needed(force_group.tasks, force_group.units)
+            _add_dog_ear_if_needed(force_group)
 
             cls._by_name[force_group.name] = force_group
