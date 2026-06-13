@@ -45,6 +45,7 @@ class LuaGenerator:
         self.generate_plugin_data()
         self.inject_plugins()
         self._inject_tic_script()
+        self._inject_civilian_traffic_script()
         for t in ewrj_triggers:
             self.mission.triggerrules.triggers.remove(t)
             self.mission.triggerrules.triggers.append(t)
@@ -99,6 +100,36 @@ class LuaGenerator:
         trigger.add_action(DoScriptFile(fileref))
         init_fileref = self.mission.map_resource.add_resource_file(init_path.resolve())
         trigger.add_action(DoScriptFile(init_fileref))
+        self.mission.triggerrules.triggers.append(trigger)
+
+    def _inject_civilian_traffic_script(self) -> None:
+        """Inject civilian_traffic.lua for RAT background air traffic.
+
+        Bakes the list of every Retribution-controlled airbase into a DO SCRIPT
+        preamble so the Lua can compute the civilian pool at runtime by subtracting
+        those from world.getAirbases(). Works on any terrain without modification.
+        MOOSE and the RAT_CIVILIAN_RED/BLUE template groups must already be present.
+        """
+        script_path = Path("./resources/plugins/civilian_traffic/civilian_traffic.lua")
+        if not script_path.exists():
+            logging.error(
+                "civilian_traffic.lua not found at %s — skipping civilian RAT traffic",
+                script_path.resolve(),
+            )
+            return
+
+        excl = sorted(
+            cp.name
+            for cp in self.game.theater.controlpoints
+            if cp.dcs_airport is not None
+        )
+        excl_lua = "{" + ", ".join(f'"{b}"' for b in excl) + "}"
+        preamble = f"_CIVILIAN_TRAFFIC_EXCL = {excl_lua}\n"
+
+        trigger = TriggerStart(comment="Civilian background air traffic (RAT)")
+        trigger.add_action(DoScript(String(preamble)))
+        fileref = self.mission.map_resource.add_resource_file(script_path.resolve())
+        trigger.add_action(DoScriptFile(fileref))
         self.mission.triggerrules.triggers.append(trigger)
 
     def generate_plugin_data(self) -> None:

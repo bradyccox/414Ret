@@ -308,6 +308,7 @@ class MissionGenerator:
             self.p_country,
             self.e_country,
         )
+        self._spawn_civilian_rat_templates()
         aircraft_generator.spawn_unused_aircraft(
             self.p_country,
             self.e_country,
@@ -322,6 +323,44 @@ class MissionGenerator:
 
         if self.game.settings.plugins.get("ewrj"):
             self._configure_react_to_threat_for_ew_jamming_packages(aircraft_generator)
+
+    def _spawn_civilian_rat_templates(self) -> None:
+        from dcs.mission import StartType as DcsStartType
+        from dcs.planes import An_26B
+
+        for group_name, country, is_blue in [
+            ("RAT_CIVILIAN_BLUE", self.p_country, True),
+            ("RAT_CIVILIAN_RED", self.e_country, False),
+        ]:
+            airport = None
+            for cp in self.game.theater.controlpoints:
+                if cp.dcs_airport is None:
+                    continue
+                if cp.captured.is_blue != is_blue:
+                    continue
+                if cp.dcs_airport.free_parking_slots(An_26B):
+                    airport = cp.dcs_airport
+                    break
+
+            if airport is None:
+                logging.warning(
+                    "No airport with An-26B parking found for %s coalition — "
+                    "%s template not placed; civilian RAT traffic disabled for this side",
+                    "blue" if is_blue else "red",
+                    group_name,
+                )
+                continue
+
+            group = self.mission.flight_group_from_airport(
+                country=country,
+                name=group_name,
+                aircraft_type=An_26B,
+                airport=airport,
+                maintask=None,
+                start_type=DcsStartType.Cold,
+                group_size=1,
+            )
+            group.uncontrolled = True
 
     def generate_destroyed_units(self) -> None:
         """Add destroyed units to the Mission"""
