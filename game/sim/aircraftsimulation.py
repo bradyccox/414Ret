@@ -58,14 +58,21 @@ class AircraftSimulation:
         for flight in self.iter_flights():
             flight.on_game_tick(events, time, duration)
 
+        # Check halts BEFORE creating new combats. Hot-spawn player flights are
+        # InFlight here; if we wait until after CombatInitiator they will have
+        # transitioned to InCombat and InFlight.should_halt_sim() never fires.
+        for flight in self.iter_flights():
+            if flight.should_halt_sim():
+                events.complete_simulation()
+                return
+
         # Finish updating all flights before checking for combat so that the new
         # positions are used.
         CombatInitiator(self.game, self.combats, events).update_active_combats()
 
-        # Stop as soon as any combat exists. Without this, hot-spawn flights (already
-        # airborne at sim start) and SKIP resolution create an unbounded loop: combat
-        # resolves with no losses, both sides immediately re-engage at the same position,
-        # and no other halt condition ever fires.
+        # Implement FIRST_CONTACT: stop as soon as any combat exists. Without this,
+        # hot-spawn flights with SKIP resolution loop forever — combat resolves with
+        # no losses, both sides immediately re-engage, no other halt fires.
         if (
             self.game.settings.fast_forward_stop_condition
             == FastForwardStopCondition.FIRST_CONTACT
@@ -73,12 +80,6 @@ class AircraftSimulation:
         ):
             events.complete_simulation()
             return
-
-        # After updating all combat states, check for halts.
-        for flight in self.iter_flights():
-            if flight.should_halt_sim():
-                events.complete_simulation()
-                return
 
         if not self._auto_resolve_combat() and self.combats:
             events.complete_simulation()

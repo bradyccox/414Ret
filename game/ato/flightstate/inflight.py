@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
@@ -11,6 +12,7 @@ from game.ato.flightstate.flightstate import FlightState
 from game.ato.flightwaypoint import FlightWaypoint
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.ato.starttype import StartType
+from game.settings.settings import FastForwardStopCondition
 from game.utils import Distance, LBS_TO_KG, Speed, pairwise
 
 if TYPE_CHECKING:
@@ -56,6 +58,27 @@ class InFlight(FlightState, ABC):
     @property
     def in_flight(self) -> bool:
         return True
+
+    def should_halt_sim(self) -> bool:
+        # Hot-spawn player flights start directly in an InFlight substate, bypassing
+        # Startup/Taxi/Takeoff. The halt checks on those states never fire for them,
+        # so treat an already-airborne player flight as having satisfied any pre-flight
+        # stop condition.
+        _player_conditions = {
+            FastForwardStopCondition.PLAYER_STARTUP,
+            FastForwardStopCondition.PLAYER_TAXI,
+            FastForwardStopCondition.PLAYER_TAKEOFF,
+        }
+        if (
+            self.flight.client_count > 0
+            and self.settings.fast_forward_stop_condition in _player_conditions
+        ):
+            logging.info(
+                f"Interrupting simulation because {self.flight} has players and "
+                "is already in-flight (hot-spawn bypasses pre-flight states)"
+            )
+            return True
+        return False
 
     def has_passed_waypoint(self, waypoint: FlightWaypoint) -> bool:
         index = self.flight.flight_plan.waypoints.index(waypoint)
