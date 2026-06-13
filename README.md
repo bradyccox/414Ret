@@ -80,12 +80,16 @@ and wiki links.
 ## Relationship to the 414th workspace
 
 The 414th also maintains a separate **mission-building workspace** (campaign plans,
-`.miz` files, and Mission-Editor-loaded Lua scripts such as the standalone MANTIS IADS,
-AI_A2A_DISPATCHER, and the original C-130J EW script). That workspace is private.
+`.miz` files, and any Mission-Editor-loaded scripts not yet integrated here, such as
+the standalone MANTIS IADS). That workspace is private.
 
-This repo is the **engine-level** side: the same capabilities, but implemented inside
-the Retribution campaign generator so they are planned and spawned automatically rather
-than hand-placed in the Mission Editor.
+Features that started as standalone ME scripts and are now fully integrated into this
+repo (do not use the standalone versions):
+- **C-130J EW/ISR** → `resources/plugins/c130j/` (`FlightType.JAMMING`)
+- **QRA / AI_A2A_DISPATCHER** → `resources/plugins/intercept/` (per-squadron `intercept_reserve`)
+
+This repo is the **engine-level** side: capabilities planned and spawned automatically
+by the campaign generator rather than hand-placed in the Mission Editor.
 
 ---
 
