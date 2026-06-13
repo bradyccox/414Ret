@@ -44,7 +44,11 @@ if TYPE_CHECKING:
 # MERAD (SA-6/11/17) is mobile and hidden per user request; LORAD (SA-2/3/5/10)
 # is fixed-site and intentionally left visible.
 _MOBILE_TASKS = {GroupTask.SHORAD, GroupTask.AAA, GroupTask.MERAD}
-_DOG_EAR_RADAR_NAME = "Dog Ear radar"
+# The Sborka "Dog Ear" search radar. This must match the unit's registered
+# variant_id (the key under `variants:` in resources/units/ground_units/
+# "Dog Ear radar.yaml"), not the DCS unit/file id, or GroundUnitType.named()
+# raises KeyError and crashes preset loading.
+_DOG_EAR_RADAR_NAME = 'MCC-SR Sborka "Dog Ear" SR'
 _DOG_EAR_SHORAD_MARKERS = (
     "SA-8",
     "SA-9",
@@ -68,9 +72,7 @@ def _should_add_dog_ear(tasks: list[GroupTask], units: list[UnitType[Any]]) -> b
     )
 
 
-def _add_dog_ear_if_needed(
-    tasks: list[GroupTask], units: list[UnitType[Any]]
-) -> None:
+def _add_dog_ear_if_needed(tasks: list[GroupTask], units: list[UnitType[Any]]) -> None:
     if not _should_add_dog_ear(tasks, units):
         return
     if any(unit.variant_id == _DOG_EAR_RADAR_NAME for unit in units):
