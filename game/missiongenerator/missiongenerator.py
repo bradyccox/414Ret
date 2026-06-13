@@ -328,10 +328,8 @@ class MissionGenerator:
         from dcs.mission import StartType as DcsStartType
         from dcs.planes import An_26B
 
-        # One neutral template group is enough — RAT clones it at runtime and
-        # routes clones between neutral-coalition airbases only. Park it at any
-        # Retribution-controlled airport that has An-26B parking; coalition doesn't
-        # matter for the template itself.
+        # Find any airport with An-26B parking to park the template groups.
+        # Coalition of the template doesn't matter — RAT clones it at runtime.
         airport = None
         for cp in self.game.theater.controlpoints:
             if cp.dcs_airport is not None and cp.dcs_airport.free_parking_slots(An_26B):
@@ -345,16 +343,20 @@ class MissionGenerator:
             )
             return
 
-        group = self.mission.flight_group_from_airport(
-            country=self.e_country,
-            name="RAT_CIVILIAN",
-            aircraft_type=An_26B,
-            airport=airport,
-            maintask=None,
-            start_type=DcsStartType.Cold,
-            group_size=1,
-        )
-        group.uncontrolled = True
+        for name, country in (
+            ("RAT_CIVILIAN", self.e_country),
+            ("RAT_BLUE", self.p_country),
+        ):
+            group = self.mission.flight_group_from_airport(
+                country=country,
+                name=name,
+                aircraft_type=An_26B,
+                airport=airport,
+                maintask=None,
+                start_type=DcsStartType.Cold,
+                group_size=1,
+            )
+            group.uncontrolled = True
 
     def generate_destroyed_units(self) -> None:
         """Add destroyed units to the Mission"""
