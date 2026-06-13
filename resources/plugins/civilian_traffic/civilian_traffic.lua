@@ -22,21 +22,18 @@ for _, ab in pairs(world.getAirbases()) do
     end
 end
 
+local r = RAT:New("RAT_CIVILIAN")
+r:SetDeparture(_neutral_pool)
+r:SetDestination(_neutral_pool)
+r:SetMinDistance(280)
+r:SetMaxDistance(370)
+r:SetTakeoff("hot")
+r:SetTerminalType(AIRBASE.TerminalType.OpenBig)
+r:SetROE("hold")
+r:SetROT("evade")
+r:Invisible()
+r:RespawnAfterLanding(90)
+
 local mgr = RATMANAGER:New(10)
-
-if #_neutral_pool >= 2 then
-    local r = RAT:New("RAT_CIVILIAN")
-    r:SetDeparture(_neutral_pool)
-    r:SetDestination(_neutral_pool)
-    r:SetMinDistance(280)
-    r:SetMaxDistance(370)
-    r:SetTakeoff("hot")
-    r:SetTerminalType(AIRBASE.TerminalType.OpenBig)
-    r:SetROE("hold")
-    r:SetROT("evade")
-    r:Invisible()
-    r:RespawnAfterLanding(90)
-    mgr:Add(r, 3)
-end
-
+mgr:Add(r, 3)
 mgr:Start(30)
