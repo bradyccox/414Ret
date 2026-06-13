@@ -29,7 +29,13 @@ class SquadronConfig:
 
     @property
     def auto_assignable(self) -> set[FlightType]:
-        return set(self.secondary) | {self.primary}
+        # TARPS is a support/recon role that no campaign config lists explicitly and
+        # that the "air-to-ground" alias does not cover (it isn't an attack task).
+        # Offer it to every squadron that is actually capable of it (the capability
+        # filter in Squadron.set_auto_assignable_mission_types drops it for the rest),
+        # so the auto-planner can pair a recon bird with Strike/DEAD packages without
+        # requiring per-campaign squadron edits.
+        return set(self.secondary) | {self.primary} | {FlightType.TARPS}
 
     @classmethod
     def from_data(cls, data: dict[str, Any]) -> SquadronConfig:

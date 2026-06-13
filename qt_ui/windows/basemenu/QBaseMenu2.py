@@ -50,6 +50,7 @@ class QBaseMenu2(QDialog):
         # Attrs
         self.cp = cp
         self.game_model = game_model
+        self.viewer = Player.BLUE if game_model.is_ownfor else Player.RED
         self.objectName = "menuDialogue"
 
         if self.cp.captured.is_blue:
@@ -307,7 +308,9 @@ class QBaseMenu2(QDialog):
 
         ground_spawn_parking = self.cp.total_aircraft_parking(parking_type_stol)
         helipads = self.cp.total_aircraft_parking(parking_type_rotary_wing)
-        ground_unit_limit = self.cp.frontline_unit_count_limit
+        ground_unit_limit = self.cp.front_line_capacity_with(
+            self.cp.active_ammo_depots_count_for(self.viewer)
+        )
         deployable_unit_info = ""
 
         allocated = self.cp.allocated_ground_units(
@@ -357,8 +360,8 @@ class QBaseMenu2(QDialog):
                     f"{self.cp.base.total_armor} ground units" + deployable_unit_info,
                     f"{allocated.total_transferring} more ground units en route, {allocated.total_ordered} ordered",
                     str(self.cp.runway_status),
-                    f"{self.cp.active_ammo_depots_count}/{self.cp.total_ammo_depots_count} ammo depots",
-                    f"{'Factory can produce units' if self.cp.has_factory else 'Does not have a factory'}",
+                    f"{self.cp.active_ammo_depots_count_for(self.viewer)}/{self.cp.total_ammo_depots_count} ammo depots",
+                    f"{'Factory can produce units' if self.cp.has_factory_for(self.viewer) else 'Does not have a factory'}",
                 ]
             )
         )

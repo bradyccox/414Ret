@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from game.data.groups import GroupTask
 from game.server.leaflet import LeafletPoint
+from game.theater import Player
 
 if TYPE_CHECKING:
     from game import Game
@@ -32,8 +33,13 @@ class TgoJs(BaseModel):
 
     @staticmethod
     def for_tgo(tgo: TheaterGroundObject) -> TgoJs:
-        threat_ranges = [group.max_threat_range().meters for group in tgo.groups]
-        detection_ranges = [group.max_detection_range().meters for group in tgo.groups]
+        threat_ranges = [
+            group.max_threat_range_for_player(Player.BLUE).meters for group in tgo.groups
+        ]
+        detection_ranges = [
+            group.max_detection_range_for_player(Player.BLUE).meters
+            for group in tgo.groups
+        ]
         if tgo.control_point.captured.is_blue:
             blue = True
         else:
@@ -45,11 +51,11 @@ class TgoJs(BaseModel):
             category=tgo.category,
             blue=blue,
             position=tgo.position.latlng(),
-            units=[unit.display_name for unit in tgo.units],
+            units=[unit.display_name_for(Player.BLUE) for unit in tgo.units],
             threat_ranges=threat_ranges,
             detection_ranges=detection_ranges,
-            dead=tgo.is_dead,
-            sidc=str(tgo.sidc()),
+            dead=tgo.is_dead_for(Player.BLUE),
+            sidc=str(tgo.sidc_for(Player.BLUE)),
             task=tgo.groups[0].ground_object.task if tgo.groups else None,
         )
 

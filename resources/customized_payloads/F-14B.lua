@@ -350,6 +350,47 @@ local unitPayloads = {
 				[4] = 33,
 			},
 		},
+		[8] = {
+			-- TARPS recon profile: KS-87D camera pod on the belly recon station plus a
+			-- light self-defense fit (2x AIM-9, 2x AIM-7, drop tanks) for the photo run.
+			-- Editor-verified from wesafution_nextturn.miz: the TARPS pod uses
+			-- "{F14-TARPS}" on station 6, with station 5 left clean.
+			["displayName"] = "Retribution TARPS",
+			["name"] = "Retribution TARPS",
+			["pylons"] = {
+				[1] = {
+					["CLSID"] = "{LAU-138 wtip - AIM-9M}",
+					["num"] = 10,
+				},
+				[2] = {
+					["CLSID"] = "{SHOULDER AIM-7MH}",
+					["num"] = 9,
+				},
+				[3] = {
+					["CLSID"] = "{F14-300gal}",
+					["num"] = 8,
+				},
+				[4] = {
+					["CLSID"] = "{F14-TARPS}",
+					["num"] = 6,
+				},
+				[5] = {
+					["CLSID"] = "{F14-300gal}",
+					["num"] = 3,
+				},
+				[6] = {
+					["CLSID"] = "{SHOULDER AIM-7MH}",
+					["num"] = 2,
+				},
+				[7] = {
+					["CLSID"] = "{LAU-138 wtip - AIM-9M}",
+					["num"] = 1,
+				},
+			},
+			["tasks"] = {
+				[1] = 10,
+			},
+		},
 	},
 	["unitType"] = "F-14B",
 }

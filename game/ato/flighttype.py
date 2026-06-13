@@ -64,6 +64,7 @@ class FlightType(Enum):
     PRETENSE_CARGO = "Cargo Transport"  # For Pretense campaign AI cargo planes
     ARMED_RECON = "Armed Recon"
     RECOVERY = "Recovery"
+    TARPS = "TARPS"  # Player-flown F-14 photo recon — overflies target +5 min behind strikers
 
     @classmethod
     def _missing_(cls, value: object) -> FlightType | None:
@@ -140,6 +141,7 @@ class FlightType(Enum):
             FlightType.STRIKE: AirEntity.ATTACK_STRIKE,
             FlightType.SWEEP: AirEntity.FIGHTER,
             FlightType.JAMMING: AirEntity.ELECTRONIC_COMBAT_JAMMER,
+            FlightType.TARPS: AirEntity.RECONNAISSANCE,
             FlightType.TARCAP: AirEntity.FIGHTER,
             FlightType.TRANSPORT: AirEntity.UTILITY,
             FlightType.PRETENSE_CARGO: AirEntity.UTILITY,

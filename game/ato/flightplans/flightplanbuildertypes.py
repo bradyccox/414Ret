@@ -27,6 +27,7 @@ from .shiprecoverytanker import RecoveryTankerFlightPlan
 from .strike import StrikeFlightPlan
 from .sweep import SweepFlightPlan
 from .tarcap import TarCapFlightPlan
+from .tarps import TarpsFlightPlan
 from .theaterrefueling import TheaterRefuelingFlightPlan
 
 if TYPE_CHECKING:
@@ -70,6 +71,9 @@ class FlightPlanBuilderTypes:
             FlightType.PRETENSE_CARGO: PretenseCargoFlightPlan.builder_type(),
             FlightType.ARMED_RECON: ArmedReconFlightPlan.builder_type(),
             FlightType.RECOVERY: RecoveryTankerFlightPlan.builder_type(),
+            # TARPS = strike-style target overflight, but +5 min behind the package
+            # TOT for a post-strike BDA / recon pass (see TarpsFlightPlan).
+            FlightType.TARPS: TarpsFlightPlan.builder_type(),
         }
         try:
             return builder_dict[flight.flight_type]

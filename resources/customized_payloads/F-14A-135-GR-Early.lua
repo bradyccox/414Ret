@@ -382,6 +382,45 @@ local unitPayloads = {
 				[4] = 33,
 			},
 		},
+		[9] = {
+			-- TARPS recon profile: editor-verified pod CLSID "{F14-TARPS}" on station 6
+			-- with station 5 left clean, plus a light self-defense fit for the photo run.
+			["displayName"] = "Retribution TARPS",
+			["name"] = "Retribution TARPS",
+			["pylons"] = {
+				[1] = {
+					["CLSID"] = "{LAU-138 wtip - AIM-9M}",
+					["num"] = 10,
+				},
+				[2] = {
+					["CLSID"] = "{SHOULDER AIM-7MH}",
+					["num"] = 9,
+				},
+				[3] = {
+					["CLSID"] = "{F14-300gal}",
+					["num"] = 8,
+				},
+				[4] = {
+					["CLSID"] = "{F14-TARPS}",
+					["num"] = 6,
+				},
+				[5] = {
+					["CLSID"] = "{F14-300gal}",
+					["num"] = 3,
+				},
+				[6] = {
+					["CLSID"] = "{SHOULDER AIM-7MH}",
+					["num"] = 2,
+				},
+				[7] = {
+					["CLSID"] = "{LAU-138 wtip - AIM-9M}",
+					["num"] = 1,
+				},
+			},
+			["tasks"] = {
+				[1] = 10,
+			},
+		},
 	},
 	["unitType"] = "F-14A-135-GR",
 }

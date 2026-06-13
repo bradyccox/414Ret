@@ -323,6 +323,10 @@ class Loadout:
         loadout_names[FlightType.INTERCEPTION].extend(loadout_names[FlightType.BARCAP])
         # Jamming EW aircraft carry no weapons; fall back to Transport loadout.
         loadout_names[FlightType.JAMMING].extend(loadout_names[FlightType.TRANSPORT])
+        # TARPS recon Tomcat: prefer the dedicated recon-pod payload, but fall back to a
+        # clean CAP loadout if a variant-specific TARPS payload is missing/invalid so
+        # the flight still spawns with sane self-defense stores.
+        loadout_names[FlightType.TARPS].extend(loadout_names[FlightType.BARCAP])
         # OCA/Aircraft falls back to BAI, which falls back to CAS.
         loadout_names[FlightType.BAI].extend(loadout_names[FlightType.CAS])
         loadout_names[FlightType.ARMED_RECON].extend(loadout_names[FlightType.CAS])

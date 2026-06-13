@@ -18,6 +18,7 @@ from game.profiling import MultiEventTracer
 from game.settings import Settings
 from game.squadrons import AirWing
 from game.theater import ConflictTheater
+from game.theater.theatergroundobject import TheaterGroundObject
 from game.threatzones import ThreatZones
 
 if TYPE_CHECKING:
@@ -40,6 +41,7 @@ class PackageFulfiller:
         self.flight_db = flight_db
         self.player_missions_asap = settings.auto_ato_player_missions_asap
         self.default_start_type = settings.default_start_type
+        self.auto_add_tarps_recon = settings.auto_add_tarps_recon
 
     @property
     def is_player(self) -> bool:
@@ -127,6 +129,61 @@ class PackageFulfiller:
         logging.debug(
             f"{color}: not enough aircraft in range for {mission.location.name} "
             f"capable of: {missing_types_str}"
+        )
+
+    def _maybe_plan_tarps_recon(
+        self, mission: ProposedMission, builder: PackageBuilder, ignore_range: bool
+    ) -> None:
+        """Append an optional TARPS photo-recon flight to a Strike/DEAD package.
+
+        Gated by the ``auto_add_tarps_recon`` setting, the package's primary task,
+        and whether the target warrants imagery (``warrants_recon``). Crucially this
+        never scrubs the mission: if no TARPS-capable squadron is in range the
+        recon flight is simply omitted. The flight's +5 min TOT offset comes from
+        ``TarpsFlightPlan``.
+        """
+        if not self.auto_add_tarps_recon:
+            logging.debug(
+                "TARPS skipped for %s: auto_add_tarps_recon is disabled",
+                mission.location.name,
+            )
+            return
+        primary = builder.package.primary_flight
+        if primary is None or primary.flight_type not in (
+            FlightType.STRIKE,
+            FlightType.DEAD,
+        ):
+            if primary is not None:
+                logging.debug(
+                    "TARPS skipped for %s: primary flight is %s",
+                    mission.location.name,
+                    primary.flight_type.name,
+                )
+            return
+        target = mission.location
+        if not isinstance(target, TheaterGroundObject) or not target.warrants_recon:
+            logging.debug(
+                "TARPS skipped for %s: target does not warrant recon",
+                mission.location.name,
+            )
+            return
+        if not self.air_wing_can_plan(FlightType.TARPS):
+            logging.debug(
+                "TARPS skipped for %s: no TARPS-capable squadron is auto-assignable in the air wing",
+                mission.location.name,
+            )
+            return
+        # plan_flight returns False when no suitable squadron is available; for an
+        # optional recon flight that is acceptable -- skip it, leave the strike intact.
+        if not builder.plan_flight(ProposedFlight(FlightType.TARPS, 1), ignore_range):
+            logging.debug(
+                "TARPS skipped for %s: no TARPS-capable squadron was available in range",
+                mission.location.name,
+            )
+            return
+        logging.debug(
+            "TARPS added for %s: appended post-strike recon flight",
+            mission.location.name,
         )
 
     def check_needed_escorts(self, builder: PackageBuilder) -> Dict[EscortType, bool]:
@@ -246,6 +303,11 @@ class PackageFulfiller:
                 mission, builder, missing_types, escorts, purchase_multiplier
             )
             return None
+
+        # Optionally pair a photo-recon flight (e.g. F-14 TARPS) with Strike/DEAD
+        # packages. This is purely additive: it is never allowed to scrub the
+        # primary mission, so it runs after the package is confirmed plannable.
+        self._maybe_plan_tarps_recon(mission, builder, ignore_range)
 
         package = builder.build()
         # Add flight plans for escorts.

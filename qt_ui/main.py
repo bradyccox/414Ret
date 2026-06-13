@@ -52,6 +52,16 @@ def _uses_unsupported_lua_table_indices(lua_text: str) -> bool:
     )
 
 
+def _payload_unit_type_from_text(lua_text: str) -> Optional[str]:
+    match = re.search(
+        r'(?:\["unitType"\]|unitType)\s*=\s*"([^"]+)"',
+        lua_text,
+    )
+    if match:
+        return match.group(1)
+    return None
+
+
 def _patch_pydcs_payload_loader() -> None:
     # pydcs's load_payloads() catches SyntaxError but not ValueError.
     # Some mod payload Lua files (e.g. CJS Super Hornet v2.4) use local variable
@@ -66,7 +76,6 @@ def _patch_pydcs_payload_loader() -> None:
     @classmethod  # type: ignore[misc]
     def _patched_load_payloads(cls):  # type: ignore[override]
         from dcs.payloads import PayloadDirectories
-        from pathlib import Path
         import sys
 
         if FlyingType._UnitPayloadGlobals is None:
@@ -85,20 +94,21 @@ def _patch_pydcs_payload_loader() -> None:
             if not payload_dir.exists():
                 continue
             for payload_path in payload_dir.glob("*.lua"):
+                lua_text: Optional[str] = None
                 try:
                     FlyingType._payload_cache[payload_path]
                 except KeyError:
-                    import logging as _logging
-
-                    _logging.getLogger("pydcs").exception(
-                        "Failed to parse Lua code in %s", payload_path
-                    )
-                    continue
+                    lua_text = payload_path.read_text(encoding="utf-8")
+                    payload_unit_type = _payload_unit_type_from_text(lua_text)
+                    if payload_unit_type is None:
+                        continue
+                    FlyingType._payload_cache[payload_path] = payload_unit_type
                 if (
                     FlyingType._payload_cache[payload_path] == cls.id
                     and payload_path.exists()
                 ):
-                    lua_text = payload_path.read_text()
+                    if lua_text is None:
+                        lua_text = payload_path.read_text(encoding="utf-8")
                     if _uses_unsupported_lua_table_indices(lua_text):
                         import logging as _logging
 

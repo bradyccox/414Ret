@@ -347,6 +347,22 @@ class Settings:
             "provided the faction has access to them."
         ),
     )
+    auto_add_tarps_recon: bool = boolean_option(
+        "Auto-planner adds TARPS recon flights to Strike/DEAD packages",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        default=True,
+        invert=False,
+        detail=(
+            "If checked, the auto-planner appends a single photo-recon flight "
+            "(e.g. F-14 TARPS) to Strike and DEAD packages against high-value "
+            "targets (air defenses, factories, command posts, bridges). The recon "
+            "bird overflies the target ~5 minutes behind the strikers for a "
+            "post-strike BDA pass. Requires a TARPS-capable squadron in range; if "
+            "none is available the flight is simply skipped (the strike is never "
+            "scrubbed)."
+        ),
+    )
     aircraft_per_recovery_tanker: int = bounded_int_option(
         "Number of aircraft per recovery tanker",
         page=CAMPAIGN_DOCTRINE_PAGE,

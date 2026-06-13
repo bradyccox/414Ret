@@ -25,6 +25,7 @@ from dcs.task import (
     OptJettisonEmptyTanks,
     MainTask,
     PinpointStrike,
+    Reconnaissance,
     AFAC,
     SetUnlimitedFuelCommand,
     OptNoReportWaypointPass,
@@ -94,6 +95,8 @@ class AircraftBehavior:
             self.configure_oca_strike(group, flight)
         elif self.task == FlightType.JAMMING:
             self.configure_jamming(group, flight)
+        elif self.task == FlightType.TARPS:
+            self.configure_tarps(group, flight)
         elif self.task in [
             FlightType.TRANSPORT,
             FlightType.AIR_ASSAULT,
@@ -497,6 +500,24 @@ class AircraftBehavior:
         # it to a non-AWACS jammer like the C-130J does nothing useful, so skip it.
         if AWACS in flight.unit_type.dcs_unit_type.tasks:
             group.points[0].tasks.append(AWACSTaskAction())
+
+    def configure_tarps(self, group: FlyingGroup[Any], flight: Flight) -> None:
+        # Photo-recon overflight (F-14 TARPS). The flight routes over the target
+        # for a post-strike BDA / discovery pass and carries no offensive stores, so
+        # ROE is ReturnFire: it defends itself but never hunts. The F-14 family natively
+        # supports the Reconnaissance task; CAS/GroundAttack are defensive fallbacks
+        # for any future TARPS-capable airframe that lacks it.
+        self.configure_task(
+            flight, group, Reconnaissance, fallback_tasks=[CAS, GroundAttack]
+        )
+        self.configure_behavior(
+            flight,
+            group,
+            react_on_threat=OptReactOnThreat.Values.EvadeFire,
+            roe=OptROE.Values.ReturnFire,
+            restrict_jettison=True,
+            mission_uses_gun=False,
+        )
 
     def configure_transport(self, group: FlyingGroup[Any], flight: Flight) -> None:
         self.configure_task(flight, group, Transport)

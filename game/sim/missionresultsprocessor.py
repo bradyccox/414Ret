@@ -11,7 +11,9 @@ from game.missiongenerator.interceptattrition import (
 )
 from game.profiling import logged_duration
 from game.squadrons.squadron import Squadron
-from game.theater import ControlPoint
+from game.theater.theatergroundobject import TheaterGroundObject
+from game.theater import ControlPoint, Player
+from ..ato.flighttype import FlightType
 from .gameupdateevents import GameUpdateEvents
 from ..ato.airtaaskingorder import AirTaskingOrder
 
@@ -177,12 +179,60 @@ class MissionResultsProcessor:
                         "has none available."
                     )
 
-    @staticmethod
-    def commit_ground_losses(debriefing: Debriefing, events: GameUpdateEvents) -> None:
+    def commit_ground_losses(
+        self, debriefing: Debriefing, events: GameUpdateEvents
+    ) -> None:
+        struck_tgos: set[TheaterGroundObject] = set()
         for ground_object_loss in debriefing.ground_object_losses:
+            struck_tgos.add(ground_object_loss.theater_unit.ground_object)
             ground_object_loss.theater_unit.kill(events)
         for scenery_object_loss in debriefing.scenery_object_losses:
+            struck_tgos.add(scenery_object_loss.ground_unit.ground_object)
             scenery_object_loss.ground_unit.kill(events)
+        self.update_confirmed_bda(struck_tgos, debriefing, events)
+
+    def update_confirmed_bda(
+        self,
+        struck_tgos: set[TheaterGroundObject],
+        debriefing: Debriefing,
+        events: GameUpdateEvents,
+    ) -> None:
+        # Friendly targets always stay in sync with truth; only enemy BDA is allowed to
+        # lag behind until recon confirms it.
+        for tgo in struck_tgos:
+            if tgo.is_friendly(Player.BLUE):
+                tgo.sync_confirmed_status()
+                events.update_tgo(tgo)
+
+        for tgo in self.reconned_tgos_this_turn(debriefing):
+            tgo.sync_confirmed_status()
+            events.update_tgo(tgo)
+
+    def reconned_tgos_this_turn(
+        self, debriefing: Debriefing
+    ) -> set[TheaterGroundObject]:
+        reconned: set[TheaterGroundObject] = set()
+        for ato in (self.game.blue.ato, self.game.red.ato):
+            reconned.update(self._reconned_tgos_from_ato(ato, debriefing))
+        return reconned
+
+    @staticmethod
+    def _reconned_tgos_from_ato(
+        ato: AirTaskingOrder, debriefing: Debriefing
+    ) -> set[TheaterGroundObject]:
+        reconned: set[TheaterGroundObject] = set()
+        for package in ato.packages:
+            target = package.target
+            if not isinstance(target, TheaterGroundObject):
+                continue
+            for flight in package.flights:
+                if (
+                    flight.flight_type is FlightType.TARPS
+                    and debriefing.air_losses.surviving_flight_members(flight) > 0
+                ):
+                    reconned.add(target)
+                    break
+        return reconned
 
     @staticmethod
     def commit_damaged_runways(debriefing: Debriefing) -> None:

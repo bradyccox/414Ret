@@ -611,6 +611,12 @@ class ControlPoint(MissionTarget, SidcDescribable, ABC):
                 return True
         return False
 
+    def has_factory_for(self, player: Player) -> bool:
+        for tgo in self.connected_objectives:
+            if tgo.is_factory and not tgo.is_dead_for(player):
+                return True
+        return False
+
     @property
     def has_helipads(self) -> bool:
         """
@@ -1182,10 +1188,21 @@ class ControlPoint(MissionTarget, SidcDescribable, ABC):
             for ammo_depot in self.all_ammo_depots
         )
 
+    def ammo_depot_count_for(self, player: Player, alive_only: bool = False) -> int:
+        return sum(
+            ammo_depot.alive_unit_count_for(player)
+            if alive_only
+            else ammo_depot.unit_count
+            for ammo_depot in self.all_ammo_depots
+        )
+
     @property
     def active_ammo_depots_count(self) -> int:
         """Return the number of available ammo depots"""
         return self.ammo_depot_count(True)
+
+    def active_ammo_depots_count_for(self, player: Player) -> int:
+        return self.ammo_depot_count_for(player, True)
 
     @property
     def total_ammo_depots_count(self) -> int:

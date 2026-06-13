@@ -18,6 +18,7 @@ from game.sidc import (
     StandardIdentity,
     Status,
     SymbolSet,
+    SymbolIdentificationCode,
 )
 from game.theater.presetlocation import PresetLocation
 from .missiontarget import MissionTarget
@@ -112,6 +113,9 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
     def is_dead(self) -> bool:
         return self.alive_unit_count == 0
 
+    def is_dead_for(self, player: Player) -> bool:
+        return self.alive_unit_count_for(player) == 0
+
     @property
     def units(self) -> Iterator[TheaterUnit]:
         """
@@ -132,6 +136,9 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
         :return: all the dead units at this location
         """
         return [unit for unit in self.units if not unit.alive]
+
+    def dead_units_for(self, player: Player) -> list[TheaterUnit]:
+        return [unit for unit in self.units if not unit.alive_for_player(player)]
 
     @property
     def group_name(self) -> str:
@@ -176,7 +183,20 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
                 FlightType.STRIKE,
                 FlightType.REFUELING,
             ]
+            if self.warrants_recon:
+                yield FlightType.TARPS
         yield from super().mission_types(for_player)
+
+    @property
+    def warrants_recon(self) -> bool:
+        """Whether this target is worth a TARPS photo-recon / BDA overflight.
+
+        Gates both the auto-paired TARPS flight and the manually selectable TARPS
+        mission type to high-value targets. Default False; subclasses opt in (air
+        defenses, and strategic infrastructure such as factories, command posts,
+        and bridges).
+        """
+        return False
 
     @property
     def unit_count(self) -> int:
@@ -185,6 +205,9 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
     @property
     def alive_unit_count(self) -> int:
         return sum(g.alive_units for g in self.groups)
+
+    def alive_unit_count_for(self, player: Player) -> int:
+        return sum(g.alive_units_for_player(player) for g in self.groups)
 
     @property
     def has_aa(self) -> bool:
@@ -200,9 +223,44 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
         """Calculate the maximum detection range of the ground object"""
         return max((g.max_detection_range() for g in self.groups), default=meters(0))
 
+    def max_detection_range_for(self, player: Player) -> Distance:
+        return max(
+            (g.max_detection_range_for_player(player) for g in self.groups),
+            default=meters(0),
+        )
+
     def max_threat_range(self) -> Distance:
         """Calculate the maximum threat range of the ground object"""
         return max((g.max_threat_range() for g in self.groups), default=meters(0))
+
+    def max_threat_range_for(self, player: Player) -> Distance:
+        return max(
+            (g.max_threat_range_for_player(player) for g in self.groups),
+            default=meters(0),
+        )
+
+    def sidc_status_for(self, player: Player) -> Status:
+        if self.control_point.captured.is_neutral:
+            return Status.PRESENT
+        if self.is_dead_for(player):
+            return Status.PRESENT_DESTROYED
+        elif self.dead_units_for(player):
+            return Status.PRESENT_DAMAGED
+        else:
+            return Status.PRESENT
+
+    def sidc_for(self, player: Player) -> SymbolIdentificationCode:
+        symbol_set, entity = self.symbol_set_and_entity
+        return SymbolIdentificationCode(
+            standard_identity=self.standard_identity,
+            symbol_set=symbol_set,
+            status=self.sidc_status_for(player),
+            entity=entity,
+        )
+
+    def sync_confirmed_status(self) -> None:
+        for unit in self.units:
+            unit.sync_confirmed_status()
 
     def threat_poly(self) -> ThreatPoly | None:
         if self._threat_poly is None:
@@ -351,6 +409,17 @@ class BuildingGroundObject(TheaterGroundObject):
         # Special handling to mark all buildings of the TGO
         for unit in self.strike_targets:
             yield unit.position
+
+    @property
+    def warrants_recon(self) -> bool:
+        # Strategic infrastructure worth photographing: factories and command
+        # posts by category, plus any scenery strike (bridges, dams, etc. — those
+        # are modeled as SceneryUnit rather than a dedicated category).
+        from .theatergroup import SceneryUnit
+
+        if self.category in {"factory", "commandcenter"}:
+            return True
+        return any(isinstance(unit, SceneryUnit) for unit in self.units)
 
     @property
     def is_control_point(self) -> bool:
@@ -555,6 +624,12 @@ class IadsGroundObject(TheaterGroundObject, ABC):
     def is_iads(self) -> bool:
         return True
 
+    @property
+    def warrants_recon(self) -> bool:
+        # Air defenses (SAM/IADS/EWR) are prime BDA targets — overfly after the
+        # DEAD strikers to confirm the kill.
+        return True
+
 
 # The SamGroundObject represents all type of AA
 # The TGO can have multiple types of units (AAA,SAM,Support...)
@@ -583,6 +658,19 @@ class SamGroundObject(IadsGroundObject):
             return Status.PRESENT_DESTROYED
         elif self.dead_units:
             if self.max_threat_range() > meters(0):
+                return Status.PRESENT
+            else:
+                return Status.PRESENT_DAMAGED
+        else:
+            return Status.PRESENT_FULLY_CAPABLE
+
+    def sidc_status_for(self, player: Player) -> Status:
+        if self.control_point.captured.is_neutral:
+            return Status.PRESENT
+        if self.is_dead_for(player):
+            return Status.PRESENT_DESTROYED
+        elif self.dead_units_for(player):
+            if self.max_threat_range_for(player) > meters(0):
                 return Status.PRESENT
             else:
                 return Status.PRESENT_DAMAGED

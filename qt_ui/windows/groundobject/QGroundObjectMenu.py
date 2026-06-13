@@ -65,6 +65,7 @@ class QGroundObjectMenu(QDialog):
         self.cp = cp
         self.game_model = gm
         self.game = gm.game
+        self.viewer = Player.BLUE if gm.is_ownfor else Player.RED
         self.setWindowTitle(
             f"Location - {self.ground_object.obj_name} ({self.cp.name})"
         )
@@ -132,7 +133,7 @@ class QGroundObjectMenu(QDialog):
         for g in self.ground_object.groups:
             for unit in g.units:
                 self.intelLayout.addWidget(
-                    QLabel(f"<b>Unit {str(unit.display_name)}</b>"), i, 0
+                    QLabel(f"<b>Unit {str(unit.display_name_for(self.viewer))}</b>"), i, 0
                 )
 
                 if not unit.alive and unit.repairable and self.cp.captured.is_blue:
@@ -158,7 +159,9 @@ class QGroundObjectMenu(QDialog):
         for static in self.ground_object.statics:
             if static not in FORTIFICATION_BUILDINGS:
                 self.buildingsLayout.addWidget(
-                    QBuildingInfo(static, self.ground_object), j / 3, j % 3
+                    QBuildingInfo(static, self.ground_object, self.viewer),
+                    j / 3,
+                    j % 3,
                 )
                 j = j + 1
 
