@@ -974,6 +974,18 @@ class Settings:
             "the pilot leg unreadable."
         ),
     )
+    generate_dtc: bool = boolean_option(
+        "Generate DTC cartridges (F-16C / F/A-18C)",
+        MISSION_GENERATOR_PAGE,
+        GAMEPLAY_SECTION,
+        default=True,
+        detail=(
+            "Writes native DCS Data Transfer Cartridges into the mission so player "
+            "F-16C and F/A-18C flights spawn with the coalition SA picture (threat "
+            "rings, front line, and CAP/tanker tracks) preloaded. Requires a DCS build "
+            "with DTC SA-partition support."
+        ),
+    )
     never_delay_player_flights: bool = boolean_option(
         "Player flights ignore TOT and spawn immediately",
         MISSION_GENERATOR_PAGE,

@@ -30,6 +30,7 @@ from .briefinggenerator import BriefingGenerator, MissionInfoGenerator
 from .cargoshipgenerator import CargoShipGenerator
 from .convoygenerator import ConvoyGenerator
 from .drawingsgenerator import DrawingsGenerator
+from .dtc import DtcGenerator
 from .environmentgenerator import EnvironmentGenerator
 from .flotgenerator import FlotGenerator
 from .forcedoptionsgenerator import ForcedOptionsGenerator
@@ -138,6 +139,11 @@ class MissionGenerator:
         output.parent.mkdir(parents=True, exist_ok=True)
         logging.info("MIZ generation: saving mission to %s", output)
         self.mission.save(output)
+
+        if self.game.settings.generate_dtc:
+            logging.info("MIZ generation: DTC cartridges")
+            DtcGenerator(self.game).generate(output)
+
         logging.info("MIZ generation: complete")
 
         return self.unit_map
