@@ -23,6 +23,10 @@ stacked on top (newest first):
 - **`FlightType.JAMMING`** - standoff electronic-warfare support flown by the C-130J,
   acting as an EC-130H Compass Call / RC-130H Rivet Joint platform. Driven by the
   bundled `c130j_mission_systems.lua` plugin.
+- **`FlightType.TARPS`** - player-flown F-14 photo-reconnaissance. Flies a single
+  overflight of the target ~5 minutes behind the strikers (post-strike BDA pass)
+  carrying the `{F14-TARPS}` camera pod. Auto-planned into strike packages against
+  targets worth imaging.
 
 ### Air-defense planning rework
 - **Per-squadron QRA intercept reserve** from upstream PR `#782`. BARCAP-capable
@@ -32,6 +36,11 @@ stacked on top (newest first):
   (`barcap_overlap_time` setting).
 - **Forward CAP line** that pushes CAP toward friendly control points anchoring active
   front lines instead of orbiting deep.
+- **Reworked legacy SAM site templates** - dedicated SA-2 / SA-3 / SA-5 / SA-6 battery
+  layouts (circle & semicircle variants) plus an SA-2/SA-3 mixed site, replacing the
+  old generic launcher rings.
+- **Dog Ear (Sborka) search radar** now fielded at major Soviet IADS nodes (SA-2/3/5,
+  S-300) and standalone Soviet SHORAD, not just bare SHORAD sites.
 - OPFOR-aggressiveness direction fix and CAS / Armed-Recon engagement-range bumps.
 
 ### Quality-of-life & robustness
@@ -42,6 +51,15 @@ stacked on top (newest first):
 - **Crash fixes:** flight-combat-exit `IndexError`, AWACS orbit stacking, tanker orbit
   placement/deconfliction, and malformed mod-aircraft payload Lua (e.g. CJS Super
   Hornet v2.4 files that use local-variable table indices).
+
+### Frontline & ambiance
+- **Troops In Contact (TIC)** plugin (Grendel's TIC v1.1, default ON) - replaces
+  vanilla ground AI on frontline maneuver units with formation-keeping, prolonged
+  scripted firefights plus a 414th ambient-fire extension. Toggle per game in the
+  plugins UI.
+- **Civilian background air traffic** via MOOSE RAT - routes invisible civilian
+  flights between neutral airdromes (and a separate blue-field pool) for ambiance,
+  steering clear of airbases Retribution is using for combat ops this turn.
 
 ### Assets
 - **CurrentHill Iran assets pack** support: Shahed-136, IRGCN FAC variants, and a
