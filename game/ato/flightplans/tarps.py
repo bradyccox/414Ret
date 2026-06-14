@@ -10,9 +10,7 @@ from .formationattack import (
     FormationAttackLayout,
 )
 from .invalidobjectivelocation import InvalidObjectiveLocation
-from .waypointbuilder import StrikeTarget
 from ..flightwaypointtype import FlightWaypointType
-from ...theater.theatergroup import SceneryUnit
 
 
 class TarpsFlightPlan(FormationAttackFlightPlan):
@@ -41,14 +39,11 @@ class Builder(FormationAttackBuilder[TarpsFlightPlan, FormationAttackLayout]):
         if not isinstance(location, TheaterGroundObject):
             raise InvalidObjectiveLocation(self.flight.flight_type, location)
 
-        targets: list[StrikeTarget] = []
-        for idx, unit in enumerate(location.strike_targets):
-            name = unit.type.id
-            if isinstance(unit, SceneryUnit):
-                name = unit.name
-            targets.append(StrikeTarget(f"{name} #{idx}", unit))
-
-        return self._build(FlightWaypointType.INGRESS_STRIKE, targets)
+        # A photo-recon pass is a single overflight of the target area, not an
+        # attack run weaving over every individual unit. Passing no per-unit
+        # targets makes the builder emit one TARGET-area waypoint at the target
+        # center instead of one waypoint per strike target.
+        return self._build(FlightWaypointType.INGRESS_STRIKE, None)
 
     def build(self, dump_debug_info: bool = False) -> TarpsFlightPlan:
         return TarpsFlightPlan(self.flight, self.layout())
