@@ -1,7 +1,0 @@
-python311.zip
-.
-..
-..\.venv\Lib\site-packages
-
-# Uncomment to run site.main() automatically
-import site

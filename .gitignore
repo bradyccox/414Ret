@@ -6,6 +6,9 @@ docs/_build
 resources/payloads/*.lua
 venv
 .venv/
+# Embedded Python interpreter (shipped at runtime, never committed)
+.python311/
+.python311-embed.zip
 run_retribution.bat
 .DS_Store
 .vscode/settings.json
