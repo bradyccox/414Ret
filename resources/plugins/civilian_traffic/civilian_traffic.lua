@@ -36,19 +36,28 @@ for _, ab in pairs(world.getAirbases()) do
     end
 end
 
-local r = RAT:New("RAT_CIVILIAN")
-r:SetDeparture(_neutral_pool)
-r:SetDestination(_neutral_pool)
-r:SetMinDistance(80)
-r:SetMaxDistance(350)
-r:SetTakeoff("hot")
-r:SetROE("hold")
-r:SetROT("evade")
-r:Invisible()
-r:RespawnAfterLanding(90)
-
 local mgr = RATMANAGER:New(10)
-mgr:Add(r, 6)
+local _rats_added = 0
+
+-- Civilian traffic only routes through NEUTRAL airdromes. With an empty (or
+-- single-airport) neutral pool, MOOSE RAT silently falls back to spawning at
+-- ALL map airbases -- including heliports/FARPs, where fixed-wing jets cannot
+-- taxi and so sit motionless. Require at least two airdromes before fielding
+-- the civilian flight, mirroring the blue-pool guard below.
+if #_neutral_pool >= 2 then
+    local r = RAT:New("RAT_CIVILIAN")
+    r:SetDeparture(_neutral_pool)
+    r:SetDestination(_neutral_pool)
+    r:SetMinDistance(80)
+    r:SetMaxDistance(350)
+    r:SetTakeoff("hot")
+    r:SetROE("hold")
+    r:SetROT("evade")
+    r:Invisible()
+    r:RespawnAfterLanding(90)
+    mgr:Add(r, 6)
+    _rats_added = _rats_added + 1
+end
 
 if #_blue_pool >= 2 then
     local rb = RAT:New("RAT_BLUE")
@@ -62,6 +71,11 @@ if #_blue_pool >= 2 then
     rb:Invisible()
     rb:RespawnAfterLanding(90)
     mgr:Add(rb, 4)
+    _rats_added = _rats_added + 1
 end
 
-mgr:Start(30)
+-- Only start the manager if at least one valid airdrome pool produced a flight;
+-- starting an empty RATMANAGER is pointless and can error.
+if _rats_added > 0 then
+    mgr:Start(30)
+end
